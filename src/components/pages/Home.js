@@ -45,8 +45,9 @@ const data = [
 
 
 const Home = () => {
+
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} style={{ height: 600 }}>
       <Table stickyHeader size="small">
         <TableHead>
           <TableRow>
