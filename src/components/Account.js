@@ -6,7 +6,7 @@ import classes from "../styles/Account.module.css";
 export default function Account() {
 
   const { authUser, logout } = useAuth()
-  console.log(authUser);
+
 
   return (
     <div className={classes.account}>
