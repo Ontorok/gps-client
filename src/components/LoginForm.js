@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
+import useAuth from '../hooks/useAuth';
 import Button from "./Button";
 import Form from "./Form";
 import TextInput from "./TextInput";
@@ -7,19 +8,21 @@ import TextInput from "./TextInput";
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const history = useHistory()
+  const history = useHistory();
+  const { login } = useAuth()
 
 
   async function handleSubmit(e) {
     e.preventDefault();
-    history.push('/')
+    history.push('/');
+    login(email, password)
   }
 
   return (
     <Form style={{ height: "330px" }} onSubmit={handleSubmit}>
       <TextInput
         type="text"
-        placeholder="Enter email"
+        placeholder="Enter username"
         icon="alternate_email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
