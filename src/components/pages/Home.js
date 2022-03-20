@@ -1,72 +1,118 @@
-import { Paper, Table, TableBody, TableCell, tableCellClasses, TableContainer, TableHead, TableRow } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import React from 'react';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import React, { useCallback, useEffect, useState } from 'react';
+import DataTable from 'react-data-table-component';
+import { v4 as uuid } from 'uuid';
+import { UsersApi } from '../../constants/apiEndPoints';
+import { axiosInstance } from '../../services/config';
 
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}));
+const mock = new MockAdapter(axiosInstance)
 
-const data = [
-  { name: 'abc', email: 'abc@mailcom', phone: '012345678910' },
-  { name: 'def', email: 'def@mailcom', phone: '012345678910' },
-  { name: 'geh', email: 'geh@mailcom', phone: '012345678910' },
-  { name: 'ikg', email: 'ikg@mailcom', phone: '012345678910' },
-  { name: 'lmn', email: 'lmn@mailcom', phone: '012345678910' },
-  { name: 'opq', email: 'opq@mailcom', phone: '012345678910' },
-  { name: 'rst', email: 'rst@mailcom', phone: '012345678910' },
-  { name: 'uvw', email: 'uvw@mailcom', phone: '012345678910' },
-  { name: 'xyz', email: 'xyz@mailcom', phone: '012345678910' },
-  { name: 'abc', email: 'abc@mailcom', phone: '012345678910' },
-  { name: 'def', email: 'def@mailcom', phone: '012345678910' },
-  { name: 'geh', email: 'geh@mailcom', phone: '012345678910' },
-  { name: 'ikg', email: 'ikg@mailcom', phone: '012345678910' },
-  { name: 'lmn', email: 'lmn@mailcom', phone: '012345678910' },
-  { name: 'opq', email: 'opq@mailcom', phone: '012345678910' },
-  { name: 'rst', email: 'rst@mailcom', phone: '012345678910' },
-  { name: 'uvw', email: 'uvw@mailcom', phone: '012345678910' },
-  { name: 'xyz', email: 'xyz@mailcom', phone: '012345678910' },
-  { name: 'abc', email: 'abc@mailcom', phone: '012345678910' },
-  { name: 'def', email: 'def@mailcom', phone: '012345678910' },
-  { name: 'geh', email: 'geh@mailcom', phone: '012345678910' },
-  { name: 'ikg', email: 'ikg@mailcom', phone: '012345678910' },
-  { name: 'lmn', email: 'lmn@mailcom', phone: '012345678910' },
-  { name: 'opq', email: 'opq@mailcom', phone: '012345678910' },
-  { name: 'rst', email: 'rst@mailcom', phone: '012345678910' },
-  { name: 'uvw', email: 'uvw@mailcom', phone: '012345678910' },
-  { name: 'xyz', email: 'xyz@mailcom', phone: '012345678910' },
-]
+mock.onGet(UsersApi.get).reply(200, {
+  users: [{ id: 1, name: "John Smith" }],
+});
+
+const columns = [
+  {
+    name: 'Name',
+    selector: row => row.first_name + ' ' + row.last_name,
+    sortable: true,
+  },
+  {
+    name: 'Email',
+    selector: row => row.email,
+  },
+  {
+    name: 'Phone',
+    selector: row => row.phone,
+  },
+];
+
+const customStyles = {
+  headCells: {
+    style: {
+      background: '#cdcdcd',
+    },
+  },
+};
 
 
 
 const Home = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [totalRows, setTotalRows] = useState(0);
+  const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(1);
+
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+
+    const response = await axios.get(`https://reqres.in/api/users?page=${page}&per_page=${perPage}&delay=1`);
+    console.log(response);
+    const modifieddata = response.data.data.map(item => ({ ...item, rowId: uuid(), phone: '01234456789' }))
+    setData(modifieddata);
+    //console.log(JSON.stringify(modifieddata, null, 2));
+    setTotalRows(response.data.total);
+    setLoading(false);
+  }, [page, perPage]);
+
+  const handlePageChange = page => {
+    console.log(page);
+    setPage(page);
+  };
+
+  const handlePerRowsChange = async (newPerPage, page) => {
+    console.log({
+      newPerPage, page
+    });
+    setLoading(true);
+
+    const response = await axios.get(`https://reqres.in/api/users?page=${page}&per_page=${newPerPage}&delay=1`);
+
+    setTimeout(() => {
+      setData(response.data.data);
+      setPerPage(newPerPage);
+      setLoading(false);
+    }, 3000);
+
+  };
+
+  useEffect(() => {
+    fetchUsers();
+
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axiosInstance.get(UsersApi.get)
+        console.log(res.data);
+      } catch (err) {
+
+      }
+    }
+    fetchUsers()
+  }, [])
+
+
+
 
   return (
-    <TableContainer component={Paper} style={{ height: 600 }}>
-      <Table stickyHeader size="small">
-        <TableHead>
-          <TableRow>
-            <StyledTableCell>Name</StyledTableCell>
-            <StyledTableCell >Email</StyledTableCell>
-            <StyledTableCell>Phone</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((item, index) => (
-            <TableRow key={index + 1}>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>{item.email}</TableCell>
-              <TableCell>{item.phone}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <div>
+      <DataTable
+        title="User List"
+        data={data}
+        columns={columns}
+        progressPending={loading}
+        pagination
+        paginationServer
+        paginationTotalRows={totalRows}
+        onChangeRowsPerPage={handlePerRowsChange}
+        onChangePage={handlePageChange}
+        customStyles={customStyles} />
+    </div>
   )
 }
 

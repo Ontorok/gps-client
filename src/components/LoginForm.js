@@ -6,8 +6,8 @@ import Form from "./Form";
 import TextInput from "./TextInput";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("nasir");
+  const [password, setPassword] = useState("nasir@mail.com");
   const history = useHistory();
   const { login } = useAuth()
 
