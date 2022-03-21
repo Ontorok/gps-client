@@ -1,5 +1,5 @@
-import Illustration from "../Illustration";
-import LoginForm from "../LoginForm";
+import Illustration from "../components/Illustration";
+import LoginForm from "../components/LoginForm";
 
 export default function Signup() {
   return (

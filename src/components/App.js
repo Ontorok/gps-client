@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import AuthProvider from "../contexts/AuthContext";
+import Home from "../pages/Home";
+import Login from "../pages/Login";
 import "../styles/App.css";
 import Layout from "./Layout";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
 import PrivateRoute from "./PrivateRoute";
 
 
