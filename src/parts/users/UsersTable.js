@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import DataTable from 'react-data-table-component';
-import { UsersApi } from '../../constants/apiEndPoints';
-import { axiosInstance } from '../../services/config';
-import UserExpandableRow from './UserExpandableRow';
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import DataTable from "react-data-table-component";
+import { UsersApi } from "../../constants/apiEndPoints";
+import { axiosInstance } from "../../services/config";
+import UserExpandableRow from "./UserExpandableRow";
 
 const customStyles = {
   headCells: {
     style: {
-      background: '#cdcdcd',
+      background: "#cdcdcd",
     },
   },
 };
@@ -15,34 +15,44 @@ const customStyles = {
 const UsersTable = () => {
   const columns = [
     {
-      name: 'Name',
-      selector: row => (
-        row.editMode ? <input type="text" value={row.name} onChange={(e) => handleChangeName(e, row.id)} /> : row.name
-      ),
+      name: "ID",
+      selector: (row) => row.id,
+    },
+    {
+      name: "Name",
+      selector: (row) =>
+        row.editMode ? (
+          <input
+            type="text"
+            value={row.name}
+            onChange={(e) => handleChangeName(e, row.id)}
+          />
+        ) : (
+          row.name
+        ),
       sortable: true,
     },
     {
-      name: 'Email',
-      selector: row => row.email,
+      name: "Email",
+      selector: (row) => row.email,
     },
     {
-      name: 'Phone',
-      selector: row => row.phone,
+      name: "Phone",
+      selector: (row) => row.phone,
     },
     {
-      name: 'Action',
-      selector: row => (
-        row.editMode ?
-          (<div>
+      name: "Action",
+      selector: (row) =>
+        row.editMode ? (
+          <div>
             <button onClick={() => handleUpdateRow(row)}>Update</button>
+            <button onClick={() => toggleEditMode(row.id)}>Cancel</button>
           </div>
-          ) :
-          (<div>
-            <button onClick={() => enableEditMode(row.id)} > Edit</button >
-          </div >
-          )
-
-      ),
+        ) : (
+          <div>
+            <button onClick={() => toggleEditMode(row.id)}> Edit</button>
+          </div>
+        ),
     },
   ];
   const [data, setData] = useState([]);
@@ -50,79 +60,122 @@ const UsersTable = () => {
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [toggleCleared, setToggleCleared] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     const fetchUsers = async () => {
       try {
-        const res = await axiosInstance.get(UsersApi.get, { params: { page, perPage } })
+        const res = await axiosInstance.get(UsersApi.get, {
+          params: { page, perPage },
+        });
         setData(res.data.data);
         setTotalRows(res.data.total);
         setLoading(false);
-      } catch (err) {
+      } catch (err) {}
+    };
+    fetchUsers();
+  }, [page, perPage]);
 
+  function toggleEditMode(id) {
+    const updatedState = data.map((item) => {
+      if (item.id === id) {
+        item["editMode"] = !item.editMode;
       }
-    }
-    fetchUsers()
-  }, [page, perPage])
+      return item;
+    });
+    setData(updatedState);
+  }
 
+  const contextActions = useMemo(() => {
+    const handleDelete = async () => {
+      if (
+        window.confirm(
+          `Are you sure you want to delete:\r ${selectedRows.map(
+            (r) => r.name
+          )}?`
+        )
+      ) {
+        try {
+          const res = await axiosInstance.delete(UsersApi.delete_range, {
+            params: { selectedRows },
+          });
+          setData(res.data.data);
+          setTotalRows(res.data.total);
+          setToggleCleared(!toggleCleared);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
 
-  const handlePageChange = page => {
+    return (
+      <button
+        key="delete"
+        onClick={handleDelete}
+        style={{ backgroundColor: "red" }}
+      >
+        Delete
+      </button>
+    );
+  }, [selectedRows, toggleCleared]);
+
+  const handlePageChange = (page) => {
     setPage(page);
   };
 
   const handlePerRowsChange = (newPerPage, page) => {
     setPerPage(newPerPage);
-    setPage(page)
+    setPage(page);
   };
 
-  function enableEditMode(id) {
-    const updatedState = data.map(item => {
+  const handleChangeName = (e, id) => {
+    const updatedState = data.map((item) => {
       if (item.id === id) {
-        item["editMode"] = true
+        item["name"] = e.target.value;
       }
-      return item
-    })
-    setData(updatedState)
-  }
+      return item;
+    });
+    setData(updatedState);
+  };
 
-  function handleChangeName(e, id) {
-    const updatedState = data.map(item => {
-      if (item.id === id) {
-        item["name"] = e.target.value
-      }
-      return item
-    })
-    setData(updatedState)
-  }
-
-  function handleUpdateRow(row) {
-    const updatedState = data.map(item => {
+  const handleUpdateRow = (row) => {
+    const updatedState = data.map((item) => {
       if (item.id === row.id) {
-        item["editMode"] = false
+        item["editMode"] = false;
       }
-      return item
-    })
-    setData(updatedState)
-  }
+      return item;
+    });
+    setData(updatedState);
+  };
 
-
+  const handleRowSelected = useCallback((state) => {
+    setSelectedRows(state.selectedRows);
+  }, []);
 
   return (
     <DataTable
-      expandableRows
-      expandableRowsComponent={inlineData => <UserExpandableRow data={inlineData} />}
       title="User List"
-      data={data}
       columns={columns}
+      data={data}
       progressPending={loading}
-      pagination
-      paginationServer
+      expandableRows
+      expandableRowsComponent={(inlineData) => (
+        <UserExpandableRow data={inlineData} />
+      )}
       paginationTotalRows={totalRows}
       onChangeRowsPerPage={handlePerRowsChange}
       onChangePage={handlePageChange}
-      customStyles={customStyles} />
-  )
-}
+      selectableRows
+      onSelectedRowsChange={handleRowSelected}
+      clearSelectedRows={toggleCleared}
+      contextActions={contextActions}
+      pagination
+      paginationServer
+      customStyles={customStyles}
+    />
+  );
+};
 
-export default UsersTable
+export default UsersTable;
