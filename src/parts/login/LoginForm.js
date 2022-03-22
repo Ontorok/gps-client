@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { useHistory } from "react-router-dom";
-import useAuth from '../hooks/useAuth';
-import Button from "./Button";
-import Form from "./Form";
-import TextInput from "./TextInput";
+import Button from "../../components/Button";
+import Form from "../../components/Form";
+import TextInput from "../../components/TextInput";
+import useAuth from '../../hooks/useAuth';
 
 export default function LoginForm() {
   const [email, setEmail] = useState("nasir");
