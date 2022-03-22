@@ -4,7 +4,7 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import "../styles/App.css";
 import Layout from "./Layout";
-import PrivateRoute from "./PrivateRoute";
+// import PrivateRoute from "./PrivateRoute";
 
 
 function App() {
@@ -15,7 +15,7 @@ function App() {
         <Switch>
           <Route exact path="/login" component={Login} />
           <Layout>
-            <PrivateRoute exact path="/" component={Home} />
+            <Route exact path="/" component={Home} />
           </Layout>
 
         </Switch>

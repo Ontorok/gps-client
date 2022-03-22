@@ -1,8 +1,13 @@
+import { Button, Grid, Paper } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import DataTable from "react-data-table-component";
+import CustomDrawer from '../../components/CustomDrawer';
 import { UsersApi } from "../../constants/apiEndPoints";
 import { axiosInstance } from "../../services/config";
 import UserExpandableRow from "./UserExpandableRow";
+import UserForm from "./UserForm";
+
+
 
 const customStyles = {
   headCells: {
@@ -13,6 +18,7 @@ const customStyles = {
 };
 
 const UsersTable = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const columns = [
     {
       name: "ID",
@@ -73,7 +79,7 @@ const UsersTable = () => {
         setData(res.data.data);
         setTotalRows(res.data.total);
         setLoading(false);
-      } catch (err) {}
+      } catch (err) { }
     };
     fetchUsers();
   }, [page, perPage]);
@@ -155,26 +161,60 @@ const UsersTable = () => {
   }, []);
 
   return (
-    <DataTable
-      title="User List"
-      columns={columns}
-      data={data}
-      progressPending={loading}
-      expandableRows
-      expandableRowsComponent={(inlineData) => (
-        <UserExpandableRow data={inlineData} />
-      )}
-      paginationTotalRows={totalRows}
-      onChangeRowsPerPage={handlePerRowsChange}
-      onChangePage={handlePageChange}
-      selectableRows
-      onSelectedRowsChange={handleRowSelected}
-      clearSelectedRows={toggleCleared}
-      contextActions={contextActions}
-      pagination
-      paginationServer
-      customStyles={customStyles}
-    />
+    <>
+
+      <Paper style={{ marginBottom: 10, padding: '10px 5px' }}>
+        <Grid container>
+          <Grid
+            item
+            container
+            justifyContent="flex-start"
+            xs={6}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ textTransform: 'capitalize' }}
+              onClick={() => setDrawerOpen(true)}
+            >
+              Add New
+            </Button>
+          </Grid>
+
+          <Grid item container justifyContent="flex-end" xs={6}>
+            <input type="text" className='search-box' placeholder='Search...' />
+          </Grid>
+        </Grid>
+      </Paper>
+
+      <DataTable
+        title="User List"
+        columns={columns}
+        data={data}
+        progressPending={loading}
+        expandableRows
+        expandableRowsComponent={(inlineData) => (
+          <UserExpandableRow data={inlineData} />
+        )}
+        paginationTotalRows={totalRows}
+        onChangeRowsPerPage={handlePerRowsChange}
+        onChangePage={handlePageChange}
+        selectableRows
+        onSelectedRowsChange={handleRowSelected}
+        clearSelectedRows={toggleCleared}
+        contextActions={contextActions}
+        pagination
+        paginationServer
+        customStyles={customStyles}
+      />
+      <CustomDrawer
+        drawerOpen={drawerOpen}
+        setDrawerOpen={setDrawerOpen}
+        title="User"
+      >
+        <UserForm />
+      </CustomDrawer>
+    </>
   );
 };
 
