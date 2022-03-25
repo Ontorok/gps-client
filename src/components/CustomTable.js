@@ -58,9 +58,21 @@ const CustomTable = ({
               />
             </StyledTableHeadCell>
             {columns.map((column) => {
-              const { name, label, align, sortName, isDisableSorting } = column;
+              const {
+                name,
+                label,
+                align,
+                sortName,
+                minWidth,
+                isDisableSorting,
+              } = column;
+              console.log(column);
               return (
-                <StyledTableHeadCell key={name} align={align}>
+                <StyledTableHeadCell
+                  key={name}
+                  align={align}
+                  style={{ minWidth: minWidth }}
+                >
                   {isDisableSorting ? (
                     label
                   ) : (

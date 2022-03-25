@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import './@fake-db';
+import "./@fake-db";
 import App from "./components/App";
 
 ReactDOM.render(
@@ -9,4 +9,3 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById("root")
 );
-

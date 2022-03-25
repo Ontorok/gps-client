@@ -55,6 +55,7 @@ const columns = [
     sortName: "id",
     label: "ID",
     align: "left",
+    minWidth: 80,
     isDisableSorting: false,
   },
   {
@@ -62,6 +63,7 @@ const columns = [
     sortName: "date",
     label: "Date",
     align: "left",
+    minWidth: 115,
     isDisableSorting: false,
   },
   {
@@ -76,6 +78,7 @@ const columns = [
     sortName: "operator",
     label: "Operator",
     align: "left",
+    minWidth: 100,
     isDisableSorting: false,
   },
   {
@@ -83,6 +86,7 @@ const columns = [
     sortName: "laborHours",
     label: "Labour Hours",
     align: "center",
+    minWidth: 160,
     isDisableSorting: false,
   },
   {
@@ -90,6 +94,7 @@ const columns = [
     sortName: "equiment1",
     label: "Equipment #1",
     align: "left",
+    minWidth: 170,
     isDisableSorting: false,
   },
   {
@@ -97,6 +102,7 @@ const columns = [
     sortName: "equiment2",
     label: "Equipment #2",
     align: "left",
+    minWidth: 170,
     isDisableSorting: false,
   },
   {
@@ -104,6 +110,7 @@ const columns = [
     sortName: "equiment3",
     label: "Equipment #3",
     align: "left",
+    minWidth: 170,
     isDisableSorting: false,
   },
   {
@@ -111,6 +118,7 @@ const columns = [
     sortName: "equiment4",
     label: "Equipment #4",
     align: "left",
+    minWidth: 170,
     isDisableSorting: false,
   },
   {
@@ -118,6 +126,7 @@ const columns = [
     sortName: "subTotal",
     label: "Sub Total",
     align: "center",
+    minWidth: 130,
     isDisableSorting: false,
   },
   {
@@ -125,6 +134,7 @@ const columns = [
     sortName: "total",
     label: "Total",
     align: "center",
+    minWidth: 100,
     isDisableSorting: false,
   },
 ];
@@ -207,75 +217,6 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
           </TableRow>
         ))}
       </CustomTable>
-      {/* 
-      <TableContainer component={Paper}>
-        {checkedItems.length > 0 && (
-          <div
-            style={{
-              width: "inherit",
-              height: "60px",
-              background: "rgba(102, 51, 153, .2)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <span style={{ marginLeft: "10px" }}>
-              {checkedItems.length} row(s) selected
-            </span>
-            <button
-              style={{ marginRight: "10px" }}
-              onClick={() => console.log(checkedItems)}
-            >
-              action
-            </button>
-          </div>
-        )}
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-          <TableHead>
-            <TableRow>
-              <StyledTableHeadCell>
-                <input
-                  type="checkbox"
-                  checked={checkedAll}
-                  onChange={onCheckedAllChange}
-                />
-              </StyledTableHeadCell>
-              <StyledTableHeadCell>Dessert (100g serving)</StyledTableHeadCell>
-              <StyledTableHeadCell align="right">Calories</StyledTableHeadCell>
-              <StyledTableHeadCell align="right">Fat (g)</StyledTableHeadCell>
-              <StyledTableHeadCell align="right">Carbs (g)</StyledTableHeadCell>
-              <StyledTableHeadCell align="right">
-                Protein (g)
-              </StyledTableHeadCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {state.map((row, index) => (
-              <TableRow
-                key={row.name}
-                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-              >
-                <TableCell>
-                  <input
-                    type="checkbox"
-                    checked={row.selected}
-                    onChange={(e) => onRowSelectionChange(e, index)}
-                  />
-                </TableCell>
-                <TableCell component="th" scope="row">
-                  {row.name}
-                </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">{row.fat}</TableCell>
-                <TableCell align="right">{row.carbs}</TableCell>
-                <TableCell align="right">{row.protein}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-       */}
     </>
   );
 };
