@@ -152,9 +152,7 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
     if (checked) {
       _checkedItems.push(targetedObj);
     } else {
-      _checkedItems = checkedItems.filter(
-        (item) => item.name !== targetedObj.name
-      );
+      _checkedItems = checkedItems.filter((item) => item.id !== targetedObj.id);
     }
     _state[rowIndex] = targetedObj;
     setCheckedAll(_state.every((item) => item.selected));
@@ -178,7 +176,7 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
   };
 
   return (
-    <>
+    <div>
       <CustomTable
         data={data}
         columns={columns}
@@ -217,8 +215,8 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
           </TableRow>
         ))}
       </CustomTable>
-    </>
+    </div>
   );
 };
 
-export default withSortBy(NeededToBeSentNonGrooming, "name");
+export default withSortBy(NeededToBeSentNonGrooming, "id");

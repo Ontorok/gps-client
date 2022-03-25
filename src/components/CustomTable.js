@@ -24,7 +24,7 @@ const CustomTable = ({
   onCheckedAllChange,
 }) => {
   return (
-    <TableContainer component={Paper}>
+    <>
       {checkedItems.length > 0 && (
         <div
           style={{
@@ -47,53 +47,55 @@ const CustomTable = ({
           </button>
         </div>
       )}
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-        <TableHead>
-          <TableRow>
-            <StyledTableHeadCell>
-              <input
-                type="checkbox"
-                checked={checkedAll}
-                onChange={onCheckedAllChange}
-              />
-            </StyledTableHeadCell>
-            {columns.map((column) => {
-              const {
-                name,
-                label,
-                align,
-                sortName,
-                minWidth,
-                isDisableSorting,
-              } = column;
-              console.log(column);
-              return (
-                <StyledTableHeadCell
-                  key={name}
-                  align={align}
-                  style={{ minWidth: minWidth }}
-                >
-                  {isDisableSorting ? (
-                    label
-                  ) : (
-                    <StyledTableSortedHeadCell
-                      active={sortedColumn === sortName}
-                      direction={sortedColumn === sortName ? sortedBy : "asc"}
-                      onClick={() => {
-                        onSort(sortName);
-                      }}
-                    >
-                      {label}
-                    </StyledTableSortedHeadCell>
-                  )}
-                </StyledTableHeadCell>
-              );
-            })}
-          </TableRow>
-        </TableHead>
-        <TableBody>{children}</TableBody>
-      </Table>
-    </TableContainer>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+          <TableHead>
+            <TableRow>
+              <StyledTableHeadCell>
+                <input
+                  type="checkbox"
+                  checked={checkedAll}
+                  onChange={onCheckedAllChange}
+                />
+              </StyledTableHeadCell>
+              {columns.map((column) => {
+                const {
+                  name,
+                  label,
+                  align,
+                  sortName,
+                  minWidth,
+                  isDisableSorting,
+                } = column;
+
+                return (
+                  <StyledTableHeadCell
+                    key={name}
+                    align={align}
+                    style={{ minWidth: minWidth }}
+                  >
+                    {isDisableSorting ? (
+                      label
+                    ) : (
+                      <StyledTableSortedHeadCell
+                        active={sortedColumn === sortName}
+                        direction={sortedColumn === sortName ? sortedBy : "asc"}
+                        onClick={() => {
+                          onSort(sortName);
+                        }}
+                      >
+                        {label}
+                      </StyledTableSortedHeadCell>
+                    )}
+                  </StyledTableHeadCell>
+                );
+              })}
+            </TableRow>
+          </TableHead>
+          <TableBody>{children}</TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
 };
 
