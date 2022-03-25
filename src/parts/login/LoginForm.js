@@ -3,19 +3,18 @@ import { useHistory } from "react-router-dom";
 import Button from "../../components/Button";
 import Form from "../../components/Form";
 import TextInput from "../../components/TextInput";
-import useAuth from '../../hooks/useAuth';
+import useAuth from "../../hooks/useAuth";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("nasir");
-  const [password, setPassword] = useState("nasir@mail.com");
+  const [email, setEmail] = useState("admin");
+  const [password, setPassword] = useState("admin@mail.com");
   const history = useHistory();
-  const { login } = useAuth()
-
+  const { login } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
-    history.push('/');
-    login(email, password)
+    history.push("/");
+    login(email, password);
   }
 
   return (
@@ -41,7 +40,6 @@ export default function LoginForm() {
       <Button type="submit">
         <span>Submit Now</span>
       </Button>
-
     </Form>
   );
 }
