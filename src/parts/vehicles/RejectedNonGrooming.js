@@ -1,142 +1,10 @@
 import { TableCell, TableRow } from "@mui/material";
 import _ from "lodash";
 import React, { useState } from "react";
+import ActionButtonGroup from "../../components/ActionButtonGroup";
 import CustomTable from "../../components/CustomTable";
 import withSortBy from "../../hoc/withSortedBy";
-const data = [
-  {
-    id: "104",
-    date: "2022-03-25",
-    trail: "Trail1",
-    operator: "operator101",
-    laborHours: 4,
-    equiment1: "equipment1",
-    equiment2: "equipment2",
-    equiment3: "equipment3",
-    equiment4: "equipment4",
-    subTotal: 10,
-    total: 20,
-    selected: false,
-  },
-  {
-    id: "105",
-    date: "2022-03-25",
-    trail: "Trail2",
-    operator: "operator102",
-    laborHours: 8,
-    equiment1: "equipment1",
-    equiment2: "equipment2",
-    equiment3: "equipment3",
-    equiment4: "equipment4",
-    subTotal: 20,
-    total: 40,
-    selected: false,
-  },
-  {
-    id: "106",
-    date: "2022-03-25",
-    trail: "Trail3",
-    operator: "operator103",
-    laborHours: 12,
-    equiment1: "equipment1",
-    equiment2: "equipment2",
-    equiment3: "equipment3",
-    equiment4: "equipment4",
-    subTotal: 60,
-    total: 120,
-    selected: false,
-  },
-];
-
-const columns = [
-  {
-    name: "id",
-    sortName: "id",
-    label: "ID",
-    align: "left",
-    minWidth: 80,
-    isDisableSorting: false,
-  },
-  {
-    name: "date",
-    sortName: "date",
-    label: "Date",
-    align: "left",
-    minWidth: 115,
-    isDisableSorting: false,
-  },
-  {
-    name: "trail",
-    sortName: "trail",
-    label: "Trail",
-    align: "left",
-    isDisableSorting: false,
-  },
-  {
-    name: "operator",
-    sortName: "operator",
-    label: "Operator",
-    align: "left",
-    minWidth: 100,
-    isDisableSorting: false,
-  },
-  {
-    name: "laborHours",
-    sortName: "laborHours",
-    label: "Labour Hours",
-    align: "center",
-    minWidth: 160,
-    isDisableSorting: false,
-  },
-  {
-    name: "equiment1",
-    sortName: "equiment1",
-    label: "Equipment #1",
-    align: "left",
-    minWidth: 170,
-    isDisableSorting: false,
-  },
-  {
-    name: "equiment2",
-    sortName: "equiment2",
-    label: "Equipment #2",
-    align: "left",
-    minWidth: 170,
-    isDisableSorting: false,
-  },
-  {
-    name: "equiment3",
-    sortName: "equiment3",
-    label: "Equipment #3",
-    align: "left",
-    minWidth: 170,
-    isDisableSorting: false,
-  },
-  {
-    name: "equiment4",
-    sortName: "equiment4",
-    label: "Equipment #4",
-    align: "left",
-    minWidth: 170,
-    isDisableSorting: false,
-  },
-  {
-    name: "subTotal",
-    sortName: "subTotal",
-    label: "Sub Total",
-    align: "center",
-    minWidth: 130,
-    isDisableSorting: false,
-  },
-  {
-    name: "total",
-    sortName: "total",
-    label: "Total",
-    align: "center",
-    minWidth: 100,
-    isDisableSorting: false,
-  },
-];
+import { columns, data } from "./utils";
 
 const RejectedNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
   const [state, setstate] = useState(data);
@@ -212,6 +80,16 @@ const RejectedNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
             <TableCell align="left">{row.equiment4}</TableCell>
             <TableCell align="center">{row.subTotal}</TableCell>
             <TableCell align="center">{row.total}</TableCell>
+            <TableCell align="center">
+              <ActionButtonGroup
+                appearedViewButton
+                appearedDeleteButton
+                appearedEditButton
+                onView={() => console.log(row)}
+                onEdit={() => console.log(row)}
+                onDelete={() => console.log(row)}
+              />
+            </TableCell>
           </TableRow>
         ))}
       </CustomTable>

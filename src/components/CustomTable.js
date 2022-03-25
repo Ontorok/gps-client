@@ -1,4 +1,5 @@
 import {
+  Grid,
   Paper,
   Table,
   TableBody,
@@ -7,6 +8,8 @@ import {
   TableRow,
 } from "@mui/material";
 import React from "react";
+import classes from "../styles/CustomTable.module.css";
+import CustomPagination from "./CustomPagination";
 import {
   StyledTableHeadCell,
   StyledTableSortedHeadCell,
@@ -22,79 +25,94 @@ const CustomTable = ({
   checkedItems,
   checkedAll,
   onCheckedAllChange,
+  count,
+  onPageChange,
 }) => {
   return (
     <>
-      {checkedItems.length > 0 && (
-        <div
-          style={{
-            width: "inherit",
-            height: "60px",
-            background: "rgba(102, 51, 153, .2)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <span style={{ marginLeft: "10px" }}>
-            {checkedItems.length} row(s) selected
-          </span>
-          <button
-            style={{ marginRight: "10px" }}
-            onClick={() => console.log(checkedItems)}
-          >
-            action
-          </button>
-        </div>
-      )}
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-          <TableHead>
-            <TableRow>
-              <StyledTableHeadCell>
-                <input
-                  type="checkbox"
-                  checked={checkedAll}
-                  onChange={onCheckedAllChange}
-                />
-              </StyledTableHeadCell>
-              {columns.map((column) => {
-                const {
-                  name,
-                  label,
-                  align,
-                  sortName,
-                  minWidth,
-                  isDisableSorting,
-                } = column;
+      <Paper>
+        {checkedItems.length > 0 && (
+          <div className={classes.contextContainer}>
+            <span style={{ marginLeft: "10px" }}>
+              {checkedItems.length} row(s) selected
+            </span>
+            <button
+              style={{ marginRight: "10px" }}
+              onClick={() => console.log(checkedItems)}
+            >
+              action
+            </button>
+          </div>
+        )}
+        <TableContainer component={Paper}>
+          <Table sx={{ minWidth: 650 }} size="small">
+            <TableHead>
+              <TableRow>
+                <StyledTableHeadCell>
+                  <input
+                    type="checkbox"
+                    checked={checkedAll}
+                    onChange={onCheckedAllChange}
+                  />
+                </StyledTableHeadCell>
+                {columns.map((column) => {
+                  const {
+                    name,
+                    label,
+                    align,
+                    sortName,
+                    minWidth,
+                    isDisableSorting,
+                  } = column;
 
-                return (
-                  <StyledTableHeadCell
-                    key={name}
-                    align={align}
-                    style={{ minWidth: minWidth }}
-                  >
-                    {isDisableSorting ? (
-                      label
-                    ) : (
-                      <StyledTableSortedHeadCell
-                        active={sortedColumn === sortName}
-                        direction={sortedColumn === sortName ? sortedBy : "asc"}
-                        onClick={() => {
-                          onSort(sortName);
-                        }}
-                      >
-                        {label}
-                      </StyledTableSortedHeadCell>
-                    )}
-                  </StyledTableHeadCell>
-                );
-              })}
-            </TableRow>
-          </TableHead>
-          <TableBody>{children}</TableBody>
-        </Table>
-      </TableContainer>
+                  return (
+                    <StyledTableHeadCell
+                      key={name}
+                      align={align}
+                      style={{ minWidth: minWidth }}
+                    >
+                      {isDisableSorting ? (
+                        label
+                      ) : (
+                        <StyledTableSortedHeadCell
+                          active={sortedColumn === sortName}
+                          direction={
+                            sortedColumn === sortName ? sortedBy : "asc"
+                          }
+                          onClick={() => {
+                            onSort(sortName);
+                          }}
+                        >
+                          {label}
+                        </StyledTableSortedHeadCell>
+                      )}
+                    </StyledTableHeadCell>
+                  );
+                })}
+                <StyledTableHeadCell align="center">Action</StyledTableHeadCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>{children}</TableBody>
+          </Table>
+        </TableContainer>
+        <Grid
+          container
+          justifyContent="space-between"
+          className={classes.paginationContainer}
+        >
+          <Grid item container xs={6} justifyContent="flex-start">
+            <label>Row per page:</label>
+            <select style={{ padding: 0 }}>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={30}>30</option>
+            </select>
+          </Grid>
+          <Grid item container xs={6} justifyContent="flex-end">
+            <CustomPagination />
+          </Grid>
+        </Grid>
+      </Paper>
     </>
   );
 };

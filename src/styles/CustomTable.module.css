@@ -1,0 +1,18 @@
+.contextContainer {
+  width: inherit;
+  height: 60px;
+  background: rgba(102, 51, 153, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.paginationContainer:first-child {
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+.paginationContainer:last-child {
+  box-sizing: border-box;
+  padding: 10px;
+}
