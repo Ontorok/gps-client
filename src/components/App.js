@@ -3,6 +3,7 @@ import AuthProvider from "../contexts/AuthContext";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Users from "../pages/Users";
+import Vehicles from "../pages/Vehicles";
 import "../styles/App.css";
 import Layout from "./Layout";
 import PrivateRoute from "./PrivateRoute";
@@ -10,18 +11,6 @@ import PublicRoute from "./PublicRoute";
 
 function App() {
   return (
-    // <Router>
-    //   <AuthProvider>
-    //     <Switch>
-    //       <Route exact path="/login" component={Login} />
-    //       <Layout>
-    //         <PrivateRoute exact path="/" component={Home} />
-    //         <PrivateRoute exact path="/users" component={Users} />
-    //       </Layout>
-    //     </Switch>
-    //   </AuthProvider>
-    // </Router>
-
     <Router>
       <AuthProvider>
         <PublicRoute exact path="/login" component={Login} />
@@ -29,6 +18,7 @@ function App() {
           <Switch>
             <PrivateRoute exact path="/" component={Home} />
             <PrivateRoute exact path="/users" component={Users} />
+            <PrivateRoute exact path="/vehicles" component={Vehicles} />
           </Switch>
         </Layout>
       </AuthProvider>
