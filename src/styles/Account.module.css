@@ -1,13 +1,23 @@
-.account {
-  width: 50%;
+.accountContainer {
+  /* width: 50%; */
+  flex: 1;
   display: flex;
   gap: 0.5rem;
   justify-content: flex-end;
   align-items: center;
-  margin-right: 30px;
   font-size: 12px;
+  background-color: #ccc;
 }
 
-.account > span:last-child {
+/* .accountContainer {
+  margin-right: 30px;
+} */
+
+.accountContainer > span:nth-child(2) {
   cursor: pointer;
+  text-decoration: underline;
+}
+.accountContainer > span:nth-child(3) {
+  cursor: pointer;
+  margin-right: 30px;
 }

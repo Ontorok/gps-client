@@ -1,12 +1,7 @@
-import React from 'react';
-import UsersTable from '../parts/users/UsersTable';
+import React from "react";
 
 const Home = () => {
-  return (
-    <>
-      <UsersTable />
-    </>
-  )
-}
+  return <div>Home</div>;
+};
 
-export default Home
+export default Home;
