@@ -15,6 +15,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "102",
@@ -29,6 +30,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "103",
@@ -43,6 +45,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "104",
@@ -57,6 +60,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "105",
@@ -71,6 +75,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "106",
@@ -85,6 +90,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "107",
@@ -99,6 +105,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "108",
@@ -113,6 +120,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "109",
@@ -127,6 +135,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "110",
@@ -141,6 +150,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "111",
@@ -155,6 +165,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "112",
@@ -169,6 +180,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "113",
@@ -183,6 +195,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "114",
@@ -197,6 +210,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "115",
@@ -211,6 +225,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "116",
@@ -225,6 +240,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "117",
@@ -239,6 +255,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "118",
@@ -253,6 +270,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "119",
@@ -267,6 +285,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "120",
@@ -281,6 +300,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "121",
@@ -295,6 +315,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "122",
@@ -309,6 +330,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "123",
@@ -323,6 +345,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "124",
@@ -337,6 +360,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "125",
@@ -351,6 +375,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "126",
@@ -365,6 +390,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "127",
@@ -379,6 +405,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "128",
@@ -393,6 +420,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "129",
@@ -407,6 +435,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "130",
@@ -421,6 +450,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "131",
@@ -435,6 +465,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "132",
@@ -449,6 +480,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "133",
@@ -463,6 +495,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "134",
@@ -477,6 +510,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "135",
@@ -491,6 +525,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "136",
@@ -505,6 +540,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "137",
@@ -519,6 +555,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "138",
@@ -533,6 +570,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "139",
@@ -547,6 +585,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "140",
@@ -561,6 +600,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "141",
@@ -575,6 +615,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "142",
@@ -589,6 +630,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "143",
@@ -603,6 +645,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "144",
@@ -617,6 +660,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "145",
@@ -631,6 +675,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "146",
@@ -645,6 +690,7 @@ const data = [
     subTotal: 10,
     total: 20,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "147",
@@ -659,6 +705,7 @@ const data = [
     subTotal: 20,
     total: 40,
     selected: false,
+    fundStatus: "Funded",
   },
   {
     id: "148",
@@ -673,6 +720,7 @@ const data = [
     subTotal: 60,
     total: 120,
     selected: false,
+    fundStatus: "Funded",
   },
 ];
 
@@ -682,4 +730,20 @@ mock.onGet(NeededToBeSentApi.get).reply((config) => {
   } = config;
   const filtered = data.slice((page - 1) * perPage, (page - 1 + 1) * perPage);
   return [200, { succeeded: true, data: filtered, total: data.length }];
+});
+
+mock.onPut(NeededToBeSentApi.update_fund_status).reply((config) => {
+  const checkedItems = JSON.parse(config.data);
+  const checkedIds = checkedItems.map((item) => item.id);
+  const updatedData = [...data];
+  checkedIds.forEach((element) => {
+    const idx = updatedData.findIndex((item) => item.id === element);
+    updatedData[idx].fundStatus =
+      updatedData[idx].fundStatus === "Funded" ? "Non-Funded" : "Funded";
+  });
+  const filtered = updatedData.slice(
+    (config.params.page - 1) * config.params.perPage,
+    (config.params.page - 1 + 1) * config.params.perPage
+  );
+  return [200, { succeeded: true, data: filtered }];
 });

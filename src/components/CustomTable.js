@@ -29,6 +29,7 @@ const CustomTable = ({
   onPageChange,
   perPage,
   onPerPageChange,
+  onRangeAction,
 }) => {
   return (
     <>
@@ -38,10 +39,7 @@ const CustomTable = ({
             <span style={{ marginLeft: "10px" }}>
               {checkedItems.length} row(s) selected
             </span>
-            <button
-              style={{ marginRight: "10px" }}
-              onClick={() => console.log(checkedItems)}
-            >
+            <button style={{ marginRight: "10px" }} onClick={onRangeAction}>
               action
             </button>
           </div>

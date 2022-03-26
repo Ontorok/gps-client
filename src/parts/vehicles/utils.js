@@ -53,6 +53,14 @@ export const columns = [
     isDisableSorting: false,
   },
   {
+    name: "fundStatus",
+    sortName: "fundStatus",
+    label: "Fund Status",
+    align: "left",
+    minWidth: 115,
+    isDisableSorting: true,
+  },
+  {
     name: "date",
     sortName: "date",
     label: "Date",

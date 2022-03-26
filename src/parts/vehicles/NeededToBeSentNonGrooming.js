@@ -76,6 +76,17 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
     setCheckedAll(checked);
   };
 
+  const onRangeAction = async () => {
+    try {
+      const res = await axiosInstance.put(
+        NeededToBeSentApi.update_fund_status,
+        checkedItems,
+        { params: { page, perPage } }
+      );
+      setstate(res.data.data);
+    } catch (err) {}
+  };
+
   return (
     <div>
       <CustomTable
@@ -91,6 +102,7 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
         checkedItems={checkedItems}
         checkedAll={checkedAll}
         onCheckedAllChange={onCheckedAllChange}
+        onRangeAction={onRangeAction}
       >
         {state.map((row, index) => (
           <TableRow
@@ -104,9 +116,8 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
                 onChange={(e) => onRowSelectionChange(e, index)}
               />
             </TableCell>
-            <TableCell component="th" scope="row">
-              {row.id}
-            </TableCell>
+            <TableCell align="left">{row.id}</TableCell>
+            <TableCell align="left">{row.fundStatus}</TableCell>
             <TableCell align="left">{row.date}</TableCell>
             <TableCell align="left">{row.trail}</TableCell>
             <TableCell align="left">{row.operator}</TableCell>
@@ -119,10 +130,8 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
             <TableCell align="center">{row.total}</TableCell>
             <TableCell align="center">
               <ActionButtonGroup
-                appearedViewButton
                 appearedDeleteButton
                 appearedEditButton
-                onView={() => console.log(row)}
                 onEdit={() => console.log(row)}
                 onDelete={() => console.log(row)}
               />
