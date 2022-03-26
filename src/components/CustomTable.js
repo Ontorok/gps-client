@@ -27,6 +27,8 @@ const CustomTable = ({
   onCheckedAllChange,
   count,
   onPageChange,
+  perPage,
+  onPerPageChange,
 }) => {
   return (
     <>
@@ -102,14 +104,18 @@ const CustomTable = ({
         >
           <Grid item container xs={6} justifyContent="flex-start">
             <label>Row per page:</label>
-            <select style={{ padding: 0 }}>
+            <select
+              style={{ padding: 0 }}
+              value={perPage}
+              onChange={onPerPageChange}
+            >
               <option value={10}>10</option>
               <option value={20}>20</option>
               <option value={30}>30</option>
             </select>
           </Grid>
           <Grid item container xs={6} justifyContent="flex-end">
-            <CustomPagination />
+            <CustomPagination count={count} onChange={onPageChange} />
           </Grid>
         </Grid>
       </Paper>

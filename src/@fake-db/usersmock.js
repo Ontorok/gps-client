@@ -416,10 +416,6 @@ mock.onGet(UsersApi.get).reply((config) => {
   const {
     params: { page, perPage },
   } = config;
-  //   const modifiedData = data.map((item, index) => ({
-  //     ...item,
-  //     name: `${item.name}_${index + 1}`,
-  //   }));
   const filtered = data.slice((page - 1) * perPage, (page - 1 + 1) * perPage);
 
   return [200, { succeeded: true, data: filtered, total: data.length }];

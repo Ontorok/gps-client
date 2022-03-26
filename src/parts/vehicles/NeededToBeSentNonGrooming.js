@@ -1,15 +1,49 @@
 import { TableCell, TableRow } from "@mui/material";
 import _ from "lodash";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ActionButtonGroup from "../../components/ActionButtonGroup";
 import CustomTable from "../../components/CustomTable";
+import { NeededToBeSentApi } from "../../constants/apiEndPoints";
 import withSortBy from "../../hoc/withSortedBy";
-import { columns, data } from "./utils";
+import { axiosInstance } from "../../services/config";
+import { columns } from "./utils";
 
 const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
-  const [state, setstate] = useState(data);
+  const [state, setstate] = useState([]);
+  const [perPage, setPerPage] = useState(10);
+  const [page, setPage] = useState(1);
+  const [totalRows, setTotalRows] = useState(0);
+
   const [checkedAll, setCheckedAll] = useState(false);
   const [checkedItems, setCheckedItems] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axiosInstance.get(NeededToBeSentApi.get, {
+          params: { page, perPage },
+        });
+        setstate(res.data.data);
+        setTotalRows(res.data.total);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchData();
+  }, [page, perPage]);
+
+  const onPageChange = (event, pageNumber) => {
+    setPage(pageNumber);
+    setCheckedAll(false);
+    setCheckedItems([]);
+  };
+
+  const onPerPageChange = (e) => {
+    setPerPage(e.target.value);
+    setPage(1);
+    setCheckedAll(false);
+    setCheckedItems([]);
+  };
 
   const onRowSelectionChange = (e, rowIndex) => {
     const { checked } = e.target;
@@ -39,15 +73,18 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
       _checkedItems.forEach((item) => (item.selected = false));
       setCheckedItems([]);
     }
-
     setCheckedAll(checked);
   };
 
   return (
     <div>
       <CustomTable
-        data={data}
+        data={state}
         columns={columns}
+        count={Math.ceil(totalRows / perPage)}
+        onPageChange={onPageChange}
+        perPage={perPage}
+        onPerPageChange={onPerPageChange}
         sortedColumn={sortedColumn}
         sortedBy={sortedBy}
         onSort={onSort}
