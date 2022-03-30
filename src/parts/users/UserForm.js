@@ -1,7 +1,8 @@
 import { Save } from '@mui/icons-material';
 import { Button, Grid, TextField } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React from 'react';
+import React, { useRef } from 'react';
+import CustomAutoComplete from '../../components/CustomAutoComplete';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,17 +26,40 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const roleArray=[
+  {label:'User', value:"User"},
+  {label:'Vehicles', value:"Vehicles"},
+  {label:'Admin', value:"Admin"},
+]
+const clubArray=[
+  {label:'Club01', value:"Club01"},
+  {label:'Club02', value:"Club02"},
+  {label:'Club03', value:"Club03"},
+]
+
 
 const UserForm = () => {
   const classes = useStyles();
+  const refRole = useRef();
+  const refClub= useRef();
+
   return (
     <form className={classes.root}>
       <Grid container>
         <Grid item xs={12} >
-          <TextField fullWidth size="small" margin="dense" label='name' />
+          <TextField fullWidth size="small" margin="dense" label='Name' />
         </Grid>
         <Grid item xs={12} >
-          <TextField fullWidth size="small" margin="dense" label='email' />
+          <CustomAutoComplete name="role" label="Role" data={roleArray} innerref={refRole} />
+        </Grid>
+        <Grid item xs={12} >
+          <CustomAutoComplete name="club" label="Club" data={clubArray} innerref={refClub} />
+        </Grid>
+        <Grid item xs={12} >
+          <TextField fullWidth size="small" margin="dense" label='User Name' />
+        </Grid>
+        <Grid item xs={12} >
+          <TextField fullWidth size="small" margin="dense" label='Password' />
         </Grid>
       </Grid>
       <Grid container justifyContent='flex-end'>

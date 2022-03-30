@@ -1,13 +1,20 @@
-import { Button, Grid, Paper } from '@mui/material';
+import { FilterList } from "@mui/icons-material";
+import {
+  Button,
+  Collapse,
+  Grid,
+  IconButton,
+  Paper,
+  Toolbar,
+  Tooltip
+} from "@mui/material";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import DataTable from "react-data-table-component";
-import CustomDrawer from '../../components/CustomDrawer';
+import CustomDrawer from "../../components/CustomDrawer";
 import { UsersApi } from "../../constants/apiEndPoints";
 import { axiosInstance } from "../../services/config";
 import UserExpandableRow from "./UserExpandableRow";
 import UserForm from "./UserForm";
-
-
 
 const customStyles = {
   headCells: {
@@ -68,6 +75,7 @@ const UsersTable = () => {
   const [page, setPage] = useState(1);
   const [selectedRows, setSelectedRows] = useState([]);
   const [toggleCleared, setToggleCleared] = useState(false);
+  const [isFilter, setIsFilter] = React.useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -79,7 +87,7 @@ const UsersTable = () => {
         setData(res.data.data);
         setTotalRows(res.data.total);
         setLoading(false);
-      } catch (err) { }
+      } catch (err) {}
     };
     fetchUsers();
   }, [page, perPage]);
@@ -156,35 +164,87 @@ const UsersTable = () => {
     setData(updatedState);
   };
 
+  // For Filter Area Open and close
+  const handleFilterToggle = () => {
+    setIsFilter(!isFilter);
+  };
+
   const handleRowSelected = useCallback((state) => {
     setSelectedRows(state.selectedRows);
   }, []);
 
   return (
     <>
-
-      <Paper style={{ marginBottom: 10, padding: '10px 5px' }}>
+      <Paper style={{ marginBottom: 10, padding: "10px 5px" }}>
         <Grid container>
-          <Grid
-            item
-            container
-            justifyContent="flex-start"
-            xs={6}
-          >
+          <Grid item container justifyContent="flex-start" xs={6}>
             <Button
               variant="contained"
               color="primary"
-              style={{ textTransform: 'capitalize' }}
+              style={{ textTransform: "capitalize", width:100, height:40 }}
               onClick={() => setDrawerOpen(true)}
             >
               Add New
             </Button>
           </Grid>
-
           <Grid item container justifyContent="flex-end" xs={6}>
-            <input type="text" className='search-box' placeholder='Search...' />
+            <Toolbar className="toolbar">
+              <Tooltip title="Filter Area" placement="left">
+                <IconButton onClick={handleFilterToggle}>
+                  <FilterList className="filter-list" />
+                </IconButton>
+              </Tooltip>
+            </Toolbar>
           </Grid>
         </Grid>
+        <Collapse in={isFilter}>
+          <div className="filterArea">
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <input
+                  type="text"
+                  className="search-box"
+                  name="name"
+                  placeholder="Name"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <input
+                  type="text"
+                  className="search-box"
+                  name="email"
+                  placeholder="Email"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <input
+                  type="text"
+                  className="search-box"
+                  name="phone"
+                  placeholder="Phone"
+                />
+              </Grid>
+              <Grid
+              container
+              item
+              xs={12}
+              sm={6}
+              md={3}
+              lg={3}
+              style={{gap:10}}
+              justifyContent ='center'
+            >
+              <Button variant="contained" color="primary">
+                Search
+              </Button>
+              <Button variant="contained" color="secondary">
+                Cancel
+              </Button>
+            </Grid>
+            </Grid>
+          
+          </div>
+        </Collapse>
       </Paper>
 
       <DataTable
