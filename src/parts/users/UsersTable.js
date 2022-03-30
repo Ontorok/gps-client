@@ -75,7 +75,7 @@ const UsersTable = () => {
   const [page, setPage] = useState(1);
   const [selectedRows, setSelectedRows] = useState([]);
   const [toggleCleared, setToggleCleared] = useState(false);
-  const [isFilter, setIsFilter] = React.useState(false);
+  const [isFilter, setIsFilter] = useState(false);
 
   useEffect(() => {
     setLoading(true);

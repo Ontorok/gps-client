@@ -5,6 +5,7 @@ import Login from "../pages/Login";
 import Profile from "../pages/Profile";
 import Users from "../pages/Users";
 import Vehicles from "../pages/Vehicles";
+import VehiclesCreateForm from "../parts/vehicles/VehiclesCreateForm";
 import "../styles/App.css";
 import Layout from "./Layout";
 import PrivateRoute from "./PrivateRoute";
@@ -21,6 +22,7 @@ function App() {
             <PrivateRoute exact path="/users" component={Users} />
             <PrivateRoute exact path="/vehicles" component={Vehicles} />
             <PrivateRoute exact path="/profile" component={Profile} />
+            <PrivateRoute exact path="/new-vehicles" component={VehiclesCreateForm} />
           </Switch>
         </Layout>
       </AuthProvider>

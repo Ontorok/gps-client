@@ -1,6 +1,18 @@
-import { TableCell, TableRow } from "@mui/material";
+import { FilterList } from "@mui/icons-material";
+import {
+  Button,
+  Collapse,
+  Grid,
+  IconButton,
+  Paper,
+  TableCell,
+  TableRow,
+  Toolbar,
+  Tooltip
+} from "@mui/material";
 import _ from "lodash";
 import { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 import ActionButtonGroup from "../../components/ActionButtonGroup";
 import CustomTable from "../../components/CustomTable";
 import { NeededToBeSentApi } from "../../constants/apiEndPoints";
@@ -16,6 +28,7 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
 
   const [checkedAll, setCheckedAll] = useState(false);
   const [checkedItems, setCheckedItems] = useState([]);
+  const [isFilter, setIsFilter] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -86,9 +99,89 @@ const NeededToBeSentNonGrooming = ({ sortedColumn, sortedBy, onSort }) => {
       setstate(res.data.data);
     } catch (err) {}
   };
+  // For Filter Area Open and close
+  const handleFilterToggle = () => {
+    setIsFilter(!isFilter);
+  };
 
   return (
     <div>
+      <Paper style={{ marginBottom: 10, padding: "10px 5px" }}>
+        <Grid container>
+          <Grid item container justifyContent="flex-start" xs={6}>
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ textTransform: "capitalize", width: 100, height: 40, padding:0 }}
+              onClick={() => {}}
+            >
+              <NavLink style={{color:'white', textDecoration:'none', cursor:'pointer'}} to={`/new-vehicles`}>Add New</NavLink>
+            </Button>
+          </Grid>
+          <Grid item container justifyContent="flex-end" xs={6}>
+            <Toolbar className="toolbar">
+              <Tooltip title="Filter Area" placement="left">
+                <IconButton onClick={handleFilterToggle}>
+                  <FilterList className="filter-list" />
+                </IconButton>
+              </Tooltip>
+            </Toolbar>
+          </Grid>
+        </Grid>
+        <Collapse in={isFilter}>
+          <div className="filterArea">
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <input
+                  type="text"
+                  className="search-box"
+                  name="status"
+                  placeholder="Fund Status"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <input
+                  type="text"
+                  className="search-box"
+                  name="date"
+                  placeholder="Date"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <input
+                  type="text"
+                  className="search-box"
+                  name="operator"
+                  placeholder="Operator"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3} lg={3}>
+                <input
+                  type="text"
+                  className="search-box"
+                  name="equipment"
+                  placeholder="Equipment"
+                />
+              </Grid>
+              <Grid
+                container
+                item
+                xs={12}
+                style={{ gap: 10 }}
+                justifyContent="flex-end"
+              >
+                <Button variant="contained" color="primary">
+                  Search
+                </Button>
+                <Button variant="contained" color="secondary">
+                  Cancel
+                </Button>
+              </Grid>
+            </Grid>
+          </div>
+        </Collapse>
+      </Paper>
+
       <CustomTable
         data={state}
         columns={columns}
