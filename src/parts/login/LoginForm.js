@@ -1,20 +1,30 @@
 import { useState } from "react";
-import { useHistory } from "react-router-dom";
+import { useDispatch } from 'react-redux';
 import Button from "../../components/Button";
 import Form from "../../components/Form";
 import TextInput from "../../components/TextInput";
-import useAuth from "../../hooks/useAuth";
+import { AuthApi } from "../../constants/apiEndPoints";
+import { setAuthUser } from '../../redux/actions/Auth';
+import { axiosInstance } from "../../services/config";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("admin");
+  const [username, setUserName] = useState("admin");
   const [password, setPassword] = useState("admin@mail.com");
-  const history = useHistory();
-  const { login } = useAuth();
+  const dispatch = useDispatch();
+
 
   async function handleSubmit(e) {
     e.preventDefault();
-    history.push("/");
-    login(email, password);
+
+    try {
+      const res = await axiosInstance.post(AuthApi.login, { username, password })
+      localStorage.setItem('loggedIn', 'loggedIn')
+      dispatch(setAuthUser(res.data.data))
+    } catch (err) {
+
+    }
+
+    //dispatch(setAuthUser(obj))
   }
 
   return (
@@ -24,8 +34,8 @@ export default function LoginForm() {
         required
         placeholder="Enter username"
         icon="alternate_email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        value={username}
+        onChange={(e) => setUserName(e.target.value)}
       />
 
       <TextInput

@@ -1,34 +1,31 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { CircularProgress } from '@mui/material';
-import React, { useEffect } from 'react';
-import useAuth from '../hooks/useAuth';
+import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setAuthUser } from '../redux/actions/Auth';
 
 const AppWrapper = ({ children }) => {
-  const {
-    getAuthUser,
-    loading
-  } = useAuth()
+  const dispatch = useDispatch();
+  const [isPageLoaded, setIsPageLoaded] = useState(true)
+
 
 
   useEffect(() => {
-    getAuthUser()
-  }, [])
+    const token = localStorage.getItem("loggedIn")
+    if (token) {
+      setIsPageLoaded(false)
+      setTimeout(() => {
+        dispatch(setAuthUser({ name: 'admin', role: 'admin' }));
+        setIsPageLoaded(true)
+      }, 1000)
+    } else {
+      dispatch(setAuthUser(null))
+    }
 
-  if (loading) {
-    return <div style={{
-      position: 'absolute',
-      left: 0,
-      top: 0,
-      zIndex: 1,
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}>
-      <CircularProgress />
-    </div>
+  }, [dispatch])
+
+
+
+  if (!isPageLoaded) {
+    return <div>logidng....</div>
   }
 
   return (

@@ -1,3 +1,4 @@
+import './authMock';
 import mock from "./mock";
 import "./neededToBeSentNonGroomingMock";
 import "./usersmock";

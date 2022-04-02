@@ -1,8 +1,8 @@
+import { useSelector } from 'react-redux';
 import { Redirect, Route } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
 
 export default function PrivateRoute({ component: Component, ...rest }) {
-  const { authUser } = useAuth();
+  const { authUser } = useSelector(({ auth }) => auth)
 
   return authUser ? (
     <Route {...rest}>{(props) => <Component {...props} />}</Route>

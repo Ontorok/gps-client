@@ -1,9 +1,15 @@
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import { setAuthUser } from '../redux/actions/Auth';
 import classes from "../styles/Account.module.css";
 
 export default function Account() {
-  const { authUser, logout } = useAuth();
+  const { authUser } = useSelector(({ auth }) => auth);
+  const dispatch = useDispatch()
+  const onLogout = () => {
+    dispatch(setAuthUser(null));
+    localStorage.removeItem('loggedIn')
+  }
 
   return (
     <div className={classes.accountContainer}>
@@ -14,7 +20,7 @@ export default function Account() {
         <Link to={`/profile`}>{authUser?.name}</Link>
       </span>
 
-      <span className="material-icons-outlined" title="Logout" onClick={logout}>
+      <span className="material-icons-outlined" title="Logout" onClick={onLogout}>
         logout
       </span>
     </div>
