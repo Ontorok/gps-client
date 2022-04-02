@@ -9,4 +9,5 @@ export default function PrivateRoute({ component: Component, ...rest }) {
   ) : (
     <Redirect to="/login" />
   );
+
 }
