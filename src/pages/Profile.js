@@ -1,8 +1,11 @@
+import { Button } from "@mui/material";
 import React from "react";
+import { useSelector } from "react-redux";
 import imgSrc from "../assets/images/img_avatar.png";
 import classes from "../styles/Profile.module.css";
 
 const Profile = () => {
+  const { authUser } = useSelector(({ auth }) => auth);
   return (
     <div className={classes.profileContainer}>
       <div className={classes.profileLeft}>
@@ -21,6 +24,13 @@ const Profile = () => {
           <span>:</span>
           <span>+880 1x xxx-xxx</span>
         </div>
+        {authUser.name === "admin" && (
+          <div>
+            <Button color="error" variant="contained">
+              Force Restart
+            </Button>
+          </div>
+        )}
       </div>
       <div className={classes.profileRight}>
         <img src={imgSrc} alt="nasir" />

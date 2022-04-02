@@ -1,36 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { setAuthUser } from '../redux/actions/Auth';
+import { CircularProgress } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { setAuthUser } from "../redux/actions/Auth";
 
 const AppWrapper = ({ children }) => {
   const dispatch = useDispatch();
-  const [isPageLoaded, setIsPageLoaded] = useState(true)
-
-
+  const [isPageLoaded, setIsPageLoaded] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("loggedIn")
+    const token = localStorage.getItem("loggedIn");
     if (token) {
-      setIsPageLoaded(false)
+      setIsPageLoaded(false);
       setTimeout(() => {
-        dispatch(setAuthUser({ name: 'admin', role: 'admin' }));
-        setIsPageLoaded(true)
-      }, 1000)
+        dispatch(setAuthUser({ name: "admin", role: "admin" }));
+        setIsPageLoaded(true);
+      }, 1000);
     } else {
-      dispatch(setAuthUser(null))
+      dispatch(setAuthUser(null));
     }
-
-  }, [dispatch])
-
-
+  }, [dispatch]);
 
   if (!isPageLoaded) {
-    return <div>logidng....</div>
+    return (
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          zIndex: 1,
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <CircularProgress />
+      </div>
+    );
   }
 
-  return (
-    <div>{children}</div>
-  )
-}
+  return <div>{children}</div>;
+};
 
-export default AppWrapper
+export default AppWrapper;

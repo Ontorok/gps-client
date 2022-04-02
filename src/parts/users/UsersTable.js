@@ -5,80 +5,69 @@ import {
   Grid,
   IconButton,
   Paper,
+  TableCell,
+  TableRow,
   Toolbar,
-  Tooltip
+  Tooltip,
 } from "@mui/material";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import DataTable from "react-data-table-component";
+import _ from "lodash";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import ActionButtonGroup from "../../components/ActionButtonGroup";
 import CustomDrawer from "../../components/CustomDrawer";
+import CustomTable from "../../components/CustomTable";
 import { UsersApi } from "../../constants/apiEndPoints";
+import withSortBy from "../../hoc/withSortedBy";
 import { axiosInstance } from "../../services/config";
-import UserExpandableRow from "./UserExpandableRow";
 import UserForm from "./UserForm";
 
-const customStyles = {
-  headCells: {
-    style: {
-      background: "#cdcdcd",
-    },
-  },
-};
-
-const UsersTable = () => {
+const UsersTable = ({ sortedColumn, sortedBy, onSort }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const columns = [
     {
-      name: "ID",
-      selector: (row) => row.id,
+      name: "id",
+      sortName: "id",
+      label: "ID",
+      align: "left",
+      minWidth: 80,
+      isDisableSorting: false,
     },
     {
-      name: "Name",
-      selector: (row) =>
-        row.editMode ? (
-          <input
-            type="text"
-            value={row.name}
-            onChange={(e) => handleChangeName(e, row.id)}
-          />
-        ) : (
-          row.name
-        ),
-      sortable: true,
+      name: "name",
+      sortName: "name",
+      label: "Name",
+      align: "left",
+      minWidth: 80,
+      isDisableSorting: false,
     },
     {
-      name: "Email",
-      selector: (row) => row.email,
+      name: "email",
+      sortName: "email",
+      label: "Email",
+      align: "left",
+      minWidth: 80,
+      isDisableSorting: false,
     },
     {
-      name: "Phone",
-      selector: (row) => row.phone,
-    },
-    {
-      name: "Action",
-      selector: (row) =>
-        row.editMode ? (
-          <div>
-            <button onClick={() => handleUpdateRow(row)}>Update</button>
-            <button onClick={() => toggleEditMode(row.id)}>Cancel</button>
-          </div>
-        ) : (
-          <div>
-            <button onClick={() => toggleEditMode(row.id)}> Edit</button>
-          </div>
-        ),
+      name: "phone",
+      sortName: "phone",
+      label: "Phone",
+      align: "left",
+      minWidth: 80,
+      isDisableSorting: false,
     },
   ];
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [totalRows, setTotalRows] = useState(0);
   const [perPage, setPerPage] = useState(10);
   const [page, setPage] = useState(1);
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [toggleCleared, setToggleCleared] = useState(false);
   const [isFilter, setIsFilter] = useState(false);
+  const [checkedAll, setCheckedAll] = useState(false);
+  const [checkedItems, setCheckedItems] = useState([]);
+
+  const { authUser } = useSelector(({ auth }) => auth);
 
   useEffect(() => {
-    setLoading(true);
     const fetchUsers = async () => {
       try {
         const res = await axiosInstance.get(UsersApi.get, {
@@ -86,7 +75,6 @@ const UsersTable = () => {
         });
         setData(res.data.data);
         setTotalRows(res.data.total);
-        setLoading(false);
       } catch (err) {}
     };
     fetchUsers();
@@ -102,77 +90,67 @@ const UsersTable = () => {
     setData(updatedState);
   }
 
-  const contextActions = useMemo(() => {
-    const handleDelete = async () => {
-      if (
-        window.confirm(
-          `Are you sure you want to delete:\r ${selectedRows.map(
-            (r) => r.name
-          )}?`
-        )
-      ) {
-        try {
-          const res = await axiosInstance.delete(UsersApi.delete_range, {
-            params: { selectedRows },
-          });
-          setData(res.data.data);
-          setTotalRows(res.data.total);
-          setToggleCleared(!toggleCleared);
-        } catch (err) {
-          console.log(err);
-        }
-      }
-    };
-
-    return (
-      <button
-        key="delete"
-        onClick={handleDelete}
-        style={{ backgroundColor: "red" }}
-      >
-        Delete
-      </button>
-    );
-  }, [selectedRows, toggleCleared]);
-
-  const handlePageChange = (page) => {
-    setPage(page);
-  };
-
-  const handlePerRowsChange = (newPerPage, page) => {
-    setPerPage(newPerPage);
-    setPage(page);
-  };
-
-  const handleChangeName = (e, id) => {
-    const updatedState = data.map((item) => {
-      if (item.id === id) {
-        item["name"] = e.target.value;
-      }
-      return item;
-    });
-    setData(updatedState);
-  };
-
-  const handleUpdateRow = (row) => {
-    const updatedState = data.map((item) => {
-      if (item.id === row.id) {
-        item["editMode"] = false;
-      }
-      return item;
-    });
-    setData(updatedState);
-  };
-
   // For Filter Area Open and close
   const handleFilterToggle = () => {
     setIsFilter(!isFilter);
   };
 
-  const handleRowSelected = useCallback((state) => {
-    setSelectedRows(state.selectedRows);
-  }, []);
+  const onPageChange = (event, pageNumber) => {
+    setPage(pageNumber);
+    setCheckedAll(false);
+    setCheckedItems([]);
+  };
 
+  const onPerPageChange = (e) => {
+    setPerPage(e.target.value);
+    setPage(1);
+    setCheckedAll(false);
+    setCheckedItems([]);
+  };
+  const onCheckedAllChange = (e) => {
+    const { checked } = e.target;
+    if (checked) {
+      const _checkedItems = [...data];
+      _checkedItems.forEach((item) => (item.selected = true));
+      setCheckedItems(_checkedItems);
+    } else {
+      const _checkedItems = [...data];
+      _checkedItems.forEach((item) => (item.selected = false));
+      setCheckedItems([]);
+    }
+    setCheckedAll(checked);
+  };
+
+  const onRowSelectionChange = (e, rowIndex) => {
+    const { checked } = e.target;
+    const _state = _.cloneDeep(data);
+    let _checkedItems = [...checkedItems];
+    const targetedObj = _state[rowIndex];
+    targetedObj.selected = checked;
+    if (checked) {
+      _checkedItems.push(targetedObj);
+    } else {
+      _checkedItems = checkedItems.filter((item) => item.id !== targetedObj.id);
+    }
+    _state[rowIndex] = targetedObj;
+    setCheckedAll(_state.every((item) => item.selected));
+    setCheckedItems(_checkedItems);
+    setData(_state);
+  };
+
+  const onRangeAction = () => {};
+
+  const onInputChange = (e, id) => {
+    const { name, value } = e.target;
+    const _data = [...data];
+    _data.map((u) => {
+      if (u.id === id) {
+        u[name] = value;
+      }
+      return u;
+    });
+    setData(_data);
+  };
   return (
     <>
       <Paper style={{ marginBottom: 10, padding: "10px 5px" }}>
@@ -181,7 +159,7 @@ const UsersTable = () => {
             <Button
               variant="contained"
               color="primary"
-              style={{ textTransform: "capitalize", width:100, height:40 }}
+              style={{ textTransform: "capitalize", width: 100, height: 40 }}
               onClick={() => setDrawerOpen(true)}
             >
               Add New
@@ -225,29 +203,111 @@ const UsersTable = () => {
                 />
               </Grid>
               <Grid
-              container
-              item
-              xs={12}
-              sm={6}
-              md={3}
-              lg={3}
-              style={{gap:10}}
-              justifyContent ='center'
-            >
-              <Button variant="contained" color="primary">
-                Search
-              </Button>
-              <Button variant="contained" color="secondary">
-                Cancel
-              </Button>
+                container
+                item
+                xs={12}
+                sm={6}
+                md={3}
+                lg={3}
+                style={{ gap: 10 }}
+                justifyContent="center"
+              >
+                <Button variant="contained" color="primary">
+                  Search
+                </Button>
+                <Button variant="contained" color="secondary">
+                  Cancel
+                </Button>
+              </Grid>
             </Grid>
-            </Grid>
-          
           </div>
         </Collapse>
       </Paper>
+      <CustomTable
+        data={data}
+        columns={columns}
+        count={Math.ceil(totalRows / perPage)}
+        onPageChange={onPageChange}
+        perPage={perPage}
+        onPerPageChange={onPerPageChange}
+        sortedColumn={sortedColumn}
+        sortedBy={sortedBy}
+        onSort={onSort}
+        checkedItems={checkedItems}
+        checkedAll={checkedAll}
+        onCheckedAllChange={onCheckedAllChange}
+        onRangeAction={onRangeAction}
+      >
+        {data.map((row, index) => (
+          <TableRow
+            key={row.id}
+            sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+          >
+            <TableCell>
+              <input
+                type="checkbox"
+                checked={row.selected}
+                onChange={(e) => onRowSelectionChange(e, index)}
+              />
+            </TableCell>
+            <TableCell align="left">{row.id}</TableCell>
 
-      <DataTable
+            <TableCell align="left">
+              {row.editMode ? (
+                <input
+                  name="name"
+                  value={row.name}
+                  onChange={(e) => onInputChange(e, row.id)}
+                />
+              ) : (
+                row.name
+              )}
+            </TableCell>
+            <TableCell align="left">
+              {row.editMode && authUser.name === "admin" ? (
+                <input
+                  name="email"
+                  value={row.email}
+                  onChange={(e) => onInputChange(e, row.id)}
+                />
+              ) : (
+                row.email
+              )}
+            </TableCell>
+            <TableCell align="left">
+              {row.editMode && authUser.name === "admin" ? (
+                <input
+                  name="phone"
+                  value={row.phone}
+                  onChange={(e) => onInputChange(e, row.id)}
+                />
+              ) : (
+                row.phone
+              )}
+            </TableCell>
+            <TableCell align="center">
+              {row.editMode ? (
+                <>
+                  <button type="button" onClick={() => toggleEditMode(row.id)}>
+                    Update
+                  </button>
+                  <button type="button" onClick={() => toggleEditMode(row.id)}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <ActionButtonGroup
+                  appearedDeleteButton
+                  appearedEditButton
+                  onEdit={() => toggleEditMode(row.id)}
+                  onDelete={() => console.log(row)}
+                />
+              )}
+            </TableCell>
+          </TableRow>
+        ))}
+      </CustomTable>
+      {/* <DataTable
         title="User List"
         columns={columns}
         data={data}
@@ -266,7 +326,7 @@ const UsersTable = () => {
         pagination
         paginationServer
         customStyles={customStyles}
-      />
+      /> */}
       <CustomDrawer
         drawerOpen={drawerOpen}
         setDrawerOpen={setDrawerOpen}
@@ -278,4 +338,4 @@ const UsersTable = () => {
   );
 };
 
-export default UsersTable;
+export default withSortBy(UsersTable, "id");

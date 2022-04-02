@@ -1,10 +1,8 @@
-import { useSelector } from 'react-redux';
 import { Link, NavLink } from "react-router-dom";
 import classes from "../styles/Nav.module.css";
 import Account from "./Account";
 
 export default function Nav() {
-  const { authUser } = useSelector(({ auth }) => auth)
   return (
     <nav className={classes.nav}>
       <ul className={classes.brandContainer}>
@@ -15,13 +13,11 @@ export default function Nav() {
         </li>
       </ul>
       <ul className={classes.navigationContainer}>
-        {authUser?.role === "admin" && (
-          <li>
-            <NavLink to={`/users`} activeClassName={classes.active}>
-              User
-            </NavLink>
-          </li>
-        )}
+        <li>
+          <NavLink to={`/users`} activeClassName={classes.active}>
+            User
+          </NavLink>
+        </li>
 
         <li>
           <NavLink to={`/vehicles`} activeClassName={classes.active}>
