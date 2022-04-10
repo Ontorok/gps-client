@@ -153,8 +153,8 @@ const UsersTable = ({ sortedColumn, sortedBy, onSort }) => {
   };
   return (
     <>
-      <Paper style={{ marginBottom: 10, padding: "10px 5px" }}>
-        <Grid container>
+      <Paper style={{ margin: "40px 0 10px 0", padding: "0px 5px" }}>
+        <Grid container alignItems="center">
           <Grid item container justifyContent="flex-start" xs={6}>
             <Button
               variant="contained"

@@ -18,6 +18,11 @@ export default function Nav() {
             User
           </NavLink>
         </li>
+        <li>
+          <NavLink to={`/club`} activeClassName={classes.active}>
+            Club
+          </NavLink>
+        </li>
 
         <li>
           <NavLink to={`/vehicles`} activeClassName={classes.active}>
