@@ -5,7 +5,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 const Logo = ({ color, ...props }) => {
-  const logoUrl = color === 'white' ? '/images/logo-white.png' : '/images/logo.png';
   const logoSymbolUrl = color === 'white' ? '/images/logo-white-symbol.png' : '/images/logo-symbol.png';
 
   return (
