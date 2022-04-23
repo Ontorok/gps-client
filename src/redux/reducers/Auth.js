@@ -1,13 +1,12 @@
-export const UPDATE_AUTH_USER = 'UPDATE_AUTH_USER';
-export const UPDATE_LOAD_USER = 'UPDATE_LOAD_USER';
-
+import { SEND_FORGET_PASSWORD_EMAIL, UPDATE_AUTH_USER, UPDATE_LOAD_USER } from 'constants/ActionTypes';
 
 const INIT_STATE = {
   authUser: null,
-  loadUser: false
-}
+  loadUser: false,
+  send_forget_password_email: false
+};
 
-const authReducer = (state = INIT_STATE, action) => {
+export default (state = INIT_STATE, action) => {
   switch (action.type) {
     case UPDATE_AUTH_USER: {
       return {
@@ -22,10 +21,13 @@ const authReducer = (state = INIT_STATE, action) => {
         loadUser: action.payload
       };
     }
-
+    case SEND_FORGET_PASSWORD_EMAIL: {
+      return {
+        ...state,
+        send_forget_password_email: action.payload
+      };
+    }
     default:
       return state;
   }
-}
-
-export default authReducer
+};

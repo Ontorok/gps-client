@@ -1,7 +1,8 @@
-import "./authMock";
-import "./clubmock";
-import mock from "./mock";
-import "./neededToBeSentNonGroomingMock";
-import "./usersmock";
+import './db/authMock';
+import './db/clubMock';
+import './db/entriesMock';
+import './db/groomerMock';
+import './db/usersMock';
+import Mock from './mock';
 
-mock.onAny().passThrough();
+Mock.onAny().passThrough();

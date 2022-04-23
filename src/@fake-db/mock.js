@@ -1,6 +1,4 @@
-import MockAdapter from 'axios-mock-adapter';
-import { axiosInstance } from '../services/config';
-
-const mock = new MockAdapter(axiosInstance);
-
-export default mock;
+const MockAdapter = require('axios-mock-adapter');
+const axios = require('axios');
+const Mock = new MockAdapter(axios);
+export default Mock;
