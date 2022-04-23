@@ -74,7 +74,6 @@ const CustomTable = props => {
     onCheckedAllChange,
     checkedAll,
     onRangeAction,
-    showPagination,
     rowPerPage,
     onRowPerPageChange,
     onPageChange,

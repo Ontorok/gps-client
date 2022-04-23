@@ -1,12 +1,12 @@
-import Dashboard from 'Pages/Dashboard';
+import Dashboard from 'pages/Dashboard';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router';
 import { useLocation } from 'react-router-dom';
-import Error404 from '../Pages/404';
-import ForgotPasswordPage from '../Pages/Auth/ForgotPassword';
-import Login from '../Pages/Auth/Login';
-import Register from '../Pages/Auth/Register';
+import Error404 from '../pages/404';
+import ForgotPasswordPage from '../pages/Auth/ForgotPassword';
+import Login from '../pages/Auth/Login';
+import Register from '../pages/Auth/Register';
 import Club from './club';
 import Entries from './entries';
 import Groomer from './groomer';
