@@ -68,8 +68,8 @@ const JWTAuth = {
       dispatch(fetchStart());
       axiosInstance
         .post(AUTH_API.logout)
-        .then(({ data }) => {
-          if (data.succeed) {
+        .then(({ status, data }) => {
+          if (status === 204) {
             dispatch(fetchSuccess());
             localStorage.removeItem('token');
             dispatch(setAuthUser(null));

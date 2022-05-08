@@ -20,7 +20,7 @@ export const GROOMER_API = {
 };
 
 export const AUTH_API = {
-  login: '/api/auth/login',
-  logout: '/api/auth/logout',
-  get_me: '/api/auth/get-me'
+  login: '/auth/login',
+  logout: '/auth/logout',
+  get_me: '/auth/get-me'
 };
