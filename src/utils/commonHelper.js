@@ -1,3 +1,4 @@
+import jwtDecode from 'jwt-decode';
 import { useEffect, useState } from 'react';
 
 export const capitalizeFLetter = string => {
@@ -67,8 +68,18 @@ export const useDebounce = (value, delay) => {
     // Only re-call effect if value changes
     // You could also add the "delay" var to inputs array if you ...
     // ... need to be able to change that dynamically.
-    [value, delay],
+    [value, delay]
   );
 
   return debouncedValue;
+};
+
+export const isValidToken = accessToken => {
+  if (!accessToken) {
+    return false;
+  }
+
+  const decodedToken = jwtDecode(accessToken);
+  const currentTime = Date.now() / 1000;
+  return decodedToken.exp > currentTime;
 };
