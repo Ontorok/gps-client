@@ -82,8 +82,9 @@ const JWTAuth = {
         .then(({ status, data }) => {
           if (status === 204) {
             dispatch(fetchSuccess());
-            localStorage.removeItem('token');
+
             dispatch(setAuthUser(null));
+            dispatch(updateAccessToken(''));
           } else {
             dispatch(fetchError(data.error));
           }
@@ -100,6 +101,7 @@ const JWTAuth = {
         let newAt;
         if (!token) {
           newAt = await JWTAuth.refresh();
+          dispatch(updateAccessToken(newAt));
         }
         dispatch(fetchStart());
         dispatch(updateLoadUser(loaded));
