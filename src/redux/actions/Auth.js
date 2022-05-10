@@ -1,4 +1,4 @@
-import { SEND_FORGET_PASSWORD_EMAIL, UPDATE_AUTH_USER, UPDATE_LOAD_USER } from 'constants/ActionTypes';
+import { SEND_FORGET_PASSWORD_EMAIL, UPDATE_ACCESS_TOKEN, UPDATE_AUTH_USER, UPDATE_LOAD_USER } from 'constants/ActionTypes';
 
 export const setAuthUser = user => {
   return dispatch => {
@@ -23,6 +23,15 @@ export const setForgetPassMailSent = status => {
     dispatch({
       type: SEND_FORGET_PASSWORD_EMAIL,
       payload: status
+    });
+  };
+};
+
+export const updateAccessToken = accessToken => {
+  return dispatch => {
+    dispatch({
+      type: UPDATE_ACCESS_TOKEN,
+      payload: accessToken
     });
   };
 };

@@ -1,10 +1,16 @@
 import React from 'react';
 import { fetchError, fetchStart, fetchSuccess } from 'redux/actions';
-import { setAuthUser, setForgetPassMailSent, updateLoadUser } from 'redux/actions/Auth';
+import { setAuthUser, setForgetPassMailSent, updateAccessToken, updateLoadUser } from 'redux/actions/Auth';
 import { AUTH_API } from 'services/apiEndPoints';
 import { axiosInstance } from './config';
 
 const JWTAuth = {
+  refresh: async () => {
+    const res = await axiosInstance.get('/auth/refresh', { withCredentials: true });
+    const accessToken = res.data.accessToken;
+    return accessToken;
+  },
+
   onRegister: ({ name, email, password }) => {
     return dispatch => {
       dispatch(fetchStart());
@@ -35,16 +41,21 @@ const JWTAuth = {
       try {
         dispatch(fetchStart());
         axiosInstance
-          .post(AUTH_API.login, {
-            email: email,
-            password: password
-          })
+          .post(
+            AUTH_API.login,
+            {
+              email: email,
+              password: password
+            },
+            {
+              withCredentials: true
+            }
+          )
           .then(({ data }) => {
             if (data.succeed) {
-              localStorage.setItem('token', data.accessToken);
-              axiosInstance.defaults.headers.common['Authorization'] = 'Bearer ' + data.accessToken;
               dispatch(fetchSuccess());
               dispatch(JWTAuth.getAuthUser(true, data.accessToken));
+              dispatch(updateAccessToken(data.accessToken));
             } else {
               dispatch(fetchError(data.error));
             }
@@ -67,7 +78,7 @@ const JWTAuth = {
     return dispatch => {
       dispatch(fetchStart());
       axiosInstance
-        .post(AUTH_API.logout)
+        .post(AUTH_API.logout, {}, { withCredentials: true })
         .then(({ status, data }) => {
           if (status === 204) {
             dispatch(fetchSuccess());
@@ -84,26 +95,28 @@ const JWTAuth = {
   },
 
   getAuthUser: (loaded = false, token) => {
-    return dispatch => {
-      if (!token) {
-        const token = localStorage.getItem('token');
-        axiosInstance.defaults.headers.common['Authorization'] = 'Bearer ' + token;
-      }
-      dispatch(fetchStart());
-      dispatch(updateLoadUser(loaded));
-      axiosInstance
-        .get(AUTH_API.get_me)
-        .then(({ data }) => {
-          if (data.user) {
-            dispatch(fetchSuccess());
-            dispatch(setAuthUser(data.user));
-          } else {
-            dispatch(updateLoadUser(true));
+    return async dispatch => {
+      try {
+        let newAt;
+        if (!token) {
+          newAt = await JWTAuth.refresh();
+        }
+        dispatch(fetchStart());
+        dispatch(updateLoadUser(loaded));
+        const res = await axiosInstance.get(AUTH_API.get_me, {
+          headers: {
+            Authorization: `Bearer ${token || newAt}`
           }
-        })
-        .catch(function(error) {
-          dispatch(updateLoadUser(true));
         });
+        if (res.data.user) {
+          dispatch(fetchSuccess());
+          dispatch(setAuthUser(res.data.user));
+        } else {
+          dispatch(updateLoadUser(true));
+        }
+      } catch (error) {
+        dispatch(updateLoadUser(true));
+      }
     };
   },
 
