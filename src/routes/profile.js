@@ -7,7 +7,7 @@ const Profile = ({ match }) => {
   return (
     <Suspense fallback={<PageLoader />}>
       <Switch>
-        <Route exact path={`${requestedUrl}`} component={lazy(() => import('../pages/Profile/Profile'))} />
+        <Route exact path={`${requestedUrl}`} component={lazy(() => import('../Pages/Profile/Profile'))} />
       </Switch>
     </Suspense>
   );

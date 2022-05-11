@@ -7,7 +7,7 @@ const Groomers = ({ match }) => {
   return (
     <Suspense fallback={<PageLoader />}>
       <Switch>
-        <Route exact path={`${requestedUrl}`} component={lazy(() => import('../parts/groomers/GroomerTabs'))} />
+        <Route exact path={`${requestedUrl}`} component={lazy(() => import('../Pages/Groomer'))} />
       </Switch>
     </Suspense>
   );

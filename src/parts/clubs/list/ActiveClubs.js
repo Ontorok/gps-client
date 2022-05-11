@@ -28,19 +28,19 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       name: 'serial',
       label: 'Serial',
       minWidth: 100,
-      isDisableSorting: true
+      isDisableSorting: false
     },
     {
       sortName: 'name',
       name: 'name',
       label: 'Club Name',
       minWidth: 145,
-      isDisableSorting: true
+      isDisableSorting: false
     },
     {
-      sortName: 'state',
-      name: 'state',
-      label: 'State',
+      sortName: 'status',
+      name: 'status',
+      label: 'Status',
       minWidth: 140,
       isDisableSorting: true
     }
@@ -68,13 +68,20 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
 
   //#region Effects
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
     const fetchActiveClubs = async () => {
       try {
-        const res = await axiosPrivate.get(CLUB_API.fetch_all);
-        //const res = await axiosInstance.get(CLUB_API.fetch_all, { params: { page, perPage } });
+        const res = await axiosPrivate.get(CLUB_API.fetch_all, {
+          params: { page, perPage, sortedColumn, sortedBy, status: true },
+          signal: controller.signal
+        });
         const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
-        setState(clubs);
-        setActiveDataLength(10);
+
+        if (isMounted) {
+          setState(clubs);
+          setActiveDataLength(res.data.total);
+        }
       } catch (err) {
         // toastAlerts('error', 'There is an error');
         history.push('/signin', { state: { from: location }, replace: true });
@@ -82,7 +89,12 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
     };
 
     fetchActiveClubs();
-  }, [axiosPrivate, history, location, page, perPage]);
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [axiosPrivate, history, location, page, perPage, sortedBy, sortedColumn]);
   //#endregion
 
   //#region Events
@@ -138,7 +150,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
               ) : (
                 <TableCell>{row.name}</TableCell>
               )}
-              <TableCell>{row.state ? 'Active' : 'Inactive'}</TableCell>
+              <TableCell>{row.status ? 'Active' : 'Inactive'}</TableCell>
 
               <TableCell>
                 <ActionButtonGroup
@@ -169,4 +181,4 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   );
 };
 
-export default withSort(AcitveClubs, 'id');
+export default withSort(AcitveClubs, 'serial');

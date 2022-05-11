@@ -7,7 +7,7 @@ const Entries = ({ match }) => {
   return (
     <Suspense fallback={<PageLoader />}>
       <Switch>
-        <Route exact path={`${requestedUrl}`} component={lazy(() => import('../parts/entries/EntriesTabs'))} />
+        <Route exact path={`${requestedUrl}`} component={lazy(() => import('../Pages/Entries'))} />
       </Switch>
     </Suspense>
   );

@@ -7,7 +7,7 @@ const Clubs = ({ match }) => {
   return (
     <Suspense fallback={<PageLoader />}>
       <Switch>
-        <Route exact path={`${requestedUrl}`} component={lazy(() => import('../parts/clubs/ClubTabs'))} />
+        <Route exact path={`${requestedUrl}`} component={lazy(() => import('../Pages/Club'))} />
       </Switch>
     </Suspense>
   );

@@ -10,11 +10,11 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   //#region Colums for Table
   const columns = [
     {
-      sortName: 'id',
-      name: 'id',
-      label: 'ID',
+      sortName: 'serial',
+      name: 'serial',
+      label: 'Serial',
       minWidth: 100,
-      isDisableSorting: false
+      isDisableSorting: true
     },
     {
       sortName: 'name',
@@ -36,7 +36,7 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
-  const [activeDataLength, setActiveDataLength] = useState(0);
+  const [archiveDataLength, setArchiveDataLength] = useState(0);
 
   const location = useLocation();
   const history = useHistory();
@@ -58,12 +58,16 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
 
   //#region Effects
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
     const fetchArchiveClubs = async () => {
       try {
-        const res = await axiosPrivate.get(CLUB_API.fetch_all);
-        const users = res.data.result.map(user => ({ ...user, editMode: false }));
-        setState(users);
-        setActiveDataLength(10);
+        const res = await axiosPrivate.get(CLUB_API.fetch_all, { params: { page, perPage, status: false }, signal: controller.signal });
+        const clubs = res.data.result.map(user => ({ ...user, editMode: false }));
+        if (isMounted) {
+          setState(clubs);
+          setArchiveDataLength(res.data.total);
+        }
       } catch (err) {
         // toastAlerts('error', 'There is an error');
         history.push('/signin', { state: { from: location }, replace: true });
@@ -107,7 +111,7 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
         sortedColumn={sortedColumn}
         sortedBy={sortedBy}
         onSort={onSort}
-        count={Math.ceil(activeDataLength / perPage)}>
+        count={Math.ceil(archiveDataLength / perPage)}>
         {state.map(row => {
           return (
             <TableRow key={row._id}>
