@@ -64,6 +64,9 @@ const JWTAuth = {
             let errText;
             if (error?.response?.status === 400) {
               errText = error?.response?.data?.message;
+            }
+            if (error?.response?.status === 401) {
+              errText = error?.response?.data?.message;
             } else {
               errText = error.message;
             }

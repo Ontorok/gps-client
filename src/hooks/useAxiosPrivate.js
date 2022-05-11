@@ -5,13 +5,13 @@ import { useRefreshToken } from './useRefreshToken';
 
 export const useAxiosPrivate = () => {
   const refresh = useRefreshToken();
-  const { authUser } = useSelector(({ auth }) => auth);
+  const { accessToken } = useSelector(({ auth }) => auth);
 
   useEffect(() => {
     const requestInterceptor = privateAxiosInstance.interceptors.request.use(
       config => {
         if (!config.headers['Authorization']) {
-          config.headers['Authorization'] = `Bearer ${authUser.accessToken}`;
+          config.headers['Authorization'] = `Bearer ${accessToken}`;
         }
         return config;
       },
@@ -36,7 +36,7 @@ export const useAxiosPrivate = () => {
       privateAxiosInstance.interceptors.request.eject(requestInterceptor);
       privateAxiosInstance.interceptors.response.eject(responseInterceptor);
     };
-  }, [authUser, refresh]);
+  }, [accessToken, refresh]);
 
   return privateAxiosInstance;
 };

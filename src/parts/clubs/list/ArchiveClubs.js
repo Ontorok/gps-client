@@ -1,10 +1,10 @@
 import { TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, CustomTable, TextInput } from 'components';
 import withSort from 'hoc/withSort';
+import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import { CLUB_API } from 'services/apiEndPoints';
-import { axiosInstance } from 'services/auth/jwt/config';
-import { toastAlerts } from 'utils/alert';
 
 const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   //#region Colums for Table
@@ -17,8 +17,8 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       isDisableSorting: false
     },
     {
-      sortName: 'clubName',
-      name: 'clubName',
+      sortName: 'name',
+      name: 'name',
       label: 'Club Name',
       minWidth: 145,
       isDisableSorting: true
@@ -38,6 +38,10 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   const [perPage, setPerPage] = useState(10);
   const [activeDataLength, setActiveDataLength] = useState(0);
 
+  const location = useLocation();
+  const history = useHistory();
+  const axiosPrivate = useAxiosPrivate();
+
   //#endregion
 
   //#region UDF's
@@ -56,17 +60,18 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   useEffect(() => {
     const fetchArchiveClubs = async () => {
       try {
-        const res = await axiosInstance.get(CLUB_API.fetch_all_archive, { params: { page, perPage } });
+        const res = await axiosPrivate.get(CLUB_API.fetch_all);
         const users = res.data.result.map(user => ({ ...user, editMode: false }));
         setState(users);
-        setActiveDataLength(res.data.totalRows);
+        setActiveDataLength(10);
       } catch (err) {
-        toastAlerts('error', 'There is an error');
+        // toastAlerts('error', 'There is an error');
+        history.push('/signin', { state: { from: location }, replace: true });
       }
     };
 
     fetchArchiveClubs();
-  }, [page, perPage]);
+  }, [axiosPrivate, history, location, page, perPage]);
   //#endregion
 
   //#region Events
@@ -91,7 +96,7 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
     setState(_data);
   };
   //#endregion
-  
+
   return (
     <Fragment>
       <CustomTable
@@ -105,17 +110,17 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
         count={Math.ceil(activeDataLength / perPage)}>
         {state.map(row => {
           return (
-            <TableRow key={row.id}>
-              <TableCell>{row.id}</TableCell>
+            <TableRow key={row._id}>
+              <TableCell>{row.serial}</TableCell>
               {row.editMode ? (
                 <TableCell>
-                  <TextInput type="text" name="clubName" value={row.clubName} onChange={e => onInputChange(e, row.id)} />
+                  <TextInput type="text" name="name" value={row.name} onChange={e => onInputChange(e, row.id)} />
                 </TableCell>
               ) : (
-                <TableCell>{row.clubName}</TableCell>
+                <TableCell>{row.name}</TableCell>
               )}
 
-              <TableCell>{row.state?'Active':'Inactive'}</TableCell>
+              <TableCell>{row.state ? 'Active' : 'Inactive'}</TableCell>
               <TableCell>
                 <ActionButtonGroup
                   appearedEditButton={!row.editMode}

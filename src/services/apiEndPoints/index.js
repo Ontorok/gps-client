@@ -10,8 +10,8 @@ export const ENTRIES_API = {
 };
 
 export const CLUB_API = {
-  fetch_all: '/api/club/fetch-all',
-  fetch_all_archive: '/api/club/fetch-all-archive'
+  fetch_all: '/club/fetch-all',
+  fetch_all_archive: '/club/fetch-all-archive'
 };
 
 export const GROOMER_API = {

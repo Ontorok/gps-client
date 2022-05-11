@@ -1,10 +1,10 @@
 import { Button, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, CustomDrawer, CustomTable, TextInput } from 'components';
 import withSort from 'hoc/withSort';
+import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
 import { CLUB_API } from 'services/apiEndPoints';
-import { axiosInstance } from 'services/auth/jwt/config';
-import { toastAlerts } from 'utils/alert';
 import ClubForm from '../forms/ClubForm';
 
 const useStyles = makeStyles(theme => ({
@@ -18,18 +18,21 @@ const useStyles = makeStyles(theme => ({
 
 const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   const classes = useStyles();
+  const axiosPrivate = useAxiosPrivate();
+  const location = useLocation();
+  const history = useHistory();
   //#region Colums for Table
   const columns = [
     {
-      sortName: 'id',
-      name: 'id',
-      label: 'ID',
+      sortName: 'serial',
+      name: 'serial',
+      label: 'Serial',
       minWidth: 100,
-      isDisableSorting: false
+      isDisableSorting: true
     },
     {
-      sortName: 'clubName',
-      name: 'clubName',
+      sortName: 'name',
+      name: 'name',
       label: 'Club Name',
       minWidth: 145,
       isDisableSorting: true
@@ -39,7 +42,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       name: 'state',
       label: 'State',
       minWidth: 140,
-      isDisableSorting: false
+      isDisableSorting: true
     }
   ];
   //#endregion
@@ -67,17 +70,19 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   useEffect(() => {
     const fetchActiveClubs = async () => {
       try {
-        const res = await axiosInstance.get(CLUB_API.fetch_all, { params: { page, perPage } });
+        const res = await axiosPrivate.get(CLUB_API.fetch_all);
+        //const res = await axiosInstance.get(CLUB_API.fetch_all, { params: { page, perPage } });
         const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
         setState(clubs);
-        setActiveDataLength(res.data.totalRows);
+        setActiveDataLength(10);
       } catch (err) {
-        toastAlerts('error', 'There is an error');
+        // toastAlerts('error', 'There is an error');
+        history.push('/signin', { state: { from: location }, replace: true });
       }
     };
 
     fetchActiveClubs();
-  }, [page, perPage]);
+  }, [axiosPrivate, history, location, page, perPage]);
   //#endregion
 
   //#region Events
@@ -124,14 +129,14 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
         count={Math.ceil(activeDataLength / perPage)}>
         {state.map(row => {
           return (
-            <TableRow key={row.id}>
-              <TableCell>{row.id}</TableCell>
+            <TableRow key={row._id}>
+              <TableCell>{row.serial}</TableCell>
               {row.editMode ? (
                 <TableCell>
-                  <TextInput type="text" name="clubName" value={row.clubName} onChange={e => onInputChange(e, row.id)} />
+                  <TextInput type="text" name="name" value={row.name} onChange={e => onInputChange(e, row._id)} />
                 </TableCell>
               ) : (
-                <TableCell>{row.clubName}</TableCell>
+                <TableCell>{row.name}</TableCell>
               )}
               <TableCell>{row.state ? 'Active' : 'Inactive'}</TableCell>
 
