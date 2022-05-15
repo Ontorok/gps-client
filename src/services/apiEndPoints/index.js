@@ -14,7 +14,8 @@ export const CLUB_API = {
   fetch_all_archive: '/club/fetch-all-archive',
   create: '/club/create',
   update: '/club/update',
-  delete: '/club/delete'
+  delete: '/club/delete',
+  reStore: '/club/re-store'
 };
 
 export const GROOMER_API = {

@@ -1,10 +1,11 @@
 import { Checkbox, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomTable, TextInput } from 'components';
+import { ActionButtonGroup, CustomConfirmDialog, CustomTable } from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CLUB_API } from 'services/apiEndPoints';
+import { toastAlerts } from 'utils/alert';
 
 const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   //#region Colums for Table
@@ -25,11 +26,17 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
     }
   ];
   //#endregion
+
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [archiveDataLength, setArchiveDataLength] = useState(0);
+  const [confirmDialog, setConfirmDialog] = useState({
+    title: '',
+    content: '',
+    isOpen: false
+  });
 
   const location = useLocation();
   const history = useHistory();
@@ -38,15 +45,18 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
 
   //#region UDF's
-  function toggleEditMode(id) {
-    const updatedState = state.map(item => {
-      if (item.id === id) {
-        item['editMode'] = !item.editMode;
-      }
-      return item;
-    });
-    setState(updatedState);
-  }
+  const fetchArchiveClub = async () => {
+    try {
+      const res = await axiosPrivate.get(CLUB_API.fetch_all_archive, {
+        params: { page, perPage, sortedColumn, sortedBy }
+      });
+      const clubs = res.data.result;
+      setState(clubs);
+      setArchiveDataLength(res.data.total);
+    } catch (err) {
+      toastAlerts('error', err.message);
+    }
+  };
   //#endregion
 
   //#region Effects
@@ -84,17 +94,18 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
     setPage(pageNumber);
   };
 
-  const onInputChange = (e, id) => {
-    const { name, value } = e.target;
-    const _data = [...state];
-    _data.map(u => {
-      if (u.id === id) {
-        u[name] = value;
-      }
-      return u;
-    });
-    setState(_data);
+  const onRestore = async id => {
+    setConfirmDialog({ ...confirmDialog, isOpen: false });
+    try {
+      const res = await axiosPrivate.put(CLUB_API.reStore, {}, { params: { id } });
+      toastAlerts('success', res.data.message);
+    } catch (err) {
+      toastAlerts('error', err?.response?.data?.message);
+    } finally {
+      fetchArchiveClub();
+    }
   };
+
   //#endregion
 
   return (
@@ -111,14 +122,7 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
         {state.map(row => {
           return (
             <TableRow key={row._id}>
-              {row.editMode ? (
-                <TableCell>
-                  <TextInput type="text" name="name" value={row.name} onChange={e => onInputChange(e, row.id)} />
-                </TableCell>
-              ) : (
-                <TableCell>{row.name}</TableCell>
-              )}
-
+              <TableCell>{row.name}</TableCell>
               <TableCell>
                 <Checkbox
                   style={{ color: '#215280' }}
@@ -130,22 +134,23 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
                   disableRipple
                 />
               </TableCell>
-              <TableCell>
+              <TableCell align="center">
                 <ActionButtonGroup
-                  appearedEditButton={!row.editMode}
-                  onEdit={() => {
-                    toggleEditMode(row.id);
+                  appearedReactiveButton
+                  onRestore={() => {
+                    setConfirmDialog({
+                      isOpen: true,
+                      title: 'Re-store Club?',
+                      content: 'Are you sure to re-store this club??',
+                      onConfirm: () => onRestore(row._id)
+                    });
                   }}
-                  appearedDeleteButton={!row.editMode}
-                  onDelete={() => {}}
-                  appearedCancelButton={row.editMode}
-                  onCancel={() => {
-                    toggleEditMode(row.id);
-                  }}
-                  appearedDoneButton={row.editMode}
-                  onDone={() => {
-                    toggleEditMode(row.id);
-                  }}
+                />
+                <CustomConfirmDialog
+                  confirmDialog={confirmDialog}
+                  setConfirmDialog={setConfirmDialog}
+                  confirmButtonText="Delete"
+                  cancelButtonText="Cancel"
                 />
               </TableCell>
             </TableRow>
@@ -156,4 +161,4 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   );
 };
 
-export default withSort(ArchiveClubs, 'id');
+export default withSort(ArchiveClubs, 'name');

@@ -223,7 +223,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
                 </TableCell>
               )}
 
-              <TableCell>
+              <TableCell align="center">
                 <ActionButtonGroup
                   appearedEditButton={!row.editMode}
                   onEdit={() => {

@@ -6,7 +6,8 @@ import React from 'react';
 
 const useStyles = makeStyles(theme => ({
   btnViewChild: {
-    color: '#1976D2'
+    color: '#1976D2',
+    fontSize: 20
   },
   btnViewParent: {
     '&:hover': {
@@ -17,7 +18,8 @@ const useStyles = makeStyles(theme => ({
     }
   },
   btnEditChild: {
-    color: '#4CAF50'
+    color: '#4CAF50',
+    fontSize: 20
   },
   btnEditParent: {
     '&:hover': {
@@ -34,7 +36,8 @@ const useStyles = makeStyles(theme => ({
     }
   },
   btnDeleteChild: {
-    color: '#F44336'
+    color: '#F44336',
+    fontSize: 20
   },
   btnDeleteParent: {
     '&:hover': {
@@ -45,7 +48,8 @@ const useStyles = makeStyles(theme => ({
     }
   },
   btnReactiveChild: {
-    color: '#9A4EF1'
+    color: '#9A4EF1',
+    fontSize: 20
   },
   btnReactiveParent: {
     '&:hover': {
@@ -85,42 +89,42 @@ const ActionButtonGroup = props => {
     <ButtonGroup>
       {appearedViewButton && (
         <Tooltip arrow title="View" placement="bottom">
-          <Button className={classes.btnViewParent} onClick={onView}>
+          <Button size="small" className={classes.btnViewParent} onClick={onView}>
             <Visibility className={classes.btnViewChild} />
           </Button>
         </Tooltip>
       )}
       {appearedEditButton && (
         <Tooltip arrow title="Edit" placement="bottom">
-          <Button className={classes.btnEditParent} onClick={onEdit}>
+          <Button size="small" className={classes.btnEditParent} onClick={onEdit}>
             <Edit className={classes.btnEditChild} />
           </Button>
         </Tooltip>
       )}
       {appearedDeleteButton && (
         <Tooltip arrow title="Delete" placement="bottom">
-          <Button className={classes.btnDeleteParent} onClick={onDelete}>
+          <Button size="small" className={classes.btnDeleteParent} onClick={onDelete}>
             <Delete className={classes.btnDeleteChild} />
           </Button>
         </Tooltip>
       )}
       {appearedReactiveButton && (
-        <Tooltip arrow title="Re-active" placement="bottom">
-          <Button className={classes.btnReactiveParent} onClick={onRestore}>
+        <Tooltip arrow title="Re-store" placement="bottom">
+          <Button size="small" className={classes.btnReactiveParent} onClick={onRestore}>
             <DoneOutline className={classes.btnReactiveChild} />
           </Button>
         </Tooltip>
       )}
       {appearedCancelButton && (
         <Tooltip arrow title="Cancel" placement="bottom">
-          <Button className={classes.btnDeleteParent} onClick={onCancel}>
+          <Button size="small" className={classes.btnDeleteParent} onClick={onCancel}>
             <Cancel className={classes.btnDeleteChild} />
           </Button>
         </Tooltip>
       )}
       {appearedDoneButton && (
         <Tooltip arrow title="Done" placement="bottom">
-          <Button className={classes.btnReactiveParent} onClick={onDone}>
+          <Button size="small" className={classes.btnReactiveParent} onClick={onDone}>
             <Done className={classes.btnReactiveChild} />
           </Button>
         </Tooltip>
@@ -161,7 +165,7 @@ ActionButtonGroup.defaultProps = {
     console.error(`'onDelete' event not passed!!`);
   },
   appearedReactiveButton: false,
-  onReActive: () => {
+  onRestore: () => {
     // eslint-disable-next-line no-console
     console.error(`'onDelete' event not passed!!`);
   },
