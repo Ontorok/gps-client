@@ -1,10 +1,13 @@
-import { Button, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomDrawer, CustomTable, TextInput } from 'components';
+import { Button, Checkbox, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
+import { ActionButtonGroup, CustomBackdrop, CustomDrawer, CustomTable, TextInput } from 'components';
+import CustomCheckbox from 'components/CustomCheckbox/CustomCheckbox';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CLUB_API } from 'services/apiEndPoints';
+import { toastAlerts } from 'utils/alert';
+import { sleep } from 'utils/commonHelper';
 import ClubForm from '../forms/ClubForm';
 
 const useStyles = makeStyles(theme => ({
@@ -23,13 +26,6 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   const history = useHistory();
   //#region Colums for Table
   const columns = [
-    {
-      sortName: 'serial',
-      name: 'serial',
-      label: 'Serial',
-      minWidth: 100,
-      isDisableSorting: false
-    },
     {
       sortName: 'name',
       name: 'name',
@@ -52,12 +48,27 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   const [perPage, setPerPage] = useState(10);
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   //#endregion
 
   //#region UDF's
+
+  const fetchActiveClub = async () => {
+    try {
+      const res = await axiosPrivate.get(CLUB_API.fetch_all, {
+        params: { page, perPage, sortedColumn, sortedBy }
+      });
+      const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
+      setState(clubs);
+      setActiveDataLength(res.data.total);
+    } catch (err) {
+      toastAlerts('error', err.message);
+    }
+  };
+
   function toggleEditMode(id) {
     const updatedState = state.map(item => {
-      if (item.id === id) {
+      if (item._id === id) {
         item['editMode'] = !item.editMode;
       }
       return item;
@@ -70,25 +81,23 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-    const fetchActiveClubs = async () => {
+    const fetchdata = async () => {
       try {
         const res = await axiosPrivate.get(CLUB_API.fetch_all, {
-          params: { page, perPage, sortedColumn, sortedBy, status: true },
+          params: { page, perPage, sortedColumn, sortedBy },
           signal: controller.signal
         });
         const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
-
         if (isMounted) {
           setState(clubs);
           setActiveDataLength(res.data.total);
         }
       } catch (err) {
-        // toastAlerts('error', 'There is an error');
         history.push('/signin', { state: { from: location }, replace: true });
       }
     };
 
-    fetchActiveClubs();
+    fetchdata();
 
     return () => {
       isMounted = false;
@@ -112,15 +121,44 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   };
 
   const onInputChange = (e, id) => {
-    const { name, value } = e.target;
+    const { type, name, value, checked } = e.target;
     const _data = [...state];
     _data.map(u => {
-      if (u.id === id) {
-        u[name] = value;
+      if (u._id === id) {
+        u[name] = type === 'checkbox' ? checked : value;
       }
       return u;
     });
     setState(_data);
+  };
+
+  const onCreate = async formValue => {
+    setLoading(true);
+    try {
+      const res = await axiosPrivate.post(CLUB_API.create, formValue);
+      await sleep(1000);
+      toastAlerts('success', res.data.message);
+    } catch (err) {
+      toastAlerts('error', err?.response?.data?.message);
+    } finally {
+      setLoading(false);
+      setDrawerOpen(false);
+      fetchActiveClub();
+    }
+  };
+
+  const onUpdate = async formValue => {
+    setLoading(true);
+    try {
+      const res = await axiosPrivate.put(CLUB_API.update, formValue);
+      await sleep(1000);
+      setLoading(false);
+      toastAlerts('success', res.data.message);
+    } catch (err) {
+      toastAlerts('error', err?.response?.data?.message);
+    } finally {
+      fetchActiveClub();
+    }
   };
   //#endregion
   return (
@@ -142,7 +180,6 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
         {state.map(row => {
           return (
             <TableRow key={row._id}>
-              <TableCell>{row.serial}</TableCell>
               {row.editMode ? (
                 <TableCell>
                   <TextInput type="text" name="name" value={row.name} onChange={e => onInputChange(e, row._id)} />
@@ -150,23 +187,40 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
               ) : (
                 <TableCell>{row.name}</TableCell>
               )}
-              <TableCell>{row.status ? 'Active' : 'Inactive'}</TableCell>
+
+              {row.editMode ? (
+                <TableCell>
+                  <CustomCheckbox name="status" label="Active?" checked={row.status} onChange={e => onInputChange(e, row._id)} />
+                </TableCell>
+              ) : (
+                <TableCell>
+                  <Checkbox
+                    style={{ color: '#215280' }}
+                    color="primary"
+                    defaultChecked={row.status}
+                    disabled
+                    disableFocusRipple
+                    disableTouchRipple
+                    disableRipple
+                  />
+                </TableCell>
+              )}
 
               <TableCell>
                 <ActionButtonGroup
                   appearedEditButton={!row.editMode}
                   onEdit={() => {
-                    toggleEditMode(row.id);
+                    toggleEditMode(row._id);
                   }}
                   appearedDeleteButton={!row.editMode}
                   onDelete={() => {}}
                   appearedCancelButton={row.editMode}
                   onCancel={() => {
-                    toggleEditMode(row.id);
+                    toggleEditMode(row._id);
                   }}
                   appearedDoneButton={row.editMode}
                   onDone={() => {
-                    toggleEditMode(row.id);
+                    onUpdate(row);
                   }}
                 />
               </TableCell>
@@ -175,10 +229,11 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
         })}
       </CustomTable>
       <CustomDrawer drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} title="Club">
-        <ClubForm recordForEdit={{}} onSubmit={() => {}} />
+        <ClubForm create={onCreate} loading={loading} />
       </CustomDrawer>
+      <CustomBackdrop open={loading} />
     </Fragment>
   );
 };
 
-export default withSort(AcitveClubs, 'serial');
+export default withSort(AcitveClubs, 'name');

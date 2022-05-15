@@ -83,3 +83,5 @@ export const isValidToken = accessToken => {
   const currentTime = Date.now() / 1000;
   return decodedToken.exp > currentTime;
 };
+
+export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));

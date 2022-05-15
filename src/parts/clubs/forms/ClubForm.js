@@ -1,4 +1,5 @@
-import { Button, Grid, makeStyles } from '@material-ui/core';
+import { Box, Button, CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { green } from '@material-ui/core/colors';
 import { Save } from '@material-ui/icons';
 import { TextInput } from 'components';
 import CustomCheckbox from 'components/CustomCheckbox/CustomCheckbox';
@@ -9,6 +10,9 @@ const useStyles = makeStyles(theme => ({
   root: {
     maxWidth: 350,
     top: 10
+  },
+  wrapper: {
+    position: 'relative'
   },
   buttonSuccess: {
     margin: 5,
@@ -24,16 +28,26 @@ const useStyles = makeStyles(theme => ({
       border: 'none'
     }
   },
+  buttonProgress: {
+    color: green[500],
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12
+  }
 }));
 const initialFieldValues = {
   id: 0,
-  clubName: '',
-  state: false
+  name: '',
+  state: true
 };
 
-const ClubForm = () => {
+const ClubForm = props => {
   const classes = useStyles();
   const [state, setState] = useState(initialFieldValues);
+
+  const { create, loading } = props;
 
   //#region Events
   const onChange = e => {
@@ -45,23 +59,33 @@ const ClubForm = () => {
     });
   };
 
+  const onSubmit = e => {
+    e.preventDefault();
+    create(state);
+  };
+
   //#endregion
 
   return (
     <GridContainer className={classes.root}>
-      <Grid item xs={12}>
-        <TextInput name="clubName" label="Club Name" value={state.clubName} onChange={onChange} />
-      </Grid>
+      <form onSubmit={onSubmit}>
+        <Grid item xs={12}>
+          <TextInput name="name" label="Club Name" value={state.name} onChange={onChange} />
+        </Grid>
 
-      <Grid item xs={12}>
-        <CustomCheckbox name="state" label="Is State" checked={state.state} onChange={onChange} />
-      </Grid>
+        <Grid item xs={12}>
+          <CustomCheckbox name="state" label="Is State" checked={state.state} onChange={onChange} />
+        </Grid>
 
-      <Grid item xs={12}>
-        <Button type="submit" variant="contained" color="default" className={classes.buttonSuccess} endIcon={<Save />}>
-          Save
-        </Button>
-      </Grid>
+        <Grid item container justifyContent="flex-start" xs={12}>
+          <Box className={classes.wrapper}>
+            <Button type="submit" variant="contained" color="default" className={classes.buttonSuccess} disabled={loading} endIcon={<Save />}>
+              Save
+            </Button>
+            {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+          </Box>
+        </Grid>
+      </form>
     </GridContainer>
   );
 };

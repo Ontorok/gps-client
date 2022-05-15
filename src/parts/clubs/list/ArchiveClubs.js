@@ -1,4 +1,4 @@
-import { TableCell, TableRow } from '@material-ui/core';
+import { Checkbox, TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, CustomTable, TextInput } from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
@@ -9,13 +9,6 @@ import { CLUB_API } from 'services/apiEndPoints';
 const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   //#region Colums for Table
   const columns = [
-    {
-      sortName: 'serial',
-      name: 'serial',
-      label: 'Serial',
-      minWidth: 100,
-      isDisableSorting: true
-    },
     {
       sortName: 'name',
       name: 'name',
@@ -60,9 +53,12 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-    const fetchArchiveClubs = async () => {
+    const fetchdata = async () => {
       try {
-        const res = await axiosPrivate.get(CLUB_API.fetch_all, { params: { page, perPage, status: false }, signal: controller.signal });
+        const res = await axiosPrivate.get(CLUB_API.fetch_all_archive, {
+          params: { page, perPage, sortedColumn, sortedBy },
+          signal: controller.signal
+        });
         const clubs = res.data.result.map(user => ({ ...user, editMode: false }));
         if (isMounted) {
           setState(clubs);
@@ -74,8 +70,8 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       }
     };
 
-    fetchArchiveClubs();
-  }, [axiosPrivate, history, location, page, perPage]);
+    fetchdata();
+  }, [axiosPrivate, history, location, page, perPage, sortedBy, sortedColumn]);
   //#endregion
 
   //#region Events
@@ -115,7 +111,6 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
         {state.map(row => {
           return (
             <TableRow key={row._id}>
-              <TableCell>{row.serial}</TableCell>
               {row.editMode ? (
                 <TableCell>
                   <TextInput type="text" name="name" value={row.name} onChange={e => onInputChange(e, row.id)} />
@@ -124,7 +119,17 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
                 <TableCell>{row.name}</TableCell>
               )}
 
-              <TableCell>{row.state ? 'Active' : 'Inactive'}</TableCell>
+              <TableCell>
+                <Checkbox
+                  style={{ color: '#215280' }}
+                  color="primary"
+                  defaultChecked={row.status}
+                  disabled
+                  disableFocusRipple
+                  disableTouchRipple
+                  disableRipple
+                />
+              </TableCell>
               <TableCell>
                 <ActionButtonGroup
                   appearedEditButton={!row.editMode}
