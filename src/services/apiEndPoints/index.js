@@ -13,7 +13,8 @@ export const CLUB_API = {
   fetch_all: '/club/fetch-all',
   fetch_all_archive: '/club/fetch-all-archive',
   create: '/club/create',
-  update: '/club/update'
+  update: '/club/update',
+  delete: '/club/delete'
 };
 
 export const GROOMER_API = {

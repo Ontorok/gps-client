@@ -1,5 +1,5 @@
 import { Button, Checkbox, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomBackdrop, CustomDrawer, CustomTable, TextInput } from 'components';
+import { ActionButtonGroup, CustomBackdrop, CustomConfirmDialog, CustomDrawer, CustomTable, TextInput } from 'components';
 import CustomCheckbox from 'components/CustomCheckbox/CustomCheckbox';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
@@ -49,6 +49,11 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    title: '',
+    content: '',
+    isOpen: false
+  });
   //#endregion
 
   //#region UDF's
@@ -160,6 +165,18 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       fetchActiveClub();
     }
   };
+
+  const onDelete = async id => {
+    setConfirmDialog({ ...confirmDialog, isOpen: false });
+    try {
+      const res = await axiosPrivate.delete(CLUB_API.delete, { params: { id } });
+      toastAlerts('success', res.data.message);
+    } catch (err) {
+      toastAlerts('error', err?.response?.data?.message);
+    } finally {
+      fetchActiveClub();
+    }
+  };
   //#endregion
   return (
     <Fragment>
@@ -213,7 +230,14 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
                     toggleEditMode(row._id);
                   }}
                   appearedDeleteButton={!row.editMode}
-                  onDelete={() => {}}
+                  onDelete={() => {
+                    setConfirmDialog({
+                      isOpen: true,
+                      title: 'Delete Club?',
+                      content: 'Are you sure to delete this club??',
+                      onConfirm: () => onDelete(row._id)
+                    });
+                  }}
                   appearedCancelButton={row.editMode}
                   onCancel={() => {
                     toggleEditMode(row._id);
@@ -222,6 +246,12 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
                   onDone={() => {
                     onUpdate(row);
                   }}
+                />
+                <CustomConfirmDialog
+                  confirmDialog={confirmDialog}
+                  setConfirmDialog={setConfirmDialog}
+                  confirmButtonText="Delete"
+                  cancelButtonText="Cancel"
                 />
               </TableCell>
             </TableRow>
