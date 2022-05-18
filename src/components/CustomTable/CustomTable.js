@@ -93,6 +93,7 @@ const CustomTable = props => {
               <Typography>Row per page : {'\u00A0'}</Typography>
             </FormControl>
             <Select value={rowPerPage} onChange={onRowPerPageChange}>
+              <MenuItem value={5}>5</MenuItem>
               <MenuItem value={10}>10</MenuItem>
               <MenuItem value={20}>20</MenuItem>
               <MenuItem value={30}>30</MenuItem>

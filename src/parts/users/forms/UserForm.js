@@ -1,6 +1,5 @@
 import { Grid, makeStyles } from '@material-ui/core';
-import { TextInput } from 'components';
-import CustomAutoComplete from 'components/CustomAutoComplete/CustomAutoComplete';
+import { CustomAutoComplete, TextInput } from 'components';
 import GridContainer from 'components/GridContainer';
 import React, { useState } from 'react';
 

@@ -1,5 +1,16 @@
-import { Button, Checkbox, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomBackdrop, CustomConfirmDialog, CustomDrawer, CustomTable, TextInput } from 'components';
+import { Button, Checkbox, Collapse, Grid, IconButton, makeStyles, TableCell, TableRow, Tooltip } from '@material-ui/core';
+import { FilterList } from '@material-ui/icons';
+import {
+  ActionButtonGroup,
+  CustomBackdrop,
+  CustomConfirmDialog,
+  CustomDrawer,
+  CustomDropdown,
+  CustomTable,
+  ResetButton,
+  SearchButton,
+  TextInput
+} from 'components';
 import CustomCheckbox from 'components/CustomCheckbox/CustomCheckbox';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
@@ -7,15 +18,20 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CLUB_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
-import { sleep } from 'utils/commonHelper';
+import { isObjEmpty, sleep } from 'utils/commonHelper';
 import ClubForm from '../forms/ClubForm';
 
 const useStyles = makeStyles(theme => ({
-  buttonContainer: {
-    padding: '10px'
+  leftSection: {
+    paddingLeft: 10,
+    alignItems: 'center'
+  },
+  rightSection: {
+    paddingRight: 10
   },
   newButton: {
-    textTransform: 'none'
+    textTransform: 'none',
+    height: 30
   }
 }));
 
@@ -45,25 +61,31 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(5);
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [openFilter, setOpenFilter] = useState(true);
   const [confirmDialog, setConfirmDialog] = useState({
     title: '',
     content: '',
     isOpen: false
   });
+  const [filterState, setFilterState] = React.useState({
+    clubName: '',
+    status: ''
+  });
   //#endregion
 
   //#region UDF's
 
-  const fetchActiveClub = async () => {
+  const fetchActiveClub = async (obj = {}) => {
     try {
       const res = await axiosPrivate.get(CLUB_API.fetch_all, {
-        params: { page, perPage, sortedColumn, sortedBy }
+        params: isObjEmpty(obj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...obj }
       });
       const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
+
       setState(clubs);
       setActiveDataLength(res.data.total);
     } catch (err) {
@@ -86,10 +108,16 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
     const fetchdata = async () => {
       try {
         const res = await axiosPrivate.get(CLUB_API.fetch_all, {
-          params: { page, perPage, sortedColumn, sortedBy },
+          params: isObjEmpty(searchObj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...searchObj },
           signal: controller.signal
         });
         const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
@@ -108,6 +136,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       isMounted = false;
       controller.abort();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axiosPrivate, history, location, page, perPage, sortedBy, sortedColumn]);
   //#endregion
 
@@ -177,14 +206,62 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       fetchActiveClub();
     }
   };
+
+  const onSearch = () => {
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
+    fetchActiveClub(searchObj);
+  };
   //#endregion
   return (
     <Fragment>
-      <Grid container justifyContent="flex-start" className={classes.buttonContainer}>
-        <Button size="small" color="primary" variant="contained" className={classes.newButton} onClick={onDrawerOpen}>
-          New
-        </Button>
+      <Grid container>
+        <Grid item container justifyContent="flex-start" xs={6} className={classes.leftSection}>
+          <Button size="small" color="primary" variant="contained" className={classes.newButton} onClick={onDrawerOpen}>
+            New
+          </Button>
+        </Grid>
+        <Grid item container justifyContent="flex-end" xs={6} className={classes.rightSection}>
+          <Tooltip title="Filter">
+            <IconButton onClick={() => setOpenFilter(prev => !prev)}>
+              <FilterList />
+            </IconButton>
+          </Tooltip>
+        </Grid>
       </Grid>
+
+      <Collapse in={openFilter}>
+        <Grid container alignItems="center" spacing={3} style={{ padding: '0 10px' }}>
+          <Grid item xs={12} sm={6} md={6} lg={6}>
+            <TextInput
+              label="Club Name"
+              name="clubName"
+              value={filterState.clubName}
+              onChange={e => setFilterState({ ...filterState, clubName: e.target.value })}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6} md={6} lg={6}>
+            <CustomDropdown
+              value={filterState.status}
+              dropdownLabel="Status"
+              options={[
+                { label: 'Active', value: 'active', key: 'active' },
+                { label: 'In-active', value: 'inactive', key: 'inactive' }
+              ]}
+              onChange={e => setFilterState({ ...filterState, status: e.target.value })}
+            />
+          </Grid>
+
+          <Grid item container justifyContent="flex-end">
+            <SearchButton onClick={onSearch} />
+            <ResetButton onClick={() => {}} />
+          </Grid>
+        </Grid>
+      </Collapse>
       <CustomTable
         columns={columns}
         rowPerPage={perPage}

@@ -1,7 +1,7 @@
 import { Button, Grid, makeStyles } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
 import { TextInput } from 'components';
-import CustomAutoComplete from 'components/CustomAutoComplete/CustomAutoComplete';
+import CustomAutoComplete from 'components/CustomDropdowns/AutoComplete';
 import GridContainer from 'components/GridContainer';
 import React, { useState } from 'react';
 
@@ -22,9 +22,8 @@ const useStyles = makeStyles(theme => ({
       color: '#FFFFFF',
       border: 'none'
     }
-  },
+  }
 }));
-
 
 const CLUBS = [
   { id: 1, label: 'CLUB_1', value: 'club_1' },
@@ -38,7 +37,7 @@ const initialFieldValues = {
   clubName: '',
   groomerName: '',
   groomerGPSId: '',
-  rate:0
+  rate: 0
 };
 
 const GroomerForm = () => {
@@ -75,7 +74,7 @@ const GroomerForm = () => {
         <TextInput name="groomerName" label="Groomer Name" value={state.groomerName} onChange={onChange} />
       </Grid>
       <Grid item xs={12}>
-        <TextInput name="groomerGPSId" label="Groomer GPS Id"  value={state.groomerGPSId} onChange={onChange} />
+        <TextInput name="groomerGPSId" label="Groomer GPS Id" value={state.groomerGPSId} onChange={onChange} />
       </Grid>
       <Grid item xs={12}>
         <TextInput name="rate" label="Rate" type="number" value={state.rate} onChange={onChange} />

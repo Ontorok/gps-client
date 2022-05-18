@@ -85,3 +85,10 @@ export const isValidToken = accessToken => {
 };
 
 export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * Check if the object is empty
+ * @param obj
+ * @returns {boolean}
+ */
+export const isObjEmpty = obj => Object.keys(obj).length === 0;

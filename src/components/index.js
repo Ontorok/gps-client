@@ -1,7 +1,11 @@
 import ActionButtonGroup from './ActionButtonGroup/ActionButtonGroup';
 import CustomBackdrop from './CustomBackdrop/CustomBackdrop';
+import ResetButton from './CustomButtons/ResetButton';
+import SearchButton from './CustomButtons/SearchButton';
 import CustomConfirmDialog from './CustomDialog/CustomConfirmDialog';
 import CustomDrawer from './CustomDrawer/CustomDrawer';
+import CustomAutoComplete from './CustomDropdowns/AutoComplete';
+import CustomDropdown from './CustomDropdowns/Dropdown';
 import CustomPagination from './CustomPagination/CustomPagination';
 import CustomTabControl from './CustomTab/CustomTab';
 import CustomTable from './CustomTable/CustomTable';
@@ -17,5 +21,9 @@ export {
   CustomDrawer,
   SelectableTable,
   CustomBackdrop,
-  CustomConfirmDialog
+  CustomConfirmDialog,
+  SearchButton,
+  ResetButton,
+  CustomAutoComplete,
+  CustomDropdown
 };
