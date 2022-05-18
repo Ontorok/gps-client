@@ -86,6 +86,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       });
       const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
 
+      setPage(1);
       setState(clubs);
       setActiveDataLength(res.data.total);
     } catch (err) {
