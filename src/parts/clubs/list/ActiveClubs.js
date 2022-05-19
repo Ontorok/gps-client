@@ -40,29 +40,31 @@ const initialFilterState = {
   status: ''
 };
 
+//#region Colums for Table
+const columns = [
+  {
+    sortName: 'name',
+    name: 'name',
+    label: 'Club Name',
+    minWidth: 145,
+    isDisableSorting: false
+  },
+  {
+    sortName: 'status',
+    name: 'status',
+    label: 'Status',
+    minWidth: 140,
+    isDisableSorting: true
+  }
+];
+//#endregion
+
 const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   const classes = useStyles();
   const axiosPrivate = useAxiosPrivate();
   const location = useLocation();
   const history = useHistory();
-  //#region Colums for Table
-  const columns = [
-    {
-      sortName: 'name',
-      name: 'name',
-      label: 'Club Name',
-      minWidth: 145,
-      isDisableSorting: false
-    },
-    {
-      sortName: 'status',
-      name: 'status',
-      label: 'Status',
-      minWidth: 140,
-      isDisableSorting: true
-    }
-  ];
-  //#endregion
+
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
@@ -70,7 +72,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [openFilter, setOpenFilter] = useState(true);
+  const [openFilter, setOpenFilter] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({
     title: '',
     content: '',

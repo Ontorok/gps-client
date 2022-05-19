@@ -1,31 +1,54 @@
-import { Checkbox, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomConfirmDialog, CustomTable } from 'components';
+import { Checkbox, Collapse, Grid, IconButton, makeStyles, TableCell, TableRow, Tooltip } from '@material-ui/core';
+import { FilterList } from '@material-ui/icons';
+import { ActionButtonGroup, CustomConfirmDialog, CustomTable, ResetButton, SearchButton, TextInput } from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CLUB_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
+import { isObjEmpty } from 'utils/commonHelper';
+
+const useStyles = makeStyles(theme => ({
+  leftSection: {
+    paddingLeft: 10,
+    alignItems: 'center'
+  },
+  rightSection: {
+    paddingRight: 10
+  },
+  newButton: {
+    textTransform: 'none',
+    height: 30
+  }
+}));
+
+const initialFilterState = {
+  clubName: ''
+};
+//#region Colums for Table
+const columns = [
+  {
+    sortName: 'name',
+    name: 'name',
+    label: 'Club Name',
+    minWidth: 145,
+    isDisableSorting: true
+  },
+  {
+    sortName: 'state',
+    name: 'state',
+    label: 'State',
+    minWidth: 140,
+    isDisableSorting: false
+  }
+];
 
 const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
-  //#region Colums for Table
-  const columns = [
-    {
-      sortName: 'name',
-      name: 'name',
-      label: 'Club Name',
-      minWidth: 145,
-      isDisableSorting: true
-    },
-    {
-      sortName: 'state',
-      name: 'state',
-      label: 'State',
-      minWidth: 140,
-      isDisableSorting: false
-    }
-  ];
-  //#endregion
+  const classes = useStyles();
+  const location = useLocation();
+  const history = useHistory();
+  const axiosPrivate = useAxiosPrivate();
 
   //#region States
   const [state, setState] = useState([]);
@@ -37,18 +60,15 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
     content: '',
     isOpen: false
   });
-
-  const location = useLocation();
-  const history = useHistory();
-  const axiosPrivate = useAxiosPrivate();
-
+  const [openFilter, setOpenFilter] = useState(false);
+  const [filterState, setFilterState] = useState(initialFilterState);
   //#endregion
 
   //#region UDF's
-  const fetchArchiveClub = async () => {
+  const fetchArchiveClub = async (obj = {}) => {
     try {
       const res = await axiosPrivate.get(CLUB_API.fetch_all_archive, {
-        params: { page, perPage, sortedColumn, sortedBy }
+        params: isObjEmpty(obj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...obj }
       });
       const clubs = res.data.result;
       setState(clubs);
@@ -63,10 +83,16 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
     const fetchdata = async () => {
       try {
         const res = await axiosPrivate.get(CLUB_API.fetch_all_archive, {
-          params: { page, perPage, sortedColumn, sortedBy },
+          params: isObjEmpty(searchObj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...searchObj },
           signal: controller.signal
         });
         const clubs = res.data.result.map(user => ({ ...user, editMode: false }));
@@ -81,6 +107,11 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
     };
 
     fetchdata();
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axiosPrivate, history, location, page, perPage, sortedBy, sortedColumn]);
   //#endregion
 
@@ -106,10 +137,51 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
     }
   };
 
+  const onSearch = () => {
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
+    fetchArchiveClub(searchObj);
+  };
+  const onResetSearch = () => {
+    setFilterState(initialFilterState);
+    fetchArchiveClub();
+  };
   //#endregion
 
   return (
     <Fragment>
+      <Grid container>
+        <Grid item container justifyContent="flex-start" xs={6} className={classes.leftSection}></Grid>
+        <Grid item container justifyContent="flex-end" xs={6} className={classes.rightSection}>
+          <Tooltip title="Filter">
+            <IconButton onClick={() => setOpenFilter(prev => !prev)}>
+              <FilterList />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+      </Grid>
+
+      <Collapse in={openFilter}>
+        <Grid container alignItems="center" spacing={3} style={{ padding: '0 10px' }}>
+          <Grid item xs={12}>
+            <TextInput
+              label="Club Name"
+              name="clubName"
+              value={filterState.clubName}
+              onChange={e => setFilterState({ ...filterState, clubName: e.target.value })}
+            />
+          </Grid>
+
+          <Grid item container justifyContent="flex-end">
+            <SearchButton onClick={onSearch} />
+            <ResetButton onClick={onResetSearch} />
+          </Grid>
+        </Grid>
+      </Collapse>
       <CustomTable
         columns={columns}
         rowPerPage={perPage}
