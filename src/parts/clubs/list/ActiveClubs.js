@@ -35,6 +35,11 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const initialFilterState = {
+  clubName: '',
+  status: ''
+};
+
 const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   const classes = useStyles();
   const axiosPrivate = useAxiosPrivate();
@@ -71,10 +76,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
     content: '',
     isOpen: false
   });
-  const [filterState, setFilterState] = React.useState({
-    clubName: '',
-    status: ''
-  });
+  const [filterState, setFilterState] = useState(initialFilterState);
   //#endregion
 
   //#region UDF's
@@ -86,7 +88,6 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       });
       const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
 
-      setPage(1);
       setState(clubs);
       setActiveDataLength(res.data.total);
     } catch (err) {
@@ -184,6 +185,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
 
   const onUpdate = async formValue => {
     setLoading(true);
+
     try {
       const res = await axiosPrivate.put(CLUB_API.update, formValue);
       await sleep(1000);
@@ -216,6 +218,10 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
       }
     }
     fetchActiveClub(searchObj);
+  };
+  const onResetSearch = () => {
+    setFilterState(initialFilterState);
+    fetchActiveClub();
   };
   //#endregion
   return (
@@ -259,7 +265,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
 
           <Grid item container justifyContent="flex-end">
             <SearchButton onClick={onSearch} />
-            <ResetButton onClick={() => {}} />
+            <ResetButton onClick={onResetSearch} />
           </Grid>
         </Grid>
       </Collapse>
