@@ -92,3 +92,18 @@ export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
  * @returns {boolean}
  */
 export const isObjEmpty = obj => Object.keys(obj).length === 0;
+
+/**
+ * Map array to dropdown list
+ * @param arr => source array
+ * @param label => property name which show the label
+ * @param value => property name which holds the value
+ * @returns {Array}
+ */
+export const mapArrayToDropdown = (arr = [], label, value) => {
+  return arr.map(item => ({
+    ...item,
+    label: item[label],
+    value: item[value]
+  }));
+};

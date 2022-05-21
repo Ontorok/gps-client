@@ -12,6 +12,7 @@ export const ENTRIES_API = {
 export const CLUB_API = {
   fetch_all: '/club/fetch-all',
   fetch_all_archive: '/club/fetch-all-archive',
+  fetch_all_active: '/club/fetch-all-active',
   create: '/club/create',
   update: '/club/update',
   delete: '/club/delete',
@@ -19,8 +20,9 @@ export const CLUB_API = {
 };
 
 export const GROOMER_API = {
-  fetch_all: '/api/grommer/fetch-all',
-  fetch_all_archive: '/api/grommer/fetch-all-archive'
+  fetch_all: '/groomer/fetch-all',
+  fetch_all_archive: '/groomer/fetch-all-archive',
+  create: '/groomer/create'
 };
 
 export const AUTH_API = {

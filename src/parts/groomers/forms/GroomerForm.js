@@ -1,13 +1,21 @@
-import { Button, Grid, makeStyles } from '@material-ui/core';
+import { Box, Button, CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { green } from '@material-ui/core/colors';
 import { Save } from '@material-ui/icons';
 import { TextInput } from 'components';
 import CustomAutoComplete from 'components/CustomDropdowns/AutoComplete';
 import GridContainer from 'components/GridContainer';
-import React, { useState } from 'react';
+import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
+import React, { useEffect, useState } from 'react';
+import { CLUB_API } from 'services/apiEndPoints';
+import { toastAlerts } from 'utils/alert';
+import { mapArrayToDropdown } from 'utils/commonHelper';
 
 const useStyles = makeStyles(theme => ({
   root: {
     maxWidth: 300
+  },
+  wrapper: {
+    position: 'relative'
   },
   buttonSuccess: {
     margin: 5,
@@ -22,30 +30,54 @@ const useStyles = makeStyles(theme => ({
       color: '#FFFFFF',
       border: 'none'
     }
+  },
+  buttonProgress: {
+    color: green[500],
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    marginTop: -12,
+    marginLeft: -12
   }
 }));
 
-const CLUBS = [
-  { id: 1, label: 'CLUB_1', value: 'club_1' },
-  { id: 2, label: 'CLUB_2', value: 'club_2' },
-  { id: 3, label: 'CLUB_3', value: 'club_3' }
-];
-
 const initialFieldValues = {
-  id: 0,
-  clubId: '',
-  clubName: '',
   groomerName: '',
   groomerGPSId: '',
+  clubId: '',
+  clubName: '',
   rate: 0
 };
 
-const GroomerForm = () => {
+const GroomerForm = props => {
+  const { create, loading } = props;
   const classes = useStyles();
+  const axiosPrivate = useAxiosPrivate();
   const [state, setState] = useState(initialFieldValues);
 
-  const [clubs] = useState(CLUBS);
+  const [clubs, setClubs] = useState([]);
   const [club, setClub] = useState(null);
+
+  //#region Effects
+  useEffect(() => {
+    let isMount = true;
+    const controller = new AbortController();
+    const fetchActiveClubs = async () => {
+      try {
+        const res = await axiosPrivate.get(CLUB_API.fetch_all_active);
+        const activeClubs = mapArrayToDropdown(res.data.result, 'name', '_id');
+        isMount && setClubs(activeClubs);
+      } catch (err) {
+        toastAlerts('error', 'Clubs not loaded');
+      }
+    };
+    fetchActiveClubs();
+    return () => {
+      isMount = false;
+      controller.abort();
+    };
+  }, [axiosPrivate]);
+  //#endregion
 
   //#region Events
   const onChange = e => {
@@ -63,28 +95,47 @@ const GroomerForm = () => {
       setClub(null);
     }
   };
+
+  const onSubmit = e => {
+    e.preventDefault();
+    const payload = {
+      name: state.groomerName,
+      gpsId: state.groomerGPSId,
+      rate: +state.rate,
+      club: {
+        id: club._id,
+        name: club.name
+      }
+    };
+    create(payload);
+  };
   //#endregion
 
   return (
     <GridContainer className={classes.root}>
-      <Grid item xs={12}>
-        <CustomAutoComplete name="clubId" label="Clubs" data={clubs} value={club} onChange={onClubChange} />
-      </Grid>
-      <Grid item xs={12}>
-        <TextInput name="groomerName" label="Groomer Name" value={state.groomerName} onChange={onChange} />
-      </Grid>
-      <Grid item xs={12}>
-        <TextInput name="groomerGPSId" label="Groomer GPS Id" value={state.groomerGPSId} onChange={onChange} />
-      </Grid>
-      <Grid item xs={12}>
-        <TextInput name="rate" label="Rate" type="number" value={state.rate} onChange={onChange} />
-      </Grid>
+      <form onSubmit={onSubmit}>
+        <Grid item xs={12}>
+          <CustomAutoComplete name="clubId" label="Clubs" data={clubs} value={club} onChange={onClubChange} />
+        </Grid>
+        <Grid item xs={12}>
+          <TextInput name="groomerName" label="Groomer Name" value={state.groomerName} onChange={onChange} />
+        </Grid>
+        <Grid item xs={12}>
+          <TextInput name="groomerGPSId" label="Groomer GPS Id" value={state.groomerGPSId} onChange={onChange} />
+        </Grid>
+        <Grid item xs={12}>
+          <TextInput name="rate" label="Rate" type="number" value={state.rate} onChange={onChange} />
+        </Grid>
 
-      <Grid item xs={12}>
-        <Button type="submit" variant="contained" color="default" className={classes.buttonSuccess} endIcon={<Save />}>
-          Save
-        </Button>
-      </Grid>
+        <Grid item container justifyContent="flex-start" xs={12}>
+          <Box className={classes.wrapper}>
+            <Button type="submit" variant="contained" color="default" className={classes.buttonSuccess} endIcon={<Save />}>
+              Save
+            </Button>
+            {loading && <CircularProgress size={24} className={classes.buttonProgress} />}
+          </Box>
+        </Grid>
+      </form>
     </GridContainer>
   );
 };

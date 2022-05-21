@@ -121,7 +121,20 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
     const fetchdata = async () => {
       try {
         const res = await axiosPrivate.get(CLUB_API.fetch_all, {
-          params: isObjEmpty(searchObj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...searchObj },
+          params: isObjEmpty(searchObj)
+            ? {
+                page,
+                perPage,
+                sortedColumn,
+                sortedBy
+              }
+            : {
+                page,
+                perPage,
+                sortedColumn,
+                sortedBy,
+                ...searchObj
+              },
           signal: controller.signal
         });
         const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
