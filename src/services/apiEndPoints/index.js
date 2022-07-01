@@ -22,7 +22,9 @@ export const CLUB_API = {
 export const GROOMER_API = {
   fetch_all: '/groomer/fetch-all',
   fetch_all_archive: '/groomer/fetch-all-archive',
-  create: '/groomer/create'
+  create: '/groomer/create',
+  update: '/groomer/update',
+  delete: '/groomer/delete'
 };
 
 export const AUTH_API = {

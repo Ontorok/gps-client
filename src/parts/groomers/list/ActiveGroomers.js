@@ -1,5 +1,5 @@
 import { Button, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomBackdrop, CustomDrawer, CustomTable, TextInput } from 'components';
+import { ActionButtonGroup, CustomBackdrop, CustomConfirmDialog, CustomDrawer, CustomTable, TextInput } from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
@@ -24,13 +24,6 @@ const initialFilterState = {
 
 //#region Colums for Table
 const columns = [
-  {
-    sortName: 'clubName',
-    name: 'clubName',
-    label: 'Club Name',
-    minWidth: 150,
-    isDisableSorting: true
-  },
   {
     sortName: 'groomerName',
     name: 'groomerName',
@@ -66,18 +59,21 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [filterState, setFilterState] = useState(initialFilterState);
+  const [filterState] = useState(initialFilterState);
+  const [confirmDialog, setConfirmDialog] = useState({
+    title: '',
+    content: '',
+    isOpen: false
+  });
   //#endregion
 
   //#region UDF's
-
-  const fetchActiveClub = async (obj = {}) => {
+  const fetchActiveGroomer = async (obj = {}) => {
     try {
       const res = await axiosPrivate.get(GROOMER_API.fetch_all, {
         params: isObjEmpty(obj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...obj }
       });
-      const groomers = res.data.result.map(club => ({ ...club, editMode: false }));
-
+      const groomers = res.data.result.map(groomer => ({ ...groomer, editMode: false, prevName: groomer.name }));
       setState(groomers);
       setActiveDataLength(res.data.total);
     } catch (err) {
@@ -89,6 +85,9 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     const updatedState = state.map(item => {
       if (item.id === id) {
         item['editMode'] = !item.editMode;
+        if (item.editMode === false && item.name !== item.prevName) {
+          item['name'] = item.prevName;
+        }
       }
       return item;
     });
@@ -125,7 +124,7 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
               },
           signal: controller.signal
         });
-        const groomers = res.data.result.map(user => ({ ...user, editMode: false }));
+        const groomers = res.data.result.map(groomer => ({ ...groomer, editMode: false, prevName: groomer.name }));
         isMounted && setState(groomers);
         isMounted && setActiveDataLength(res.data.total);
       } catch (err) {
@@ -160,7 +159,7 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     const { name, value } = e.target;
     const _data = [...state];
     _data.map(u => {
-      if (u.id === id) {
+      if (u._id === id) {
         u[name] = value;
       }
       return u;
@@ -179,7 +178,39 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     } finally {
       setLoading(false);
       setDrawerOpen(false);
-      fetchActiveClub();
+      fetchActiveGroomer();
+    }
+  };
+
+  const onUpdate = async formValue => {
+    setLoading(true);
+    const payload = {
+      _id: formValue._id,
+      name: formValue.name,
+      gpsId: formValue.gpsId,
+      rate: formValue.rate
+    };
+    try {
+      const res = await axiosPrivate.put(GROOMER_API.update, payload);
+      await sleep(1000);
+      setLoading(false);
+      toastAlerts('success', res.data.message);
+    } catch (err) {
+      toastAlerts('error', err?.response?.data?.message);
+    } finally {
+      fetchActiveGroomer();
+    }
+  };
+
+  const onDelete = async id => {
+    setConfirmDialog({ ...confirmDialog, isOpen: false });
+    try {
+      const res = await axiosPrivate.delete(GROOMER_API.delete, { params: { id } });
+      toastAlerts('success', res.data.message);
+    } catch (err) {
+      toastAlerts('error', err?.response?.data?.message);
+    } finally {
+      fetchActiveGroomer();
     }
   };
   //#endregion
@@ -202,7 +233,6 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
         {state.map(row => {
           return (
             <TableRow key={row._id}>
-              <TableCell>{row.club?.name}</TableCell>
               {row.editMode ? (
                 <TableCell>
                   <TextInput type="text" name="name" value={row.name} onChange={e => onInputChange(e, row._id)} />
@@ -213,22 +243,35 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
 
               <TableCell>{row.gpsId}</TableCell>
               <TableCell>{row.rate}</TableCell>
-              <TableCell>
+              <TableCell align="center">
                 <ActionButtonGroup
                   appearedEditButton={!row.editMode}
                   onEdit={() => {
                     toggleEditMode(row.id);
                   }}
                   appearedDeleteButton={!row.editMode}
-                  onDelete={() => {}}
+                  onDelete={() => {
+                    setConfirmDialog({
+                      isOpen: true,
+                      title: 'Delete Groomer?',
+                      content: 'Are you sure to delete this groomer??',
+                      onConfirm: () => onDelete(row._id)
+                    });
+                  }}
                   appearedCancelButton={row.editMode}
                   onCancel={() => {
                     toggleEditMode(row.id);
                   }}
                   appearedDoneButton={row.editMode}
                   onDone={() => {
-                    toggleEditMode(row.id);
+                    onUpdate(row);
                   }}
+                />
+                <CustomConfirmDialog
+                  confirmDialog={confirmDialog}
+                  setConfirmDialog={setConfirmDialog}
+                  confirmButtonText="Delete"
+                  cancelButtonText="Cancel"
                 />
               </TableCell>
             </TableRow>

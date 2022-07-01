@@ -1,14 +1,9 @@
 import { Box, Button, CircularProgress, Grid, makeStyles } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import { Save } from '@material-ui/icons';
-import { TextInput } from 'components';
-import CustomAutoComplete from 'components/CustomDropdowns/AutoComplete';
+import { CustomCheckbox, TextInput } from 'components';
 import GridContainer from 'components/GridContainer';
-import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
-import React, { useEffect, useState } from 'react';
-import { CLUB_API } from 'services/apiEndPoints';
-import { toastAlerts } from 'utils/alert';
-import { mapArrayToDropdown } from 'utils/commonHelper';
+import React, { useState } from 'react';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -44,55 +39,32 @@ const useStyles = makeStyles(theme => ({
 const initialFieldValues = {
   groomerName: '',
   groomerGPSId: '',
-  clubId: '',
-  clubName: '',
-  rate: 0
+  rate: 0,
+  isActive: true
 };
 
 const GroomerForm = props => {
   const { create, loading } = props;
   const classes = useStyles();
-  const axiosPrivate = useAxiosPrivate();
   const [state, setState] = useState(initialFieldValues);
-
-  const [clubs, setClubs] = useState([]);
-  const [club, setClub] = useState(null);
-
-  //#region Effects
-  useEffect(() => {
-    let isMount = true;
-    const controller = new AbortController();
-    const fetchActiveClubs = async () => {
-      try {
-        const res = await axiosPrivate.get(CLUB_API.fetch_all_active);
-        const activeClubs = mapArrayToDropdown(res.data.result, 'name', '_id');
-        isMount && setClubs(activeClubs);
-      } catch (err) {
-        toastAlerts('error', 'Clubs not loaded');
-      }
-    };
-    fetchActiveClubs();
-    return () => {
-      isMount = false;
-      controller.abort();
-    };
-  }, [axiosPrivate]);
-  //#endregion
 
   //#region Events
   const onChange = e => {
-    const { name, value } = e.target;
-    setState({
-      ...state,
-      [name]: value
-    });
-  };
+    const { type, name, value, checked } = e.target;
+    switch (type) {
+      case 'checkbox':
+        setState({
+          ...state,
+          [name]: checked
+        });
+        break;
 
-  const onClubChange = (e, newValue) => {
-    if (newValue) {
-      setClub(newValue);
-    } else {
-      setClub(null);
+      default:
+        setState({
+          ...state,
+          [name]: value
+        });
+        break;
     }
   };
 
@@ -102,10 +74,7 @@ const GroomerForm = props => {
       name: state.groomerName,
       gpsId: state.groomerGPSId,
       rate: +state.rate,
-      club: {
-        id: club._id,
-        name: club.name
-      }
+      isActive: state.isActive
     };
     create(payload);
   };
@@ -115,16 +84,16 @@ const GroomerForm = props => {
     <GridContainer className={classes.root}>
       <form onSubmit={onSubmit}>
         <Grid item xs={12}>
-          <CustomAutoComplete name="clubId" label="Clubs" data={clubs} value={club} onChange={onClubChange} />
-        </Grid>
-        <Grid item xs={12}>
           <TextInput name="groomerName" label="Groomer Name" value={state.groomerName} onChange={onChange} />
         </Grid>
         <Grid item xs={12}>
-          <TextInput name="groomerGPSId" label="Groomer GPS Id" value={state.groomerGPSId} onChange={onChange} />
+          <TextInput name="groomerGPSId" label="GPS ID" value={state.groomerGPSId} onChange={onChange} />
         </Grid>
         <Grid item xs={12}>
           <TextInput name="rate" label="Rate" type="number" value={state.rate} onChange={onChange} />
+        </Grid>
+        <Grid item xs={12}>
+          <CustomCheckbox name="isActive" label="Is Active" checked={state.isActive} onChange={onChange} />
         </Grid>
 
         <Grid item container justifyContent="flex-start" xs={12}>

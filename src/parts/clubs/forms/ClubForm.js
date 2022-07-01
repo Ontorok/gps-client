@@ -1,8 +1,7 @@
 import { Box, Button, CircularProgress, Grid, makeStyles } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import { Save } from '@material-ui/icons';
-import { TextInput } from 'components';
-import CustomCheckbox from 'components/CustomCheckbox/CustomCheckbox';
+import { CustomCheckbox, TextInput } from 'components';
 import GridContainer from 'components/GridContainer';
 import React, { useState } from 'react';
 

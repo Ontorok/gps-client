@@ -137,7 +137,7 @@ const AcitveClubs = ({ sortedColumn, sortedBy, onSort }) => {
               },
           signal: controller.signal
         });
-        const clubs = res.data.result.map(club => ({ ...club, editMode: false }));
+        const clubs = res.data.result.map(club => ({ ...club, editMode: false, prevName: club.name }));
         if (isMounted) {
           setState(clubs);
           setActiveDataLength(res.data.total);
