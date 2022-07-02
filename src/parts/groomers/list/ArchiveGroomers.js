@@ -1,5 +1,5 @@
 import { TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomTable } from 'components';
+import { ActionButtonGroup, CustomConfirmDialog, CustomTable } from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
@@ -48,18 +48,26 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   const [perPage, setPerPage] = useState(10);
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [filterState] = useState(initialFilterState);
+  const [confirmDialog, setConfirmDialog] = useState({
+    title: '',
+    content: '',
+    isOpen: false
+  });
   //#endregion
 
   //#region UDF's
-  function toggleEditMode(id) {
-    const updatedState = state.map(item => {
-      if (item.id === id) {
-        item['editMode'] = !item.editMode;
-      }
-      return item;
-    });
-    setState(updatedState);
-  }
+  const fetchActiveGroomer = async (obj = {}) => {
+    try {
+      const res = await axiosPrivate.get(GROOMER_API.fetch_all_archive, {
+        params: isObjEmpty(obj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...obj }
+      });
+      const groomers = res.data.result.map(groomer => ({ ...groomer }));
+      setState(groomers);
+      setActiveDataLength(res.data.total);
+    } catch (err) {
+      toastAlerts('error', err.message);
+    }
+  };
   //#endregion
 
   //#region Effects
@@ -117,6 +125,18 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     setPage(pageNumber);
   };
 
+  const onRestore = async id => {
+    setConfirmDialog({ ...confirmDialog, isOpen: false });
+    try {
+      const res = await axiosPrivate.put(GROOMER_API.reStore, {}, { params: { id } });
+      toastAlerts('success', res.data.message);
+    } catch (err) {
+      toastAlerts('error', err?.response?.data?.message);
+    } finally {
+      fetchActiveGroomer();
+    }
+  };
+
   //#endregion
   return (
     <Fragment>
@@ -137,20 +157,21 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
               <TableCell>{row.rate}</TableCell>
               <TableCell align="center">
                 <ActionButtonGroup
-                  appearedEditButton={!row.editMode}
-                  onEdit={() => {
-                    toggleEditMode(row.id);
+                  appearedReactiveButton
+                  onRestore={() => {
+                    setConfirmDialog({
+                      isOpen: true,
+                      title: 'Re-store Club?',
+                      content: 'Are you sure to re-store this club??',
+                      onConfirm: () => onRestore(row._id)
+                    });
                   }}
-                  appearedDeleteButton={!row.editMode}
-                  onDelete={() => {}}
-                  appearedCancelButton={row.editMode}
-                  onCancel={() => {
-                    toggleEditMode(row.id);
-                  }}
-                  appearedDoneButton={row.editMode}
-                  onDone={() => {
-                    toggleEditMode(row.id);
-                  }}
+                />
+                <CustomConfirmDialog
+                  confirmDialog={confirmDialog}
+                  setConfirmDialog={setConfirmDialog}
+                  confirmButtonText="Delete"
+                  cancelButtonText="Cancel"
                 />
               </TableCell>
             </TableRow>

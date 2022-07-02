@@ -24,7 +24,8 @@ export const GROOMER_API = {
   fetch_all_archive: '/groomer/fetch-all-archive',
   create: '/groomer/create',
   update: '/groomer/update',
-  delete: '/groomer/delete'
+  delete: '/groomer/delete',
+  reStore: '/groomer/re-store'
 };
 
 export const AUTH_API = {
