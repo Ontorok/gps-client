@@ -1,57 +1,53 @@
 import { TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomTable, TextInput } from 'components';
+import { ActionButtonGroup, CustomTable } from 'components';
 import withSort from 'hoc/withSort';
+import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
 import { GROOMER_API } from 'services/apiEndPoints';
-import { axiosInstance } from 'services/auth/jwt/config';
 import { toastAlerts } from 'utils/alert';
+import { isObjEmpty } from 'utils/commonHelper';
+//#region Colums for Table
+const columns = [
+  {
+    sortName: 'groomerName',
+    name: 'groomerName',
+    label: 'Groomer Name',
+    minWidth: 150,
+    isDisableSorting: true
+  },
+  {
+    sortName: 'gpsId',
+    name: 'gpsId',
+    label: 'GPS ID',
+    minWidth: 170,
+    isDisableSorting: true
+  },
+  {
+    sortName: 'rate',
+    name: 'rate',
+    label: 'Rate',
+    minWidth: 150,
+    isDisableSorting: true
+  }
+];
+//#endregion
+
+const initialFilterState = {
+  name: '',
+  status: ''
+};
 
 const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
-  //#region Colums for Table
-  const columns = [
-    {
-      sortName: 'id',
-      name: 'id',
-      label: 'ID',
-      minWidth: 150,
-      isDisableSorting: false
-    },
-    {
-      sortName: 'clubName',
-      name: 'clubName',
-      label: 'Club Name',
-      minWidth: 150,
-      isDisableSorting: true
-    },
-    {
-      sortName: 'groomerName',
-      name: 'groomerName',
-      label: 'Groomer Name',
-      minWidth: 150,
-      isDisableSorting: true
-    },
-    {
-      sortName: 'groomerGPSId',
-      name: 'groomerGPSId',
-      label: 'Groomer GPS Id',
-      minWidth: 170,
-      isDisableSorting: true
-    },
-    {
-      sortName: 'rate',
-      name: 'rate',
-      label: 'Rate',
-      minWidth: 150,
-      isDisableSorting: true
-    }
-  ];
+  //#region Hooks
+  const axiosPrivate = useAxiosPrivate();
   //#endregion
+
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [activeDataLength, setActiveDataLength] = useState(0);
-
+  const [filterState] = useState(initialFilterState);
   //#endregion
 
   //#region UDF's
@@ -68,20 +64,48 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
 
   //#region Effects
   useEffect(() => {
-    const fetchActiveUsers = async () => {
+    let isMounted = true;
+    const controller = new AbortController();
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
+    const fetchdata = async () => {
       try {
-        const res = await axiosInstance.get(GROOMER_API.fetch_all_archive, { params: { page, perPage } });
-        const users = res.data.result.map(user => ({ ...user, editMode: false }));
-        setState(users);
-        setActiveDataLength(res.data.totalRows);
+        const res = await axiosPrivate.get(GROOMER_API.fetch_all_archive, {
+          params: isObjEmpty(searchObj)
+            ? {
+                page,
+                perPage,
+                sortedColumn,
+                sortedBy
+              }
+            : {
+                page,
+                perPage,
+                sortedColumn,
+                sortedBy,
+                ...searchObj
+              },
+          signal: controller.signal
+        });
+        const groomers = res.data.result.map(groomer => ({ ...groomer }));
+        isMounted && setState(groomers);
+        isMounted && setActiveDataLength(res.data.total);
       } catch (err) {
         toastAlerts('error', 'There is an error');
       }
     };
 
-    fetchActiveUsers();
-  }, [page, perPage]);
-  //#endregion
+    fetchdata();
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [axiosPrivate, page, perPage, sortedBy, sortedColumn]);
 
   //#region Events
   const onRowPerPageChange = e => {
@@ -93,17 +117,6 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     setPage(pageNumber);
   };
 
-  const onInputChange = (e, id) => {
-    const { name, value } = e.target;
-    const _data = [...state];
-    _data.map(u => {
-      if (u.id === id) {
-        u[name] = value;
-      }
-      return u;
-    });
-    setState(_data);
-  };
   //#endregion
   return (
     <Fragment>
@@ -118,21 +131,11 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
         count={Math.ceil(activeDataLength / perPage)}>
         {state.map(row => {
           return (
-            <TableRow key={row.id}>
-              <TableCell>{row.id}</TableCell>
-              <TableCell>{row.clubName}</TableCell>
-
-              {row.editMode ? (
-                <TableCell>
-                  <TextInput type="text" name="groomerName" value={row.groomerName} onChange={e => onInputChange(e, row.id)} />
-                </TableCell>
-              ) : (
-                <TableCell>{row.groomerName}</TableCell>
-              )}
-
-              <TableCell>{row.groomerGPSId}</TableCell>
+            <TableRow key={row._id}>
+              <TableCell>{row.name}</TableCell>
+              <TableCell>{row.gpsId}</TableCell>
               <TableCell>{row.rate}</TableCell>
-              <TableCell>
+              <TableCell align="center">
                 <ActionButtonGroup
                   appearedEditButton={!row.editMode}
                   onEdit={() => {
