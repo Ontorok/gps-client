@@ -1,9 +1,13 @@
 import { Box, Button, CircularProgress, Grid, makeStyles } from '@material-ui/core';
 import { green } from '@material-ui/core/colors';
 import { Save } from '@material-ui/icons';
-import { CustomCheckbox, TextInput } from 'components';
+import { CustomAutoComplete, CustomCheckbox, TextInput } from 'components';
 import GridContainer from 'components/GridContainer';
-import React, { useState } from 'react';
+import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
+import React, { useEffect, useState } from 'react';
+import { CLUB_API } from 'services/apiEndPoints';
+import { toastAlerts } from 'utils/alert';
+import { mapArrayToDropdown } from 'utils/commonHelper';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -46,9 +50,42 @@ const initialFieldValues = {
 const GroomerForm = props => {
   const { create, loading } = props;
   const classes = useStyles();
+  const axiosPrivate = useAxiosPrivate();
   const [state, setState] = useState(initialFieldValues);
+  const [clubs, setClubs] = useState([]);
+  const [club, setClub] = useState(null);
+
+  //#region Effects
+  useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+    const fetchClubs = async () => {
+      try {
+        const res = await axiosPrivate.get(CLUB_API.fetch_all_active, {
+          signal: controller.signal
+        });
+        const clubs = mapArrayToDropdown(res.data.result, 'name', '_id');
+        isMounted && setClubs(clubs);
+      } catch (error) {
+        toastAlerts('warning', 'Dependency not loaded yet');
+      }
+    };
+    fetchClubs();
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [axiosPrivate]);
+
+  //#endregion
 
   //#region Events
+  const onClubChange = (e, newValue) => {
+    if (newValue) {
+      setClub(newValue);
+    }
+  };
+
   const onChange = e => {
     const { type, name, value, checked } = e.target;
     switch (type) {
@@ -72,6 +109,8 @@ const GroomerForm = props => {
     e.preventDefault();
     const payload = {
       name: state.groomerName,
+      clubId: club.value,
+      clubName: club.label,
       gpsId: state.groomerGPSId,
       rate: +state.rate,
       isActive: state.isActive
@@ -83,6 +122,9 @@ const GroomerForm = props => {
   return (
     <GridContainer className={classes.root}>
       <form onSubmit={onSubmit}>
+        <Grid item xs={12}>
+          <CustomAutoComplete name="clubId" label="Clubs" data={clubs} value={club} onChange={onClubChange} />
+        </Grid>
         <Grid item xs={12}>
           <TextInput name="groomerName" label="Groomer Name" value={state.groomerName} onChange={onChange} />
         </Grid>

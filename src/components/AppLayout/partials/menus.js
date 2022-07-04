@@ -1,35 +1,41 @@
-import { PostAdd } from '@material-ui/icons';
+import { Group, LocalShipping, PostAdd, Public } from '@material-ui/icons';
 import React from 'react';
 import IntlMessages from '../../../utils/IntlMessages';
 
 export const sidebarNavs = [
   {
-    name: <IntlMessages id={'sidebar.main'} />,
+    name: 'Configuration',
     type: 'section',
     children: [
       {
         name: 'Users',
         type: 'item',
-        icon: <PostAdd />,
+        icon: <Group />,
         link: '/users'
-      },
-      {
-        name: 'Entries',
-        type: 'item',
-        icon: <PostAdd />,
-        link: '/entries'
       },
       {
         name: 'Club',
         type: 'item',
-        icon: <PostAdd />,
+        icon: <Public />,
         link: '/club'
       },
       {
         name: 'Groomer',
         type: 'item',
-        icon: <PostAdd />,
+        icon: <LocalShipping />,
         link: '/groomer'
+      }
+    ]
+  },
+  {
+    name: 'Operation',
+    type: 'section',
+    children: [
+      {
+        name: 'Entries',
+        type: 'item',
+        icon: <PostAdd />,
+        link: '/entries'
       }
     ]
   }
@@ -52,32 +58,38 @@ export const horizontalDefaultNavs = [
 
 export const minimalHorizontalMenus = [
   {
-    name: <IntlMessages id={'sidebar.main'} />,
+    name: 'Configuration',
     type: 'collapse',
     children: [
       {
         name: 'Users',
         type: 'item',
-        icon: <PostAdd />,
+        icon: <Group />,
         link: '/users'
-      },
-      {
-        name: 'Entries',
-        type: 'item',
-        icon: <PostAdd />,
-        link: '/entries'
       },
       {
         name: 'Club',
         type: 'item',
-        icon: <PostAdd />,
+        icon: <Public />,
         link: '/club'
       },
       {
         name: 'Groomer',
         type: 'item',
-        icon: <PostAdd />,
+        icon: <LocalShipping />,
         link: '/groomer'
+      }
+    ]
+  },
+  {
+    name: 'Operation',
+    type: 'collapse',
+    children: [
+      {
+        name: 'Entries',
+        type: 'item',
+        icon: <PostAdd />,
+        link: '/entries'
       }
     ]
   }

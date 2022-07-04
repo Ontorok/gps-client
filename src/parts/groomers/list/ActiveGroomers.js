@@ -1,9 +1,19 @@
-import { Button, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomBackdrop, CustomConfirmDialog, CustomDrawer, CustomTable, TextInput } from 'components';
+import { Button, Checkbox, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
+import Axios from 'axios';
+import {
+  ActionButtonGroup,
+  CustomAutoComplete,
+  CustomBackdrop,
+  CustomCheckbox,
+  CustomConfirmDialog,
+  CustomDrawer,
+  CustomTable,
+  TextInput
+} from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
-import { GROOMER_API } from 'services/apiEndPoints';
+import { CLUB_API, GROOMER_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
 import { isObjEmpty, sleep } from 'utils/commonHelper';
 import GroomerForm from '../forms/GroomerForm';
@@ -25,6 +35,12 @@ const initialFilterState = {
 //#region Colums for Table
 const columns = [
   {
+    sortName: 'clubName',
+    name: 'clubName',
+    label: 'Club',
+    isDisableSorting: true
+  },
+  {
     sortName: 'groomerName',
     name: 'groomerName',
     label: 'Groomer Name',
@@ -43,6 +59,13 @@ const columns = [
     name: 'rate',
     label: 'Rate',
     minWidth: 150,
+    isDisableSorting: true
+  },
+  {
+    sortName: 'status',
+    name: 'isActive',
+    label: 'Status',
+    minWidth: 140,
     isDisableSorting: true
   }
 ];
@@ -70,12 +93,31 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#region UDF's
   const fetchActiveGroomer = async (obj = {}) => {
     try {
-      const res = await axiosPrivate.get(GROOMER_API.fetch_all, {
+      const clubReq = axiosPrivate.get(CLUB_API.fetch_all_active);
+      const groomerReq = axiosPrivate.get(GROOMER_API.fetch_all, {
         params: isObjEmpty(obj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...obj }
       });
-      const groomers = res.data.result.map(groomer => ({ ...groomer, editMode: false, prevName: groomer.name }));
+
+      const [clubRes, groomerRes] = await Axios.all([clubReq, groomerReq]);
+      const clubs = clubRes.data.result.map(club => ({ label: club.name, value: club._id }));
+      const groomers = groomerRes.data.result.map(groomer => ({
+        ...groomer,
+        clubs: clubs,
+        club: {
+          label: groomer.clubName,
+          value: groomer.clubId
+        },
+        editMode: false,
+        prevName: groomer.name,
+        prevGpsId: groomer.gpsId,
+        prevRate: groomer.rate,
+        prevClub: {
+          label: groomer.clubName,
+          value: groomer.clubId
+        }
+      }));
       setState(groomers);
-      setActiveDataLength(res.data.total);
+      setActiveDataLength(groomerRes.data.total);
     } catch (err) {
       toastAlerts('error', err.message);
     }
@@ -83,10 +125,19 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
 
   function toggleEditMode(id) {
     const updatedState = state.map(item => {
-      if (item.id === id) {
+      if (item._id === id) {
         item['editMode'] = !item.editMode;
+        if (item.editMode === false && item.club.value !== item.prevClub.value) {
+          item['club'] = item.prevClub;
+        }
         if (item.editMode === false && item.name !== item.prevName) {
           item['name'] = item.prevName;
+        }
+        if (item.editMode === false && item.gpsId !== item.prevGpsId) {
+          item['gpsId'] = item.prevGpsId;
+        }
+        if (item.editMode === false && item.rate !== item.prevRate) {
+          item['rate'] = item.prevRate;
         }
       }
       return item;
@@ -96,6 +147,7 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
 
   //#region Effects
+
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
@@ -107,7 +159,10 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     }
     const fetchdata = async () => {
       try {
-        const res = await axiosPrivate.get(GROOMER_API.fetch_all, {
+        const clubReq = axiosPrivate.get(CLUB_API.fetch_all_active, {
+          signal: controller.signal
+        });
+        const groomerReq = axiosPrivate.get(GROOMER_API.fetch_all, {
           params: isObjEmpty(searchObj)
             ? {
                 page,
@@ -124,11 +179,30 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
               },
           signal: controller.signal
         });
-        const groomers = res.data.result.map(groomer => ({ ...groomer, editMode: false, prevName: groomer.name }));
-        isMounted && setState(groomers);
-        isMounted && setActiveDataLength(res.data.total);
+        const [clubRes, groomerRes] = await Axios.all([clubReq, groomerReq]);
+        const clubs = clubRes.data.result.map(club => ({ label: club.name, value: club._id }));
+        const groomers = groomerRes.data.result.map(groomer => ({
+          ...groomer,
+          clubs: clubs,
+          club: {
+            label: groomer.clubName,
+            value: groomer.clubId
+          },
+          editMode: false,
+          prevName: groomer.name,
+          prevGpsId: groomer.gpsId,
+          prevRate: groomer.rate,
+          prevClub: {
+            label: groomer.clubName,
+            value: groomer.clubId
+          }
+        }));
+        if (isMounted) {
+          setState(groomers);
+          setActiveDataLength(groomerRes.data.total);
+        }
       } catch (err) {
-        toastAlerts('error', 'There is an error');
+        toastAlerts('error', 'There is an error to fetch groomer');
       }
     };
 
@@ -156,11 +230,22 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   };
 
   const onInputChange = (e, id) => {
-    const { name, value } = e.target;
+    const { type, name, value, checked } = e.target;
     const _data = [...state];
     _data.map(u => {
       if (u._id === id) {
-        u[name] = value;
+        u[name] = type === 'checkbox' ? checked : value;
+      }
+      return u;
+    });
+    setState(_data);
+  };
+
+  const onClubChange = (e, newValue, id) => {
+    const _data = [...state];
+    _data.map(u => {
+      if (u._id === id) {
+        u['club'] = newValue;
       }
       return u;
     });
@@ -187,8 +272,11 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     const payload = {
       _id: formValue._id,
       name: formValue.name,
+      clubId: formValue.club.value,
+      clubName: formValue.club.label,
       gpsId: formValue.gpsId,
-      rate: formValue.rate
+      rate: formValue.rate,
+      isActive: formValue.isActive
     };
     try {
       const res = await axiosPrivate.put(GROOMER_API.update, payload);
@@ -234,6 +322,21 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
           return (
             <TableRow key={row._id}>
               {row.editMode ? (
+                <TableCell style={{ minWidth: row.editMode ? 250 : 150 }}>
+                  <CustomAutoComplete
+                    name="clubId"
+                    label="Clubs"
+                    data={row.clubs}
+                    value={row.club}
+                    onChange={(e, newValue) => {
+                      onClubChange(e, newValue, row._id);
+                    }}
+                  />
+                </TableCell>
+              ) : (
+                <TableCell>{row.clubName}</TableCell>
+              )}
+              {row.editMode ? (
                 <TableCell>
                   <TextInput type="text" name="name" value={row.name} onChange={e => onInputChange(e, row._id)} />
                 </TableCell>
@@ -241,13 +344,44 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
                 <TableCell>{row.name}</TableCell>
               )}
 
-              <TableCell>{row.gpsId}</TableCell>
-              <TableCell>{row.rate}</TableCell>
+              {/* <TableCell>{row.gpsId}</TableCell> */}
+              {row.editMode ? (
+                <TableCell>
+                  <TextInput type="text" name="gpsId" value={row.gpsId} onChange={e => onInputChange(e, row._id)} />
+                </TableCell>
+              ) : (
+                <TableCell>{row.gpsId}</TableCell>
+              )}
+              {/* <TableCell>{row.rate}</TableCell> */}
+              {row.editMode ? (
+                <TableCell>
+                  <TextInput type="text" name="rate" value={row.rate} onChange={e => onInputChange(e, row._id)} />
+                </TableCell>
+              ) : (
+                <TableCell>{row.rate}</TableCell>
+              )}
+              {row.editMode ? (
+                <TableCell>
+                  <CustomCheckbox name="isActive" label="Active?" checked={row.isActive} onChange={e => onInputChange(e, row._id)} />
+                </TableCell>
+              ) : (
+                <TableCell>
+                  <Checkbox
+                    style={{ color: '#215280' }}
+                    color="primary"
+                    defaultChecked={row.isActive}
+                    disabled
+                    disableFocusRipple
+                    disableTouchRipple
+                    disableRipple
+                  />
+                </TableCell>
+              )}
               <TableCell align="center">
                 <ActionButtonGroup
                   appearedEditButton={!row.editMode}
                   onEdit={() => {
-                    toggleEditMode(row.id);
+                    toggleEditMode(row._id);
                   }}
                   appearedDeleteButton={!row.editMode}
                   onDelete={() => {
@@ -260,7 +394,7 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
                   }}
                   appearedCancelButton={row.editMode}
                   onCancel={() => {
-                    toggleEditMode(row.id);
+                    toggleEditMode(row._id);
                   }}
                   appearedDoneButton={row.editMode}
                   onDone={() => {
