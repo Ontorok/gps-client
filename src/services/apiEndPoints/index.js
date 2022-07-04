@@ -4,9 +4,9 @@ export const USERS_API = {
 };
 
 export const ENTRIES_API = {
-  fetch_all_grooming_entries: '/api/users/fetch_all_grooming_entries',
-  fetch_all_non_grooming_entries: '/api/users/fetch_all_non_grooming_entries',
-  fetch_all_invalid_entries: '/api/users/fetch_all_invalid_entries'
+  fetch_all_grooming_entries: '/entries/fetch-all-grooming-entries',
+  fetch_all_non_grooming_entries: '/entries/fetch-all-non-grooming-entries',
+  fetch_all_invalid_entries: '/entries/fetch-all-invalid-entries'
 };
 
 export const CLUB_API = {

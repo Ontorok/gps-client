@@ -6,6 +6,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { ENTRIES_API } from 'services/apiEndPoints';
 import { axiosInstance } from 'services/auth/jwt/config';
 import { toastAlerts } from 'utils/alert';
+import { formattedDate } from 'utils/dateHelper';
 
 const GroomingEntries = ({ sortedColumn, sortedBy, onSort }) => {
   //#region States
@@ -105,18 +106,36 @@ const GroomingEntries = ({ sortedColumn, sortedBy, onSort }) => {
   ];
 
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
     const fetchGroomingEntries = async () => {
       try {
-        const res = await axiosInstance.get(ENTRIES_API.fetch_all_grooming_entries, { params: { page, perPage } });
-        const grooming = res.data.data;
+        const res = await axiosInstance.get(ENTRIES_API.fetch_all_grooming_entries, { params: { page, perPage }, signal: controller.signal });
+        const grooming = res.data.result.map(entry => ({
+          ...entry,
+          operator: 'N/A',
+          equiment1: 'N/A',
+          equiment2: 'N/A',
+          equiment3: 'N/A',
+          equiment4: 'N/A',
+          subTotal: 0,
+          total: 0
+        }));
         const total = res.data.total;
-        setState(grooming);
-        setDataLength(total);
+        if (isMounted) {
+          console.log(grooming);
+          setState(grooming);
+          setDataLength(total);
+        }
       } catch (err) {
         toastAlerts('error', 'There is an error');
       }
     };
     fetchGroomingEntries();
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
   }, [page, perPage]);
 
   const onPageChange = (event, pageNumber) => {
@@ -164,7 +183,7 @@ const GroomingEntries = ({ sortedColumn, sortedBy, onSort }) => {
     setCheckedAll(checked);
   };
 
-  const onRangeAction = async () => {
+  const onRangeAction = () => {
     // eslint-disable-next-line no-console
     console.log(checkedItems);
   };
@@ -186,16 +205,16 @@ const GroomingEntries = ({ sortedColumn, sortedBy, onSort }) => {
         onRangeAction={onRangeAction}
         rangeActionButtonText="Mark as Invalid">
         {state.map((row, index) => (
-          <TableRow key={row.id}>
+          <TableRow key={row._id}>
             <TableCell>
               <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
             </TableCell>
-            <TableCell>{row.id}</TableCell>
-            <TableCell>{row.fundStatus}</TableCell>
-            <TableCell>{row.date}</TableCell>
-            <TableCell>{row.trail}</TableCell>
+            <TableCell>{row.deviceId}</TableCell>
+            <TableCell>{row.fundingStatus}</TableCell>
+            <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
+            <TableCell>{row.trailName}</TableCell>
             <TableCell>{row.operator}</TableCell>
-            <TableCell>{row.laborHours}</TableCell>
+            <TableCell>{row.eligibleTime}</TableCell>
             <TableCell>{row.equiment1}</TableCell>
             <TableCell>{row.equiment2}</TableCell>
             <TableCell>{row.equiment3}</TableCell>
