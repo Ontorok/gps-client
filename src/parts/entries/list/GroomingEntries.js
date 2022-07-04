@@ -20,16 +20,16 @@ const GroomingEntries = ({ sortedColumn, sortedBy, onSort }) => {
 
   const columns = [
     {
-      name: 'id',
-      sortName: 'id',
+      name: 'deviceId',
+      sortName: 'deviceId',
       label: 'ID',
       minWidth: 80,
-      isDisableSorting: false
+      isDisableSorting: true
     },
     {
-      name: 'fundStatus',
-      sortName: 'fundStatus',
-      label: 'Fund Status',
+      name: 'fundingStatus',
+      sortName: 'fundingStatus',
+      label: 'Funding Status',
       minWidth: 150,
       isDisableSorting: true
     },
@@ -41,8 +41,8 @@ const GroomingEntries = ({ sortedColumn, sortedBy, onSort }) => {
       isDisableSorting: true
     },
     {
-      name: 'trail',
-      sortName: 'trail',
+      name: 'trailName',
+      sortName: 'trailName',
       label: 'Trail',
       minWidth: 120,
       isDisableSorting: true
@@ -55,8 +55,8 @@ const GroomingEntries = ({ sortedColumn, sortedBy, onSort }) => {
       isDisableSorting: true
     },
     {
-      name: 'laborHours',
-      sortName: 'laborHours',
+      name: 'eligibleTime',
+      sortName: 'eligibleTime',
       label: 'L.Hours',
       minWidth: 130,
       isDisableSorting: true

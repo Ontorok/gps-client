@@ -6,6 +6,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { ENTRIES_API } from 'services/apiEndPoints';
 import { axiosInstance } from 'services/auth/jwt/config';
 import { toastAlerts } from 'utils/alert';
+import { formattedDate } from 'utils/dateHelper';
 
 const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
   //#region States
@@ -19,16 +20,16 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
 
   const columns = [
     {
-      name: 'id',
-      sortName: 'id',
+      name: 'deviceId',
+      sortName: 'deviceId',
       label: 'ID',
       minWidth: 80,
-      isDisableSorting: false
+      isDisableSorting: true
     },
     {
-      name: 'fundStatus',
-      sortName: 'fundStatus',
-      label: 'Fund Status',
+      name: 'fundingStatus',
+      sortName: 'fundingStatus',
+      label: 'Funding Status',
       minWidth: 150,
       isDisableSorting: true
     },
@@ -40,8 +41,8 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
       isDisableSorting: true
     },
     {
-      name: 'trail',
-      sortName: 'trail',
+      name: 'trailName',
+      sortName: 'trailName',
       label: 'Trail',
       minWidth: 120,
       isDisableSorting: true
@@ -54,8 +55,8 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
       isDisableSorting: true
     },
     {
-      name: 'laborHours',
-      sortName: 'laborHours',
+      name: 'eligibleTime',
+      sortName: 'eligibleTime',
       label: 'L.Hours',
       minWidth: 130,
       isDisableSorting: true
@@ -105,18 +106,36 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
   ];
 
   useEffect(() => {
-    const fetchInvalidEntries = async () => {
+    let isMounted = true;
+    const controller = new AbortController();
+    const fetchGroomingEntries = async () => {
       try {
-        const res = await axiosInstance.get(ENTRIES_API.fetch_all_invalid_entries, { params: { page, perPage } });
-        const grooming = res.data.data;
+        const res = await axiosInstance.get(ENTRIES_API.fetch_all_non_grooming_entries, { params: { page, perPage }, signal: controller.signal });
+        const nongrooming = res.data.result.map(entry => ({
+          ...entry,
+          operator: 'N/A',
+          equiment1: 'N/A',
+          equiment2: 'N/A',
+          equiment3: 'N/A',
+          equiment4: 'N/A',
+          subTotal: 0,
+          total: 0
+        }));
         const total = res.data.total;
-        setState(grooming);
-        setDataLength(total);
+        if (isMounted) {
+          console.log(nongrooming);
+          setState(nongrooming);
+          setDataLength(total);
+        }
       } catch (err) {
         toastAlerts('error', 'There is an error');
       }
     };
-    fetchInvalidEntries();
+    fetchGroomingEntries();
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
   }, [page, perPage]);
 
   const onPageChange = (event, pageNumber) => {
@@ -186,16 +205,16 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
         onRangeAction={onRangeAction}
         rangeActionButtonText="Restore">
         {state.map((row, index) => (
-          <TableRow key={row.id}>
+          <TableRow key={row._id}>
             <TableCell>
               <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
             </TableCell>
-            <TableCell>{row.id}</TableCell>
-            <TableCell>{row.fundStatus}</TableCell>
-            <TableCell>{row.date}</TableCell>
-            <TableCell>{row.trail}</TableCell>
+            <TableCell>{row.deviceId}</TableCell>
+            <TableCell>{row.fundingStatus}</TableCell>
+            <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
+            <TableCell>{row.trailName}</TableCell>
             <TableCell>{row.operator}</TableCell>
-            <TableCell>{row.laborHours}</TableCell>
+            <TableCell>{row.eligibleTime}</TableCell>
             <TableCell>{row.equiment1}</TableCell>
             <TableCell>{row.equiment2}</TableCell>
             <TableCell>{row.equiment3}</TableCell>
