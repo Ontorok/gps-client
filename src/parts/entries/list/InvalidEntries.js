@@ -1,14 +1,15 @@
 import { TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, SelectableTable } from 'components';
 import withSort from 'hoc/withSort';
+import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import _ from 'lodash';
 import React, { Fragment, useEffect, useState } from 'react';
 import { ENTRIES_API } from 'services/apiEndPoints';
-import { axiosInstance } from 'services/auth/jwt/config';
 import { toastAlerts } from 'utils/alert';
 import { formattedDate } from 'utils/dateHelper';
 
 const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
+  const axiosPrivate = useAxiosPrivate();
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
@@ -110,7 +111,7 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
     const controller = new AbortController();
     const fetchGroomingEntries = async () => {
       try {
-        const res = await axiosInstance.get(ENTRIES_API.fetch_all_non_grooming_entries, { params: { page, perPage }, signal: controller.signal });
+        const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_grooming_entries, { params: { page, perPage }, signal: controller.signal });
         const nongrooming = res.data.result.map(entry => ({
           ...entry,
           operator: 'N/A',
@@ -123,7 +124,6 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
         }));
         const total = res.data.total;
         if (isMounted) {
-          console.log(nongrooming);
           setState(nongrooming);
           setDataLength(total);
         }
@@ -136,7 +136,7 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
       isMounted = false;
       controller.abort();
     };
-  }, [page, perPage]);
+  }, [axiosPrivate, page, perPage]);
 
   const onPageChange = (event, pageNumber) => {
     setPage(pageNumber);
