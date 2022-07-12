@@ -3,6 +3,7 @@ import CustomBackdrop from './CustomBackdrop/CustomBackdrop';
 import ResetButton from './CustomButtons/ResetButton';
 import SearchButton from './CustomButtons/SearchButton';
 import CustomCheckbox from './CustomCheckbox/CustomCheckbox';
+import CustomDatePicker from './CustomDatePicker/CustomDatePicker';
 import CustomConfirmDialog from './CustomDialog/CustomConfirmDialog';
 import CustomDrawer from './CustomDrawer/CustomDrawer';
 import CustomAutoComplete from './CustomDropdowns/AutoComplete';
@@ -27,5 +28,6 @@ export {
   ResetButton,
   CustomAutoComplete,
   CustomDropdown,
-  CustomCheckbox
+  CustomCheckbox,
+  CustomDatePicker
 };

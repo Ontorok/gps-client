@@ -32,6 +32,12 @@ export const sidebarNavs = [
     type: 'section',
     children: [
       {
+        name: 'New Entries',
+        type: 'item',
+        icon: <PostAdd />,
+        link: '/new-entries'
+      },
+      {
         name: 'Entries',
         type: 'item',
         icon: <PostAdd />,
@@ -85,6 +91,12 @@ export const minimalHorizontalMenus = [
     name: 'Operation',
     type: 'collapse',
     children: [
+      {
+        name: 'New Entries',
+        type: 'item',
+        icon: <PostAdd />,
+        link: '/new-entries'
+      },
       {
         name: 'Entries',
         type: 'item',

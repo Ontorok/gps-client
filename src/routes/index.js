@@ -11,6 +11,7 @@ import { useLocation } from 'react-router-dom';
 import Club from './club';
 import Entries from './entries';
 import Groomer from './groomer';
+import NewEntries from './newEntries';
 import User from './users';
 
 const RestrictedRoute = ({ component: Component, ...rest }) => {
@@ -52,6 +53,7 @@ const Routes = () => {
         <RestrictedRoute path="/club" component={Club} />
         <RestrictedRoute path="/groomer" component={Groomer} />
         <RestrictedRoute path="/entries" component={Entries} />
+        <RestrictedRoute path="/new-entries" component={NewEntries} />
         <RestrictedRoute path="/profile" component={Profile} />
         <Route path="/signin" component={Login} />
         <Route path="/signup" component={Register} />
