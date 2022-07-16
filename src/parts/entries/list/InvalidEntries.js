@@ -6,6 +6,7 @@ import _ from 'lodash';
 import React, { Fragment, useEffect, useState } from 'react';
 import { ENTRIES_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
+import { convertSecondToHour } from 'utils/commonHelper';
 import { formattedDate } from 'utils/dateHelper';
 
 const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
@@ -48,53 +49,12 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
       minWidth: 120,
       isDisableSorting: true
     },
-    {
-      name: 'operator',
-      sortName: 'operator',
-      label: 'Operator',
-      minWidth: 120,
-      isDisableSorting: true
-    },
+
     {
       name: 'eligibleTime',
       sortName: 'eligibleTime',
-      label: 'L.Hours',
+      label: 'Hours',
       minWidth: 130,
-      isDisableSorting: true
-    },
-    {
-      name: 'equiment1',
-      sortName: 'equiment1',
-      label: 'Equip#1',
-      minWidth: 120,
-      isDisableSorting: true
-    },
-    {
-      name: 'equiment2',
-      sortName: 'equiment2',
-      label: 'Equip#2',
-      minWidth: 120,
-      isDisableSorting: true
-    },
-    {
-      name: 'equiment3',
-      sortName: 'equiment3',
-      label: 'Equip#3',
-      minWidth: 120,
-      isDisableSorting: true
-    },
-    {
-      name: 'equiment4',
-      sortName: 'equiment4',
-      label: 'Equip#4',
-      minWidth: 120,
-      isDisableSorting: true
-    },
-    {
-      name: 'subTotal',
-      sortName: 'subTotal',
-      label: 'Sub Total',
-      minWidth: 120,
       isDisableSorting: true
     },
     {
@@ -111,15 +71,11 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
     const controller = new AbortController();
     const fetchGroomingEntries = async () => {
       try {
-        const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_grooming_entries, { params: { page, perPage }, signal: controller.signal });
+        const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, { params: { page, perPage }, signal: controller.signal });
         const nongrooming = res.data.result.map(entry => ({
           ...entry,
-          operator: 'N/A',
-          equiment1: 'N/A',
-          equiment2: 'N/A',
-          equiment3: 'N/A',
-          equiment4: 'N/A',
-          subTotal: 0,
+          selected: false,
+          eligibleTime: convertSecondToHour(entry.eligibleTime),
           total: 0
         }));
         const total = res.data.total;
@@ -160,7 +116,7 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
     if (checked) {
       _checkedItems.push(targetedObj);
     } else {
-      _checkedItems = checkedItems.filter(item => item.id !== targetedObj.id);
+      _checkedItems = checkedItems.filter(item => item._id !== targetedObj._id);
     }
     _state[rowIndex] = targetedObj;
     // eslint-disable-next-line no-undef
@@ -213,13 +169,7 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
             <TableCell>{row.fundingStatus}</TableCell>
             <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
             <TableCell>{row.trailName}</TableCell>
-            <TableCell>{row.operator}</TableCell>
             <TableCell>{row.eligibleTime}</TableCell>
-            <TableCell>{row.equiment1}</TableCell>
-            <TableCell>{row.equiment2}</TableCell>
-            <TableCell>{row.equiment3}</TableCell>
-            <TableCell>{row.equiment4}</TableCell>
-            <TableCell>{row.subTotal}</TableCell>
             <TableCell>{row.total}</TableCell>
             <TableCell>
               <ActionButtonGroup appearedDeleteButton appearedEditButton onEdit={() => console.log(row)} onDelete={() => console.log(row)} />

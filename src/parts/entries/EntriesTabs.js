@@ -1,20 +1,20 @@
 import { CustomTabControl } from 'components';
 import React from 'react';
-import GroomingEntries from './list/GroomingEntries';
+import GroomingEntries from './list/FundedEntries';
 import InvalidEntries from './list/InvalidEntries';
-import NonGroomingEntries from './list/NonGroomingEntries';
+import NonGroomingEntries from './list/NonFundedEntries';
 
 const UserTabs = () => {
   const components = [
     {
       index: 0,
-      heading: 'Grooming Entries',
+      heading: 'Funded Entries',
       component: <GroomingEntries />,
       hasPermission: true
     },
     {
       index: 1,
-      heading: 'Non-Grooming Entries',
+      heading: 'Non-Funded Entries',
       component: <NonGroomingEntries />,
       hasPermission: true
     },

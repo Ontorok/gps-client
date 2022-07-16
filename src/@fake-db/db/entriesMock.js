@@ -727,7 +727,7 @@ const entriesDB = {
 };
 
 // For Grooming Entries
-Mock.onGet(ENTRIES_API.fetch_all_grooming_entries).reply(config => {
+Mock.onGet(ENTRIES_API.fetch_all_non_funded).reply(config => {
   const {
     params: { page, perPage }
   } = config;
@@ -737,7 +737,7 @@ Mock.onGet(ENTRIES_API.fetch_all_grooming_entries).reply(config => {
 });
 
 // For Non Grooming Entries
-Mock.onGet(ENTRIES_API.fetch_all_non_grooming_entries).reply(config => {
+Mock.onGet(ENTRIES_API.fetch_all_non_funded).reply(config => {
   const {
     params: { page, perPage }
   } = config;

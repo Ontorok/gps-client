@@ -107,3 +107,10 @@ export const mapArrayToDropdown = (arr = [], label, value) => {
     value: item[value]
   }));
 };
+
+/**
+ * Convert Second to Hour
+ * @param sec => second
+ * @returns {Int}
+ */
+export const convertSecondToHour = sec => (sec === 0 ? 0 : Number((sec / 3600).toFixed(2)));

@@ -5,8 +5,8 @@ export const USERS_API = {
 
 export const ENTRIES_API = {
   fetch_knack: `/entries/fetch-knack`,
-  fetch_all_grooming_entries: '/entries/fetch-all-grooming-entries',
-  fetch_all_non_grooming_entries: '/entries/fetch-all-non-grooming-entries',
+  fetch_all_funded: '/entries/fetch-all-funded-entries',
+  fetch_all_non_funded: '/entries/fetch-all-non-funded-entries',
   fetch_all_invalid_entries: '/entries/fetch-all-invalid-entries',
   create: '/entries/save-entries-by-user'
 };
