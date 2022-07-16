@@ -6,7 +6,6 @@ import _ from 'lodash';
 import React, { Fragment, useEffect, useState } from 'react';
 import { ENTRIES_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
-import { convertSecondToHour } from 'utils/commonHelper';
 import { formattedDate } from 'utils/dateHelper';
 
 const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
@@ -26,6 +25,13 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
       sortName: 'deviceId',
       label: 'ID',
       minWidth: 80,
+      isDisableSorting: true
+    },
+    {
+      name: 'groomerName',
+      sortName: 'groomerName',
+      label: 'Groomer',
+      minWidth: 150,
       isDisableSorting: true
     },
     {
@@ -50,9 +56,16 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
       isDisableSorting: true
     },
     {
-      name: 'eligibleTime',
-      sortName: 'eligibleTime',
+      name: 'eligibleTimeInHour',
+      sortName: 'eligibleTimeInHour',
       label: 'Hours',
+      minWidth: 130,
+      isDisableSorting: true
+    },
+    {
+      name: 'rate',
+      sortName: 'rate',
+      label: 'Rate',
       minWidth: 130,
       isDisableSorting: true
     },
@@ -73,9 +86,7 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
         const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, { params: { page, perPage }, signal: controller.signal });
         const nongrooming = res.data.result.map(entry => ({
           ...entry,
-          selected: false,
-          eligibleTime: convertSecondToHour(entry.eligibleTime),
-          total: 0
+          selected: false
         }));
         const total = res.data.total;
         if (isMounted) {
@@ -165,10 +176,12 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
               <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
             </TableCell>
             <TableCell>{row.deviceId}</TableCell>
+            <TableCell>{row.groomerName}</TableCell>
             <TableCell>{row.fundingStatus}</TableCell>
             <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
             <TableCell>{row.trailName}</TableCell>
-            <TableCell>{row.eligibleTime}</TableCell>
+            <TableCell>{row.eligibleTimeInHour}</TableCell>
+            <TableCell>{row.rate}</TableCell>
             <TableCell>{row.total}</TableCell>
             <TableCell>
               <ActionButtonGroup appearedDeleteButton appearedEditButton onEdit={() => console.log(row)} onDelete={() => console.log(row)} />
@@ -180,4 +193,4 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
   );
 };
 
-export default withSort(NonFundedEntries, 'id');
+export default withSort(NonFundedEntries, 'deviceId');

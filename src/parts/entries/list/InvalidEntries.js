@@ -6,7 +6,6 @@ import _ from 'lodash';
 import React, { Fragment, useEffect, useState } from 'react';
 import { ENTRIES_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
-import { convertSecondToHour } from 'utils/commonHelper';
 import { formattedDate } from 'utils/dateHelper';
 
 const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
@@ -26,6 +25,13 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
       sortName: 'deviceId',
       label: 'ID',
       minWidth: 80,
+      isDisableSorting: true
+    },
+    {
+      name: 'groomerName',
+      sortName: 'groomerName',
+      label: 'Groomer',
+      minWidth: 150,
       isDisableSorting: true
     },
     {
@@ -49,11 +55,17 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
       minWidth: 120,
       isDisableSorting: true
     },
-
     {
-      name: 'eligibleTime',
-      sortName: 'eligibleTime',
+      name: 'eligibleTimeInHour',
+      sortName: 'eligibleTimeInHour',
       label: 'Hours',
+      minWidth: 130,
+      isDisableSorting: true
+    },
+    {
+      name: 'rate',
+      sortName: 'rate',
+      label: 'Rate',
       minWidth: 130,
       isDisableSorting: true
     },
@@ -71,12 +83,10 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
     const controller = new AbortController();
     const fetchGroomingEntries = async () => {
       try {
-        const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, { params: { page, perPage }, signal: controller.signal });
+        const res = await axiosPrivate.get(ENTRIES_API.fetch_all_invalid_entries, { params: { page, perPage }, signal: controller.signal });
         const nongrooming = res.data.result.map(entry => ({
           ...entry,
-          selected: false,
-          eligibleTime: convertSecondToHour(entry.eligibleTime),
-          total: 0
+          selected: false
         }));
         const total = res.data.total;
         if (isMounted) {
@@ -160,22 +170,32 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
         onCheckedAllChange={onCheckedAllChange}
         onRangeAction={onRangeAction}
         rangeActionButtonText="Restore">
-        {state.map((row, index) => (
-          <TableRow key={row._id}>
-            <TableCell>
-              <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
-            </TableCell>
-            <TableCell>{row.deviceId}</TableCell>
-            <TableCell>{row.fundingStatus}</TableCell>
-            <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
-            <TableCell>{row.trailName}</TableCell>
-            <TableCell>{row.eligibleTime}</TableCell>
-            <TableCell>{row.total}</TableCell>
-            <TableCell>
-              <ActionButtonGroup appearedDeleteButton appearedEditButton onEdit={() => console.log(row)} onDelete={() => console.log(row)} />
+        {state.length > 0 ? (
+          state.map((row, index) => (
+            <TableRow key={row._id}>
+              <TableCell>
+                <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
+              </TableCell>
+              <TableCell>{row.deviceId}</TableCell>
+              <TableCell>{row.groomerName}</TableCell>
+              <TableCell>{row.fundingStatus}</TableCell>
+              <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
+              <TableCell>{row.trailName}</TableCell>
+              <TableCell>{row.eligibleTimeInHour}</TableCell>
+              <TableCell>{row.rate}</TableCell>
+              <TableCell>{row.total}</TableCell>
+              <TableCell>
+                <ActionButtonGroup appearedDeleteButton appearedEditButton onEdit={() => console.log(row)} onDelete={() => console.log(row)} />
+              </TableCell>
+            </TableRow>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={10}>
+              <h3 style={{ textAlign: 'center' }}>No data to show</h3>
             </TableCell>
           </TableRow>
-        ))}
+        )}
       </SelectableTable>
     </Fragment>
   );

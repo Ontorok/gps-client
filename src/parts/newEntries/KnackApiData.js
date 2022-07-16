@@ -82,6 +82,8 @@ export default function DenseTable() {
         }));
         const res = await axiosPrivate.post(ENTRIES_API.create, payload);
         toastAlerts('success', res.data.message);
+        setDate(null);
+        setData([]);
       } catch (error) {
         toastAlerts('warning', error.response.data.message);
       } finally {
@@ -105,23 +107,29 @@ export default function DenseTable() {
         <Table className={classes.table} size="small" aria-label="a dense table">
           <TableHead>
             <TableRow>
-              <StyledTableHeadCell>Device ID</StyledTableHeadCell>
-              <StyledTableHeadCell align="right">Date</StyledTableHeadCell>
-              <StyledTableHeadCell align="right">Country</StyledTableHeadCell>
-              <StyledTableHeadCell align="right">Trail</StyledTableHeadCell>
+              <StyledTableHeadCell>ID</StyledTableHeadCell>
+              <StyledTableHeadCell>Groomer</StyledTableHeadCell>
               <StyledTableHeadCell align="right">Funding Status</StyledTableHeadCell>
+              <StyledTableHeadCell align="right">Date</StyledTableHeadCell>
+              <StyledTableHeadCell align="right">County</StyledTableHeadCell>
+              <StyledTableHeadCell align="right">Trail</StyledTableHeadCell>
               <StyledTableHeadCell align="right">Eligble Time</StyledTableHeadCell>
+              <StyledTableHeadCell align="right">Rate</StyledTableHeadCell>
+              <StyledTableHeadCell align="right">Total</StyledTableHeadCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map(row => (
               <TableRow key={row.key}>
                 <TableCell>{row.deviceId}</TableCell>
-                <TableCell align="right">{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
-                <TableCell align="right">{row.clubName}</TableCell>
-                <TableCell align="right">{row.trailName}</TableCell>
+                <TableCell>{row.groomerName}</TableCell>
                 <TableCell align="right">{row.fundingStatus}</TableCell>
-                <TableCell align="right">{row.eligibleTime}</TableCell>
+                <TableCell align="right">{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
+                <TableCell align="right">{row.countyName}</TableCell>
+                <TableCell align="right">{row.trailName}</TableCell>
+                <TableCell align="right">{row.eligibleTimeInHour}</TableCell>
+                <TableCell align="right">{row.rate}</TableCell>
+                <TableCell align="right">{row.total}</TableCell>
               </TableRow>
             ))}
           </TableBody>
