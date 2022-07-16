@@ -1,10 +1,12 @@
 import { Button, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, CustomDrawer, CustomTable, TextInput } from 'components';
 import withSort from 'hoc/withSort';
+import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
 import { USERS_API } from 'services/apiEndPoints';
 import { axiosInstance } from 'services/auth/jwt/config';
 import { toastAlerts } from 'utils/alert';
+import { sleep } from 'utils/commonHelper';
 import UserForm from '../forms/UserForm';
 
 const useStyles = makeStyles(theme => ({
@@ -16,46 +18,51 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+//#region Colums for Table
+const columns = [
+  {
+    sortName: 'id',
+    name: 'id',
+    label: 'ID',
+    minWidth: 150,
+    isDisableSorting: false
+  },
+  {
+    sortName: 'name',
+    name: 'name',
+    label: 'Name',
+    minWidth: 150,
+    isDisableSorting: true
+  },
+  {
+    sortName: 'email',
+    name: 'email',
+    label: 'Email',
+    minWidth: 150,
+    isDisableSorting: true
+  },
+  {
+    sortName: 'phone',
+    name: 'phone',
+    label: 'Phone',
+    minWidth: 170,
+    isDisableSorting: true
+  }
+];
+//#endregion
+
 const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
   const classes = useStyles();
-  //#region Colums for Table
-  const columns = [
-    {
-      sortName: 'id',
-      name: 'id',
-      label: 'ID',
-      minWidth: 150,
-      isDisableSorting: false
-    },
-    {
-      sortName: 'name',
-      name: 'name',
-      label: 'Name',
-      minWidth: 150,
-      isDisableSorting: true
-    },
-    {
-      sortName: 'email',
-      name: 'email',
-      label: 'Email',
-      minWidth: 150,
-      isDisableSorting: true
-    },
-    {
-      sortName: 'phone',
-      name: 'phone',
-      label: 'Phone',
-      minWidth: 170,
-      isDisableSorting: true
-    }
-  ];
-  //#endregion
+  const axiosPrivate = useAxiosPrivate();
+
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   //#endregion
 
   //#region UDF's
@@ -112,6 +119,19 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
     });
     setState(_data);
   };
+
+  const onCreate = async formValue => {
+    setLoading(true);
+    try {
+      await sleep(500);
+      console.log(formValue);
+    } catch (err) {
+      toastAlerts('error', err?.response?.data?.message);
+    } finally {
+      setLoading(false);
+      setDrawerOpen(false);
+    }
+  };
   //#endregion
   return (
     <Fragment>
@@ -166,7 +186,7 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
         })}
       </CustomTable>
       <CustomDrawer drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} title="User">
-        <UserForm recordForEdit={{}} onSubmit={() => {}} />
+        <UserForm create={onCreate} loading={loading} />
       </CustomDrawer>
     </Fragment>
   );
