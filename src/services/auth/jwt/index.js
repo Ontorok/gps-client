@@ -36,7 +36,7 @@ const JWTAuth = {
     };
   },
 
-  onLogin: ({ email, password }) => {
+  onLogin: ({ username, password }) => {
     return dispatch => {
       try {
         dispatch(fetchStart());
@@ -44,7 +44,7 @@ const JWTAuth = {
           .post(
             AUTH_API.login,
             {
-              email: email,
+              username: username,
               password: password
             },
             {

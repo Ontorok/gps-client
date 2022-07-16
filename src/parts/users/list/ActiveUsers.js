@@ -6,7 +6,6 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { USERS_API } from 'services/apiEndPoints';
 import { axiosInstance } from 'services/auth/jwt/config';
 import { toastAlerts } from 'utils/alert';
-import { sleep } from 'utils/commonHelper';
 import UserForm from '../forms/UserForm';
 
 const useStyles = makeStyles(theme => ({
@@ -123,8 +122,10 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
   const onCreate = async formValue => {
     setLoading(true);
     try {
-      await sleep(500);
-      console.log(formValue);
+      const res = await axiosPrivate.post(USERS_API.create, formValue);
+      if (res.status === 201) {
+        toastAlerts('success', res.data.message);
+      }
     } catch (err) {
       toastAlerts('error', err?.response?.data?.message);
     } finally {

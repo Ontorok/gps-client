@@ -54,13 +54,13 @@ const useStyles = makeStyles(theme => ({
 }));
 //variant = 'default', 'standard'
 const SignIn = ({ method = CurrentAuthMethod, variant = 'default', wrapperVariant = 'default' }) => {
-  const [email, setEmail] = useState('admin@mail.com');
+  const [username, setUsername] = useState('superadmin');
   const [password, setPassword] = useState('demo#123');
   const dispatch = useDispatch();
   const classes = useStyles({ variant });
 
   const onSubmit = () => {
-    dispatch(AuhMethods[method].onLogin({ email, password }));
+    dispatch(AuhMethods[method].onLogin({ username, password }));
   };
 
   return (
@@ -82,8 +82,8 @@ const SignIn = ({ method = CurrentAuthMethod, variant = 'default', wrapperVarian
             <TextField
               label={<IntlMessages id="appModule.email" />}
               fullWidth
-              onChange={event => setEmail(event.target.value)}
-              defaultValue={email}
+              onChange={event => setUsername(event.target.value)}
+              defaultValue={username}
               margin="normal"
               variant="outlined"
               className={classes.textFieldRoot}

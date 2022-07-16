@@ -40,13 +40,16 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const USER_ROLES = [
-  { id: 'role102', label: 'Manager', value: 'manager' },
-  { id: 'role103', label: 'User', value: 'user' }
+  { id: 'role102', label: 'Manager', value: 'Manager' },
+  { id: 'role103', label: 'User', value: 'User' }
 ];
 
 const initialFieldValues = {
   id: 0,
   fullName: '',
+  email: '',
+  address: '',
+  phone: '',
   roleId: '',
   roleName: '',
   clubId: '',
@@ -113,6 +116,7 @@ const UserForm = props => {
   const onClubChange = (e, newValue) => {
     if (newValue) {
       setClub(newValue);
+      setState(prev => ({ ...prev, clubId: newValue.value, clubName: newValue.label }));
     } else {
       setClub(null);
     }
@@ -123,9 +127,11 @@ const UserForm = props => {
     const payload = {
       name: state.fullName,
       username: state.username,
-      email: 'mail@mail.com',
-      address: 'Chattogram, Bangladesh',
-      phone: '01911612755',
+      email: state.email ? state.email : '',
+      address: state.address ? state.address : '',
+      phone: state.phone ? state.phone : '',
+      clubId: state.clubId,
+      clubName: state.clubName,
       role: state.roleId,
       password: state.password
     };
@@ -138,19 +144,28 @@ const UserForm = props => {
     <GridContainer className={classes.root}>
       <form onSubmit={onSubmit}>
         <Grid item xs={12}>
-          <TextInput name="fullName" label="Full Name" value={state.fullName} onChange={onChange} />
+          <TextInput type="text" name="fullName" label="Full Name" value={state.fullName} onChange={onChange} required />
         </Grid>
         <Grid item xs={12}>
-          <CustomAutoComplete name="roleId" label="Roles" data={roles} value={role} onChange={onRoleChange} />
+          <TextInput type="email" name="email" label="email" value={state.email} onChange={onChange} />
         </Grid>
         <Grid item xs={12}>
-          <CustomAutoComplete name="clubId" label="Club" data={clubs} value={club} onChange={onClubChange} />
+          <TextInput type="text" name="address" label="Address" value={state.address} onChange={onChange} />
         </Grid>
         <Grid item xs={12}>
-          <TextInput name="username" label="Username" value={state.username} onChange={onChange} />
+          <TextInput type="text" name="phone" label="Phone" value={state.phone} onChange={onChange} />
         </Grid>
         <Grid item xs={12}>
-          <TextInput name="password" label="Password" type="password" value={state.password} onChange={onChange} />
+          <CustomAutoComplete name="roleId" label="Roles" data={roles} value={role} onChange={onRoleChange} required />
+        </Grid>
+        <Grid item xs={12}>
+          <CustomAutoComplete name="clubId" label="Club" data={clubs} value={club} onChange={onClubChange} required />
+        </Grid>
+        <Grid item xs={12}>
+          <TextInput name="username" label="Username" value={state.username} onChange={onChange} required />
+        </Grid>
+        <Grid item xs={12}>
+          <TextInput name="password" label="Password" type="password" value={state.password} onChange={onChange} required />
         </Grid>
 
         <Grid item container justifyContent="flex-end" xs={12}>

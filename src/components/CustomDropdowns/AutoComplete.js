@@ -32,6 +32,7 @@ const CustomAutoComplete = ({ data, label, name, value, disabled, error, onChang
           margin="dense"
           variant="outlined"
           label={label}
+          required={rest.required || false}
           className={rest.className}
           {...(error && { error: true, helperText: error })}
           InputProps={{

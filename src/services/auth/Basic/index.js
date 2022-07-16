@@ -16,13 +16,13 @@ const BasicAuth = {
     };
   },
 
-  onLogin: ({ email, password }) => {
+  onLogin: ({ username, password }) => {
     return dispatch => {
       try {
         dispatch(fetchStart());
 
         setTimeout(() => {
-          const user = { name: 'Admin', email: email, password: password };
+          const user = { name: 'Admin', username: username, password: password };
           dispatch(fetchSuccess());
           localStorage.setItem('user', JSON.stringify(user));
           dispatch(setAuthUser(user));
@@ -68,7 +68,7 @@ const BasicAuth = {
   },
   getSocialMediaIcons: () => {
     return <React.Fragment> </React.Fragment>;
-  },
+  }
 };
 
 export default BasicAuth;

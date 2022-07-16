@@ -1,6 +1,7 @@
 export const USERS_API = {
-  fetch_all: '/api/users/fetch-all',
-  fetch_all_archive: '/api/users/fetch-all-archive'
+  create: '/auth/register',
+  fetch_all: '/auth/fetch-all',
+  fetch_all_archive: '/auth/fetch-all-archive'
 };
 
 export const ENTRIES_API = {
