@@ -1,12 +1,72 @@
 import { TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, SelectableTable } from 'components';
+import { ActionButtonGroup, CustomBackdrop, SelectableTable } from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import _ from 'lodash';
 import React, { Fragment, useEffect, useState } from 'react';
 import { ENTRIES_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
+import { sleep } from 'utils/commonHelper';
 import { formattedDate } from 'utils/dateHelper';
+
+const columns = [
+  {
+    name: 'deviceId',
+    sortName: 'deviceId',
+    label: 'ID',
+    minWidth: 80,
+    isDisableSorting: true
+  },
+  {
+    name: 'groomerName',
+    sortName: 'groomerName',
+    label: 'Groomer',
+    minWidth: 150,
+    isDisableSorting: true
+  },
+  {
+    name: 'fundingStatus',
+    sortName: 'fundingStatus',
+    label: 'Funding Status',
+    minWidth: 150,
+    isDisableSorting: true
+  },
+  {
+    name: 'date',
+    sortName: 'date',
+    label: 'Date',
+    minWidth: 150,
+    isDisableSorting: true
+  },
+  {
+    name: 'trailName',
+    sortName: 'trailName',
+    label: 'Trail',
+    minWidth: 120,
+    isDisableSorting: true
+  },
+  {
+    name: 'eligibleTimeInHour',
+    sortName: 'eligibleTimeInHour',
+    label: 'Hours',
+    minWidth: 130,
+    isDisableSorting: true
+  },
+  {
+    name: 'rate',
+    sortName: 'rate',
+    label: 'Rate',
+    minWidth: 130,
+    isDisableSorting: true
+  },
+  {
+    name: 'total',
+    sortName: 'total',
+    label: 'Total',
+    minWidth: 120,
+    isDisableSorting: true
+  }
+];
 
 const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
   const axiosPrivate = useAxiosPrivate();
@@ -17,71 +77,31 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
   const [dataLength, setDataLength] = useState(0);
   const [checkedAll, setCheckedAll] = useState(false);
   const [checkedItems, setCheckedItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   //#endregion
 
-  const columns = [
-    {
-      name: 'deviceId',
-      sortName: 'deviceId',
-      label: 'ID',
-      minWidth: 80,
-      isDisableSorting: true
-    },
-    {
-      name: 'groomerName',
-      sortName: 'groomerName',
-      label: 'Groomer',
-      minWidth: 150,
-      isDisableSorting: true
-    },
-    {
-      name: 'fundingStatus',
-      sortName: 'fundingStatus',
-      label: 'Funding Status',
-      minWidth: 150,
-      isDisableSorting: true
-    },
-    {
-      name: 'date',
-      sortName: 'date',
-      label: 'Date',
-      minWidth: 150,
-      isDisableSorting: true
-    },
-    {
-      name: 'trailName',
-      sortName: 'trailName',
-      label: 'Trail',
-      minWidth: 120,
-      isDisableSorting: true
-    },
-    {
-      name: 'eligibleTimeInHour',
-      sortName: 'eligibleTimeInHour',
-      label: 'Hours',
-      minWidth: 130,
-      isDisableSorting: true
-    },
-    {
-      name: 'rate',
-      sortName: 'rate',
-      label: 'Rate',
-      minWidth: 130,
-      isDisableSorting: true
-    },
-    {
-      name: 'total',
-      sortName: 'total',
-      label: 'Total',
-      minWidth: 120,
-      isDisableSorting: true
+  //#region UDF's
+  const fetchFundedEntries = async () => {
+    try {
+      const res = await axiosPrivate.get(ENTRIES_API.fetch_all_funded, { params: { page, perPage } });
+      const grooming = res.data.result.map(entry => ({
+        ...entry,
+        selected: false
+      }));
+      const total = res.data.total;
+      setState(grooming);
+      setDataLength(total);
+    } catch (err) {
+      toastAlerts('error', 'There is an error');
     }
-  ];
+  };
+  //#endregion
 
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-    const fetchGroomingEntries = async () => {
+    const fetchData = async () => {
       try {
         const res = await axiosPrivate.get(ENTRIES_API.fetch_all_funded, { params: { page, perPage }, signal: controller.signal });
         const grooming = res.data.result.map(entry => ({
@@ -97,7 +117,7 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
         toastAlerts('error', 'There is an error');
       }
     };
-    fetchGroomingEntries();
+    fetchData();
     return () => {
       isMounted = false;
       controller.abort();
@@ -148,9 +168,27 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
     setCheckedAll(checked);
   };
 
-  const onRangeAction = () => {
-    // eslint-disable-next-line no-console
-    console.log(checkedItems);
+  const onRangeAction = async () => {
+    const markedIds = checkedItems.map(ci => ci._id);
+    const payload = {
+      markedIds: markedIds,
+      isInvalid: true
+    };
+    setLoading(true);
+    try {
+      const res = await axiosPrivate.put(ENTRIES_API.change_validity, payload);
+      await sleep(1000);
+      if (res.data.succeed) {
+        setCheckedItems([]);
+        setCheckedAll(false);
+        setLoading(false);
+        toastAlerts('success', res.data.message);
+        fetchFundedEntries();
+      }
+    } catch (err) {
+      setLoading(false);
+      toastAlerts('error', err.response.data.message);
+    }
   };
 
   return (
@@ -188,6 +226,7 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
           </TableRow>
         ))}
       </SelectableTable>
+      <CustomBackdrop open={loading} />
     </Fragment>
   );
 };

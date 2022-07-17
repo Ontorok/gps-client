@@ -9,7 +9,8 @@ export const ENTRIES_API = {
   fetch_all_funded: '/entries/fetch-all-funded-entries',
   fetch_all_non_funded: '/entries/fetch-all-non-funded-entries',
   fetch_all_invalid_entries: '/entries/fetch-all-invalid-entries',
-  create: '/entries/save-entries-by-user'
+  create: '/entries/save-entries-by-user',
+  change_validity: '/entries/change-validity'
 };
 
 export const CLUB_API = {
