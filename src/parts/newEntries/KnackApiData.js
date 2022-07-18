@@ -4,7 +4,6 @@ import { CustomBackdrop, CustomDatePicker } from 'components';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import { uniqueId } from 'lodash';
 import React, { Fragment, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { ENTRIES_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
 import { formattedDate, serverDate } from 'utils/dateHelper';
@@ -41,7 +40,6 @@ const StyledTableHeadCell = withStyles(theme => ({
 export default function DenseTable() {
   const classes = useStyles();
   const axiosPrivate = useAxiosPrivate();
-  const { authUser } = useSelector(({ auth }) => auth);
   const [data, setData] = useState([]);
   const [date, setDate] = useState(new Date());
   const [loading, setLoading] = useState(false);

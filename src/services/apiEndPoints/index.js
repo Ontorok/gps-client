@@ -1,7 +1,6 @@
 export const USERS_API = {
-  create: '/auth/register',
-  fetch_all: '/auth/fetch-all',
-  fetch_all_archive: '/auth/fetch-all-archive'
+  fetch_all_active: '/users/fetch-active-users',
+  fetch_all_archive: '/users/fetch-archive-users'
 };
 
 export const ENTRIES_API = {
@@ -33,6 +32,7 @@ export const GROOMER_API = {
 };
 
 export const AUTH_API = {
+  create: '/auth/register',
   login: '/auth/login',
   logout: '/auth/logout',
   get_me: '/auth/get-me',

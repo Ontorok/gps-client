@@ -1,10 +1,9 @@
 import { Button, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomDrawer, CustomTable, TextInput } from 'components';
+import { ActionButtonGroup, CustomDrawer, CustomTable } from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
-import { USERS_API } from 'services/apiEndPoints';
-import { axiosInstance } from 'services/auth/jwt/config';
+import { AUTH_API, USERS_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
 import UserForm from '../forms/UserForm';
 
@@ -20,16 +19,16 @@ const useStyles = makeStyles(theme => ({
 //#region Colums for Table
 const columns = [
   {
-    sortName: 'id',
-    name: 'id',
-    label: 'ID',
-    minWidth: 150,
-    isDisableSorting: false
-  },
-  {
     sortName: 'name',
     name: 'name',
-    label: 'Name',
+    label: 'Full Name',
+    minWidth: 150,
+    isDisableSorting: true
+  },
+  {
+    sortName: 'username',
+    name: 'username',
+    label: 'Username',
     minWidth: 150,
     isDisableSorting: true
   },
@@ -44,6 +43,13 @@ const columns = [
     sortName: 'phone',
     name: 'phone',
     label: 'Phone',
+    minWidth: 170,
+    isDisableSorting: true
+  },
+  {
+    sortName: 'clubName',
+    name: 'clubName',
+    label: 'Club',
     minWidth: 170,
     isDisableSorting: true
   }
@@ -78,9 +84,9 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
 
   //#region Effects
   useEffect(() => {
-    const fetchActiveUsers = async () => {
+    const fetchUsers = async () => {
       try {
-        const res = await axiosInstance.get(USERS_API.fetch_all, { params: { page, perPage } });
+        const res = await axiosPrivate.get(USERS_API.fetch_all_active, { params: { page, perPage } });
         const users = res.data.result.map(user => ({ ...user, editMode: false }));
         setState(users);
         setActiveDataLength(res.data.totalRows);
@@ -89,8 +95,8 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
       }
     };
 
-    fetchActiveUsers();
-  }, [page, perPage]);
+    fetchUsers();
+  }, [axiosPrivate, page, perPage]);
   //#endregion
 
   //#region Events
@@ -122,7 +128,7 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
   const onCreate = async formValue => {
     setLoading(true);
     try {
-      const res = await axiosPrivate.post(USERS_API.create, formValue);
+      const res = await axiosPrivate.post(AUTH_API.create, formValue);
       if (res.status === 201) {
         toastAlerts('success', res.data.message);
       }
@@ -152,18 +158,12 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
         count={Math.ceil(activeDataLength / perPage)}>
         {state.map(row => {
           return (
-            <TableRow key={row.id}>
-              <TableCell>{row.id}</TableCell>
-              {row.editMode ? (
-                <TableCell>
-                  <TextInput type="text" name="name" value={row.name} onChange={e => onInputChange(e, row.id)} />
-                </TableCell>
-              ) : (
-                <TableCell>{row.name}</TableCell>
-              )}
-
+            <TableRow key={row._id}>
+              <TableCell>{row.name}</TableCell>
+              <TableCell>{row.username}</TableCell>
               <TableCell>{row.email}</TableCell>
               <TableCell>{row.phone}</TableCell>
+              <TableCell>{row.clubName}</TableCell>
               <TableCell>
                 <ActionButtonGroup
                   appearedEditButton={!row.editMode}
