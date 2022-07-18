@@ -75,12 +75,7 @@ export default function DenseTable() {
     if (hasData) {
       setLoading(true);
       try {
-        const payload = data.map(entry => ({
-          ...entry,
-          createdBy: authUser._id,
-          createdAt: serverDate(new Date())
-        }));
-        const res = await axiosPrivate.post(ENTRIES_API.create, payload);
+        const res = await axiosPrivate.post(ENTRIES_API.create, data);
         toastAlerts('success', res.data.message);
         setDate(null);
         setData([]);
