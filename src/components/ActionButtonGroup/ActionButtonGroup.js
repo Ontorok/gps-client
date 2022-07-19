@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, makeStyles, Tooltip } from '@material-ui/core';
 import { grey } from '@material-ui/core/colors';
-import { Cancel, Delete, Done, DoneOutline, Edit, Visibility } from '@material-ui/icons';
+import { Cancel, Delete, Done, DoneOutline, Edit, LockOpen, Visibility } from '@material-ui/icons';
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -77,12 +77,14 @@ const ActionButtonGroup = props => {
     appearedReactiveButton,
     appearedCancelButton,
     appearedDoneButton,
+    appearedResetPasswordButton,
     onView,
     onEdit,
     onDelete,
     onRestore,
     onCancel,
-    onDone
+    onDone,
+    onResetPassword
   } = props;
   const classes = useStyles();
   return (
@@ -129,6 +131,13 @@ const ActionButtonGroup = props => {
           </Button>
         </Tooltip>
       )}
+      {appearedResetPasswordButton && (
+        <Tooltip arrow title="Reset Password" placement="bottom">
+          <Button size="small" className={classes.btnReactiveParent} onClick={onResetPassword}>
+            <LockOpen className={classes.btnReactiveChild} />
+          </Button>
+        </Tooltip>
+      )}
     </ButtonGroup>
   );
 };
@@ -145,7 +154,9 @@ ActionButtonGroup.propTypes = {
   appearedCancelButton: PropTypes.bool,
   onCancel: PropTypes.func,
   appearedDoneButton: PropTypes.bool,
-  onDone: PropTypes.func
+  onDone: PropTypes.func,
+  appearedResetPasswordButton: PropTypes.bool,
+  onResetPassword: PropTypes.func
 };
 
 ActionButtonGroup.defaultProps = {
@@ -178,6 +189,11 @@ ActionButtonGroup.defaultProps = {
   onDone: () => {
     // eslint-disable-next-line no-console
     console.error(`'onDone' event not passed!!`);
+  },
+  appearedResetPasswordButton: false,
+  onResetPassword: () => {
+    // eslint-disable-next-line no-console
+    console.error(`'onResetPassword' event not passed!!`);
   }
 };
 

@@ -1,4 +1,17 @@
-import { Button, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid,
+  makeStyles,
+  TableCell,
+  TableRow,
+  TextField
+} from '@material-ui/core';
 import { ActionButtonGroup, CustomConfirmDialog, CustomDrawer, CustomTable } from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
@@ -67,6 +80,10 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [openModal, setOpenModal] = React.useState(false);
+  const [adminpassword, setAdminpassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [userpassword, setUserpassword] = useState('');
   const [confirmDialog, setConfirmDialog] = useState({
     title: '',
     content: '',
@@ -168,6 +185,31 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
       toastAlerts('error', err.message);
     }
   };
+
+  const onOpenModal = username => {
+    setUsername(username);
+    setAdminpassword('');
+    setUserpassword('');
+    setOpenModal(true);
+  };
+
+  const onCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const onResetPassword = async () => {
+    if (adminpassword && username && userpassword) {
+      try {
+        const payload = { adminpassword, username, userpassword };
+        const res = await axiosPrivate.put(USERS_API.resetPassword(), payload);
+        setOpenModal(false);
+        toastAlerts('success', res.data.message);
+      } catch (error) {
+        setOpenModal(false);
+        toastAlerts('warning', error.response.data.message);
+      }
+    }
+  };
   //#endregion
   return (
     <Fragment>
@@ -195,6 +237,8 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
               <TableCell>{row.clubName}</TableCell>
               <TableCell>
                 <ActionButtonGroup
+                  appearedResetPasswordButton
+                  onResetPassword={() => onOpenModal(row.username)}
                   appearedDeleteButton={!row.editMode}
                   onDelete={() => {
                     setConfirmDialog({
@@ -219,6 +263,42 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
       <CustomDrawer drawerOpen={drawerOpen} setDrawerOpen={setDrawerOpen} title="User">
         <UserForm create={onCreate} loading={loading} />
       </CustomDrawer>
+      <Box>
+        <Dialog open={openModal} onClose={onCloseModal} aria-labelledby="form-dialog-title">
+          <DialogTitle id="form-dialog-title">Reset Password</DialogTitle>
+          <DialogContent>
+            <DialogContentText>To reset the user's password, please enter your password here.</DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              variant="outlined"
+              id="name"
+              label="Your Password"
+              fullWidth
+              value={adminpassword}
+              onChange={e => setAdminpassword(e.target.value)}
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              variant="outlined"
+              id="name"
+              label="User Password"
+              fullWidth
+              value={userpassword}
+              onChange={e => setUserpassword(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={onCloseModal} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={onResetPassword} color="primary">
+              Reset
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
     </Fragment>
   );
 };
