@@ -1,10 +1,10 @@
 import CmtCard from '@coremat/CmtCard';
 import CmtCardContent from '@coremat/CmtCard/CmtCardContent';
 import CmtCardHeader from '@coremat/CmtCard/CmtCardHeader';
-import { Box, Button, Collapse, FormControlLabel, Switch, TextField } from '@material-ui/core';
+import { Box, Button, Collapse, FormControlLabel, IconButton, InputAdornment, Switch, TextField } from '@material-ui/core';
 import blue from '@material-ui/core/colors/blue';
 import { alpha, makeStyles } from '@material-ui/core/styles';
-import { Business, LocalPhone, MailOutline, Memory } from '@material-ui/icons';
+import { Business, LocalPhone, MailOutline, Memory, Visibility, VisibilityOff } from '@material-ui/icons';
 import clsx from 'clsx';
 import { CurrentAuthMethod } from 'constants/AppConstants';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
@@ -54,6 +54,8 @@ const Profile = props => {
   const [state, setState] = useState({});
   const [passwordState, setPasswordState] = useState(initialPasswordState);
   const [openPasswordBox, setOpenPasswordBox] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
@@ -74,6 +76,14 @@ const Profile = props => {
       controller.abort();
     };
   }, [axiosPrivate]);
+
+  const onShowPasswordToggle = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleMouseDownPassword = event => {
+    event.preventDefault();
+  };
 
   const onInputChange = e => {
     const { name, value } = e.target;
@@ -176,6 +186,7 @@ const Profile = props => {
             <Box component="div" className={classes.wordAddress} fontSize={16} color="text.primary">
               <Collapse in={openPasswordBox}>
                 <TextField
+                  type={showPassword ? 'text' : 'password'}
                   fullWidth
                   variant="outlined"
                   size="small"
@@ -184,8 +195,18 @@ const Profile = props => {
                   label="Current Pass"
                   value={passwordState.currentPassword}
                   onChange={onInputChange}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={onShowPasswordToggle} onMouseDown={handleMouseDownPassword} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
                 <TextField
+                  type={showPassword ? 'text' : 'password'}
                   fullWidth
                   variant="outlined"
                   size="small"
@@ -194,8 +215,18 @@ const Profile = props => {
                   label="New Pass"
                   value={passwordState.newPassword}
                   onChange={onInputChange}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={onShowPasswordToggle} onMouseDown={handleMouseDownPassword} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
                 <TextField
+                  type={showPassword ? 'text' : 'password'}
                   fullWidth
                   variant="outlined"
                   size="small"
@@ -204,6 +235,15 @@ const Profile = props => {
                   label="Confirm Pass"
                   value={passwordState.confirmPassword}
                   onChange={onInputChange}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={onShowPasswordToggle} onMouseDown={handleMouseDownPassword} edge="end">
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    )
+                  }}
                 />
                 <Button type="button" variant="contained" color="primary" onClick={onChangePassword}>
                   Change Password
