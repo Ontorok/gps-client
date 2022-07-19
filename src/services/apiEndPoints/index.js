@@ -38,5 +38,6 @@ export const AUTH_API = {
   login: '/auth/login',
   logout: '/auth/logout',
   get_me: '/auth/get-me',
-  refresh: '/auth/refresh'
+  refresh: '/auth/refresh',
+  change_password: '/auth/change-password'
 };

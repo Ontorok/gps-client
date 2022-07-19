@@ -11,16 +11,16 @@ import { formattedDate } from 'utils/dateHelper';
 
 const columns = [
   {
-    name: 'deviceId',
-    sortName: 'deviceId',
-    label: 'ID',
+    name: 'groomerName',
+    sortName: 'groomerName',
+    label: 'Groomer',
     minWidth: 80,
     isDisableSorting: true
   },
   {
-    name: 'groomerName',
-    sortName: 'groomerName',
-    label: 'Groomer',
+    name: 'clubName',
+    sortName: 'clubName',
+    label: 'Club',
     minWidth: 150,
     isDisableSorting: true
   },
@@ -212,8 +212,8 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
             <TableCell>
               <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
             </TableCell>
-            <TableCell>{row.deviceId}</TableCell>
             <TableCell>{row.groomerName}</TableCell>
+            <TableCell>{row.clubName}</TableCell>
             <TableCell>{row.fundingStatus}</TableCell>
             <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
             <TableCell>{row.trailName}</TableCell>

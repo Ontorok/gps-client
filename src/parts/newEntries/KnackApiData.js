@@ -102,6 +102,7 @@ export default function DenseTable() {
             <TableRow>
               <StyledTableHeadCell>ID</StyledTableHeadCell>
               <StyledTableHeadCell>Groomer</StyledTableHeadCell>
+              <StyledTableHeadCell>Club</StyledTableHeadCell>
               <StyledTableHeadCell align="right">Funding Status</StyledTableHeadCell>
               <StyledTableHeadCell align="right">Date</StyledTableHeadCell>
               <StyledTableHeadCell align="right">County</StyledTableHeadCell>
@@ -116,6 +117,7 @@ export default function DenseTable() {
               <TableRow key={row.key}>
                 <TableCell>{row.deviceId}</TableCell>
                 <TableCell>{row.groomerName}</TableCell>
+                <TableCell>{row.clubName}</TableCell>
                 <TableCell align="right">{row.fundingStatus}</TableCell>
                 <TableCell align="right">{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
                 <TableCell align="right">{row.countyName}</TableCell>
