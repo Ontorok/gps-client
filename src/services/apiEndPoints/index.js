@@ -1,6 +1,8 @@
 export const USERS_API = {
   fetch_all_active: '/users/fetch-active-users',
-  fetch_all_archive: '/users/fetch-archive-users'
+  fetch_all_archive: '/users/fetch-archive-users',
+  delete_user: id => `/users/delete-user/${id}`,
+  reStore_user: id => `/users/restore-user/${id}`
 };
 
 export const ENTRIES_API = {

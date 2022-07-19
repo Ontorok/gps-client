@@ -167,7 +167,7 @@ ActionButtonGroup.defaultProps = {
   appearedReactiveButton: false,
   onRestore: () => {
     // eslint-disable-next-line no-console
-    console.error(`'onDelete' event not passed!!`);
+    console.error(`'onRestore' event not passed!!`);
   },
   appearedCancelButton: false,
   onCancel: () => {

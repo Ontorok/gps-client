@@ -1,5 +1,5 @@
 import { Button, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomDrawer, CustomTable } from 'components';
+import { ActionButtonGroup, CustomConfirmDialog, CustomDrawer, CustomTable } from 'components';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
@@ -67,10 +67,26 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [confirmDialog, setConfirmDialog] = useState({
+    title: '',
+    content: '',
+    isOpen: false
+  });
   //#endregion
 
   //#region UDF's
+
+  const fetchActiveUsers = async () => {
+    try {
+      const res = await axiosPrivate.get(USERS_API.fetch_all_active, { params: { page, perPage } });
+      const users = res.data.result.map(user => ({ ...user, editMode: false }));
+      setState(users);
+      setActiveDataLength(res.data.totalRows);
+    } catch (err) {
+      toastAlerts('error', 'There is an error');
+    }
+  };
+
   function toggleEditMode(id) {
     const updatedState = state.map(item => {
       if (item.id === id) {
@@ -139,6 +155,19 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
       setDrawerOpen(false);
     }
   };
+
+  const onDelete = async id => {
+    setConfirmDialog({ ...confirmDialog, isOpen: false });
+    try {
+      const res = await axiosPrivate.delete(USERS_API.delete_user(id));
+      if (res.data.succeed) {
+        toastAlerts('success', res.data.message);
+        fetchActiveUsers();
+      }
+    } catch (err) {
+      toastAlerts('error', err.message);
+    }
+  };
   //#endregion
   return (
     <Fragment>
@@ -166,20 +195,21 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
               <TableCell>{row.clubName}</TableCell>
               <TableCell>
                 <ActionButtonGroup
-                  appearedEditButton={!row.editMode}
-                  onEdit={() => {
-                    toggleEditMode(row.id);
-                  }}
                   appearedDeleteButton={!row.editMode}
-                  onDelete={() => {}}
-                  appearedCancelButton={row.editMode}
-                  onCancel={() => {
-                    toggleEditMode(row.id);
+                  onDelete={() => {
+                    setConfirmDialog({
+                      isOpen: true,
+                      title: 'Delete User?',
+                      content: 'Are you sure to delete this user??',
+                      onConfirm: () => onDelete(row._id)
+                    });
                   }}
-                  appearedDoneButton={row.editMode}
-                  onDone={() => {
-                    toggleEditMode(row.id);
-                  }}
+                />
+                <CustomConfirmDialog
+                  confirmDialog={confirmDialog}
+                  setConfirmDialog={setConfirmDialog}
+                  confirmButtonText="Delete"
+                  cancelButtonText="Cancel"
                 />
               </TableCell>
             </TableRow>
@@ -193,4 +223,4 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
   );
 };
 
-export default withSort(ActiveUsers, 'id');
+export default withSort(ActiveUsers, '_id');
