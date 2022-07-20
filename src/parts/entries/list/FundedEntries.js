@@ -79,6 +79,8 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
 
   //#region States
   const [state, setState] = useState([]);
+  const [totalHours, setTotalHours] = useState(0);
+  const [totalofTotal, setTotalofTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [dataLength, setDataLength] = useState(0);
@@ -97,8 +99,12 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
         selected: false
       }));
       const total = res.data.total;
+      const totalHours = grooming.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
+      const totalofTotal = grooming.reduce((acc, curr) => (acc += curr.total), 0);
       setState(grooming);
       setDataLength(total);
+      setTotalHours(totalHours);
+      setTotalofTotal(totalofTotal);
     } catch (err) {
       toastAlerts('error', 'There is an error');
     }
@@ -116,10 +122,14 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
           ...entry,
           selected: false
         }));
-        const total = res.data.total;
+        const totalRows = res.data.total;
+        const totalHours = grooming.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
+        const totalofTotal = grooming.reduce((acc, curr) => (acc += curr.total), 0);
         if (isMounted) {
           setState(grooming);
-          setDataLength(total);
+          setDataLength(totalRows);
+          setTotalHours(totalHours);
+          setTotalofTotal(totalofTotal);
         }
       } catch (err) {
         toastAlerts('error', 'There is an error');
@@ -210,6 +220,8 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
     <Fragment>
       <SelectableTable
         appearedMarkAllCheck={isAdmin || isManager}
+        totalHours={totalHours}
+        totalofTotal={totalofTotal}
         columns={columns}
         rowPerPage={perPage}
         count={Math.ceil(dataLength / perPage)}

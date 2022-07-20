@@ -90,7 +90,9 @@ const CustomTable = props => {
     onPageChange,
     rangeActionButtonText,
     count,
-    appearedMarkAllCheck
+    appearedMarkAllCheck,
+    totalHours,
+    totalofTotal
   } = props;
   const classes = useStyles();
 
@@ -137,14 +139,17 @@ const CustomTable = props => {
             <TableBody>{children}</TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell align="right" colSpan={7} style={{ background: '#BDCBD8', color: '#000', fontSize: '16px !important' }}>
+                <TableCell
+                  align="right"
+                  colSpan={appearedMarkAllCheck ? 7 : 6}
+                  style={{ background: '#BDCBD8', color: '#000', fontSize: '16px !important' }}>
                   <span style={{ fontSize: 20 }}>Total</span>
                 </TableCell>
                 <TableCell style={{ background: '#BDCBD8', color: '#000', fontSize: '16px !important' }}>
-                  <span style={{ fontSize: 20 }}>120</span>
+                  <span style={{ fontSize: 20 }}>{totalHours}</span>
                 </TableCell>
                 <TableCell style={{ background: '#BDCBD8', color: '#000', fontSize: '16px !important' }}>
-                  <span style={{ fontSize: 20 }}>120</span>
+                  <span style={{ fontSize: 20 }}>{totalofTotal}</span>
                 </TableCell>
                 <TableCell style={{ background: '#BDCBD8', color: '#000', fontSize: '16px !important' }}></TableCell>
               </TableRow>
@@ -182,7 +187,9 @@ CustomTable.propTypes = {
   sortedBy: PropTypes.string,
   onSort: PropTypes.func,
   checkedItems: PropTypes.array,
-  appearedMarkAllCheck: PropTypes.bool
+  appearedMarkAllCheck: PropTypes.bool,
+  totalHours: PropTypes.number,
+  totalofTotal: PropTypes.number
 };
 
 CustomTable.defaultProps = {
@@ -194,7 +201,9 @@ CustomTable.defaultProps = {
   // eslint-disable-next-line no-console
   onChangePage: () => console.error(`Not passed 'onChangePage()'`),
   checkedItems: [],
-  appearedMarkAllCheck: true
+  appearedMarkAllCheck: true,
+  totalHours: 0,
+  totalofTotal: 0
 };
 
 export default CustomTable;

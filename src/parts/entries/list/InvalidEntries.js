@@ -79,6 +79,8 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
 
   //#region States
   const [state, setState] = useState([]);
+  const [totalHours, setTotalHours] = useState(0);
+  const [totalofTotal, setTotalofTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [dataLength, setDataLength] = useState(0);
@@ -91,13 +93,17 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
   const fetchInvalidEntries = async () => {
     try {
       const res = await axiosPrivate.get(ENTRIES_API.fetch_all_invalid_entries, { params: { page, perPage } });
-      const grooming = res.data.result.map(entry => ({
+      const invalid = res.data.result.map(entry => ({
         ...entry,
         selected: false
       }));
       const total = res.data.total;
-      setState(grooming);
+      const totalHours = invalid.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
+      const totalofTotal = invalid.reduce((acc, curr) => (acc += curr.total), 0);
+      setState(invalid);
       setDataLength(total);
+      setTotalHours(totalHours);
+      setTotalofTotal(totalofTotal);
     } catch (err) {
       toastAlerts('error', 'There is an error');
     }
@@ -111,14 +117,18 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
     const fetchEntries = async () => {
       try {
         const res = await axiosPrivate.get(ENTRIES_API.fetch_all_invalid_entries, { params: { page, perPage }, signal: controller.signal });
-        const nongrooming = res.data.result.map(entry => ({
+        const invalid = res.data.result.map(entry => ({
           ...entry,
           selected: false
         }));
         const total = res.data.total;
+        const totalHours = invalid.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
+        const totalofTotal = invalid.reduce((acc, curr) => (acc += curr.total), 0);
         if (isMounted) {
-          setState(nongrooming);
+          setState(invalid);
           setDataLength(total);
+          setTotalHours(totalHours);
+          setTotalofTotal(totalofTotal);
         }
       } catch (err) {
         toastAlerts('error', 'There is an error');
@@ -210,6 +220,8 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
     <Fragment>
       <SelectableTable
         appearedMarkAllCheck={isAdmin || isManager}
+        totalHours={totalHours}
+        totalofTotal={totalofTotal}
         columns={columns}
         rowPerPage={perPage}
         count={Math.ceil(dataLength / perPage)}

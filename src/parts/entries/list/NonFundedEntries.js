@@ -79,6 +79,8 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
 
   //#region States
   const [state, setState] = useState([]);
+  const [totalHours, setTotalHours] = useState(0);
+  const [totalofTotal, setTotalofTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(10);
   const [dataLength, setDataLength] = useState(0);
@@ -91,13 +93,17 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
   const fetchNonFundedEntries = async () => {
     try {
       const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, { params: { page, perPage } });
-      const grooming = res.data.result.map(entry => ({
+      const nonFunded = res.data.result.map(entry => ({
         ...entry,
         selected: false
       }));
       const total = res.data.total;
-      setState(grooming);
+      const totalHours = nonFunded.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
+      const totalofTotal = nonFunded.reduce((acc, curr) => (acc += curr.total), 0);
+      setState(nonFunded);
       setDataLength(total);
+      setTotalHours(totalHours);
+      setTotalofTotal(totalofTotal);
     } catch (err) {
       toastAlerts('error', 'There is an error');
     }
@@ -111,14 +117,18 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
     const fetchGroomingEntries = async () => {
       try {
         const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, { params: { page, perPage }, signal: controller.signal });
-        const nongrooming = res.data.result.map(entry => ({
+        const nonFunded = res.data.result.map(entry => ({
           ...entry,
           selected: false
         }));
         const total = res.data.total;
+        const totalHours = nonFunded.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
+        const totalofTotal = nonFunded.reduce((acc, curr) => (acc += curr.total), 0);
         if (isMounted) {
-          setState(nongrooming);
+          setState(nonFunded);
           setDataLength(total);
+          setTotalHours(totalHours);
+          setTotalofTotal(totalofTotal);
         }
       } catch (err) {
         toastAlerts('error', 'There is an error');
@@ -210,6 +220,8 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
     <Fragment>
       <SelectableTable
         appearedMarkAllCheck={isAdmin || isManager}
+        totalHours={totalHours}
+        totalofTotal={totalofTotal}
         columns={columns}
         rowPerPage={perPage}
         count={Math.ceil(dataLength / perPage)}
