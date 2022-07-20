@@ -10,9 +10,11 @@ import {
   CustomTable,
   TextInput
 } from 'components';
+import { ROLES } from 'constants/RolesConstants';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { CLUB_API, GROOMER_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
 import { isObjEmpty, sleep } from 'utils/commonHelper';
@@ -72,8 +74,11 @@ const columns = [
 //#endregion
 
 const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
+  //#region Hooks
   const classes = useStyles();
   const axiosPrivate = useAxiosPrivate();
+  const { authUser } = useSelector(({ auth }) => auth);
+  //#endregion
 
   //#region States
   const [state, setState] = useState([]);
@@ -302,12 +307,18 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     }
   };
   //#endregion
+
+  //#region Meta
+  const isAdmin = authUser?.role === ROLES.Admin || authUser?.role === ROLES.SuperAdmin;
+  //#endregion
   return (
     <Fragment>
       <Grid container justifyContent="flex-start" className={classes.buttonContainer}>
-        <Button size="small" color="primary" variant="contained" className={classes.newButton} onClick={onDrawerOpen}>
-          New
-        </Button>
+        {isAdmin && (
+          <Button size="small" color="primary" variant="contained" className={classes.newButton} onClick={onDrawerOpen}>
+            New
+          </Button>
+        )}
       </Grid>
       <CustomTable
         columns={columns}
@@ -379,11 +390,11 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
               )}
               <TableCell align="center">
                 <ActionButtonGroup
-                  appearedEditButton={!row.editMode}
+                  appearedEditButton={!row.editMode && isAdmin}
                   onEdit={() => {
                     toggleEditMode(row._id);
                   }}
-                  appearedDeleteButton={!row.editMode}
+                  appearedDeleteButton={!row.editMode && isAdmin}
                   onDelete={() => {
                     setConfirmDialog({
                       isOpen: true,

@@ -2,14 +2,17 @@ import SidebarToggleHandler from '@coremat/CmtLayouts/Horizontal/SidebarToggleHa
 import CmtHorizontal from '@coremat/CmtNavigation/Horizontal';
 import { alpha, Box, darken, Hidden, Toolbar } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { Group, LocalShipping, PostAdd, Public } from '@material-ui/icons';
+import { ROLES } from 'constants/RolesConstants';
 // import clsx from 'clsx';
 import React from 'react';
+import { useSelector } from 'react-redux';
+import { getPermittedNavMenus } from 'utils/commonHelper';
 // import AppsMenu from '../../partials/Header/AppsMenu';
 // import HeaderMessages from '../../partials/Header/HeaderMessages';
 // import HeaderNotifications from '../../partials/Header/HeaderNotifications';
 // import LanguageSwitcher from '../../partials/LanguageSwitcher';
 import Logo from '../../partials/Logo';
-import { minimalHorizontalMenus } from '../../partials/menus';
 // import SearchPopover from '../../partials/SearchPopover';
 import UserDropDown from '../../partials/UserDropDown';
 
@@ -69,13 +72,86 @@ const useStyles = makeStyles(theme => ({
 
 const MainHeader = () => {
   const classes = useStyles();
+  const { authUser } = useSelector(({ auth }) => auth);
+  const isAdmin = authUser?.role === ROLES.Admin || authUser?.role === ROLES.SuperAdmin;
+
+  /* ----------------- Configuration--------------- */
+  const configurationChilds = {
+    usersPermisstion: isAdmin,
+    clubsPermisstion: isAdmin,
+    groomerPermisstion: true
+  };
+  const configurationParent = Object.values(configurationChilds).some(c => c);
+  /* ----------------- Configuration--------------- */
+
+  /* ----------------- Operation--------------- */
+  const operationnChilds = {
+    newEntriesPermisstion: isAdmin,
+    entriesPermisstion: true
+  };
+  const operationParent = Object.values(operationnChilds).some(c => c);
+  /* ----------------- Operation--------------- */
+
+  const minimalHorizontalMenus = [
+    {
+      hasPermission: configurationParent,
+      name: 'Configuration',
+      type: 'collapse',
+      children: [
+        {
+          hasPermission: configurationChilds.usersPermisstion,
+          name: 'Users',
+          type: 'item',
+          icon: <Group />,
+          link: '/users'
+        },
+        {
+          hasPermission: configurationChilds.clubsPermisstion,
+          name: 'Club',
+          type: 'item',
+          icon: <Public />,
+          link: '/club'
+        },
+        {
+          hasPermission: configurationChilds.groomerPermisstion,
+          name: 'Groomer',
+          type: 'item',
+          icon: <LocalShipping />,
+          link: '/groomer'
+        }
+      ]
+    },
+    {
+      hasPermission: operationParent,
+      name: 'Operation',
+      type: 'collapse',
+      children: [
+        {
+          hasPermission: operationnChilds.newEntriesPermisstion,
+          name: 'New Entries',
+          type: 'item',
+          icon: <PostAdd />,
+          link: '/new-entries'
+        },
+        {
+          hasPermission: operationnChilds.entriesPermisstion,
+          name: 'Entries',
+          type: 'item',
+          icon: <PostAdd />,
+          link: '/entries'
+        }
+      ]
+    }
+  ];
+
+  const permittedMinimalHorizontalNavs = getPermittedNavMenus(minimalHorizontalMenus);
 
   return (
     <Toolbar className={classes.root}>
       <SidebarToggleHandler edge="start" color="inherit" aria-label="menu" />
       <Logo mr={{ xs: 2, sm: 4, lg: 6, xl: 8 }} color="white" />
       <Hidden mdDown>
-        <CmtHorizontal menuItems={minimalHorizontalMenus} />
+        <CmtHorizontal menuItems={permittedMinimalHorizontalNavs} />
       </Hidden>
 
       <Box display="flex" alignItems="center" ml="auto">

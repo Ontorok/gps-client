@@ -1,9 +1,11 @@
 import { Checkbox, Collapse, Grid, IconButton, makeStyles, TableCell, TableRow, Tooltip } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
 import { ActionButtonGroup, CustomConfirmDialog, CustomTable, ResetButton, SearchButton, TextInput } from 'components';
+import { ROLES } from 'constants/RolesConstants';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import { CLUB_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
@@ -45,10 +47,13 @@ const columns = [
 ];
 
 const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
+  //#region Hooks
   const classes = useStyles();
   const location = useLocation();
   const history = useHistory();
   const axiosPrivate = useAxiosPrivate();
+  const { authUser } = useSelector(({ auth }) => auth);
+  //#endregion
 
   //#region States
   const [state, setState] = useState([]);
@@ -152,6 +157,9 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   };
   //#endregion
 
+  //#region Meta
+  const isAdmin = authUser?.role === ROLES.Admin || authUser?.role === ROLES.SuperAdmin;
+  //#endregion
   return (
     <Fragment>
       <Grid container>
@@ -208,7 +216,7 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
               </TableCell>
               <TableCell align="center">
                 <ActionButtonGroup
-                  appearedReactiveButton
+                  appearedReactiveButton={isAdmin}
                   onRestore={() => {
                     setConfirmDialog({
                       isOpen: true,

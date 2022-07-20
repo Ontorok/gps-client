@@ -1,13 +1,21 @@
-import { TableCell, TableRow } from '@material-ui/core';
+import { Checkbox, TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, CustomConfirmDialog, CustomTable } from 'components';
+import { ROLES } from 'constants/RolesConstants';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { GROOMER_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
 import { isObjEmpty } from 'utils/commonHelper';
 //#region Colums for Table
 const columns = [
+  {
+    sortName: 'clubName',
+    name: 'clubName',
+    label: 'Club',
+    isDisableSorting: true
+  },
   {
     sortName: 'groomerName',
     name: 'groomerName',
@@ -28,6 +36,13 @@ const columns = [
     label: 'Rate',
     minWidth: 150,
     isDisableSorting: true
+  },
+  {
+    sortName: 'status',
+    name: 'isActive',
+    label: 'Status',
+    minWidth: 140,
+    isDisableSorting: true
   }
 ];
 //#endregion
@@ -40,6 +55,7 @@ const initialFilterState = {
 const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#region Hooks
   const axiosPrivate = useAxiosPrivate();
+  const { authUser } = useSelector(({ auth }) => auth);
   //#endregion
 
   //#region States
@@ -114,6 +130,7 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axiosPrivate, page, perPage, sortedBy, sortedColumn]);
+  //#endregion
 
   //#region Events
   const onRowPerPageChange = e => {
@@ -138,6 +155,10 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   };
 
   //#endregion
+
+  //#region Meta
+  const isAdmin = authUser?.role === ROLES.Admin || authUser?.role === ROLES.SuperAdmin;
+  //#endregion
   return (
     <Fragment>
       <CustomTable
@@ -152,12 +173,24 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
         {state.map(row => {
           return (
             <TableRow key={row._id}>
+              <TableCell>{row.clubName}</TableCell>
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.gpsId}</TableCell>
               <TableCell>{row.rate}</TableCell>
+              <TableCell>
+                <Checkbox
+                  style={{ color: '#215280' }}
+                  color="primary"
+                  defaultChecked={row.isActive}
+                  disabled
+                  disableFocusRipple
+                  disableTouchRipple
+                  disableRipple
+                />
+              </TableCell>
               <TableCell align="center">
                 <ActionButtonGroup
-                  appearedReactiveButton
+                  appearedReactiveButton={isAdmin}
                   onRestore={() => {
                     setConfirmDialog({
                       isOpen: true,

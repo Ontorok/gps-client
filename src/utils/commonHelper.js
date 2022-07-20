@@ -114,3 +114,22 @@ export const mapArrayToDropdown = (arr = [], label, value) => {
  * @returns {Int}
  */
 export const convertSecondToHour = sec => (sec === 0 ? 0 : Number((sec / 3600).toFixed(2)));
+
+/**
+ * Get Permitted Navigation Menus
+ * @param menus => Array
+ * @returns {Array}
+ */
+export const getPermittedNavMenus = menus => {
+  const permittedMenus = menus.reduce((previousValue, currentValue) => {
+    if (currentValue.hasPermission) {
+      previousValue.push({
+        ...currentValue,
+        children: currentValue.children.filter(({ hasPermission }) => hasPermission)
+      });
+    }
+    return previousValue;
+  }, []);
+
+  return permittedMenus;
+};

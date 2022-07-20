@@ -1,9 +1,11 @@
 import { TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, CustomBackdrop, SelectableTable } from 'components';
+import { ROLES } from 'constants/RolesConstants';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import _ from 'lodash';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { ENTRIES_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
 import { sleep } from 'utils/commonHelper';
@@ -69,7 +71,11 @@ const columns = [
 ];
 
 const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
+  //#region Hooks
   const axiosPrivate = useAxiosPrivate();
+  const { authUser } = useSelector(({ auth }) => auth);
+  //#endregion
+
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
@@ -98,6 +104,7 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
   };
   //#endregion
 
+  //#region Effects
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
@@ -123,7 +130,9 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
       controller.abort();
     };
   }, [axiosPrivate, page, perPage]);
+  //#endregion
 
+  //#region Events
   const onPageChange = (event, pageNumber) => {
     setPage(pageNumber);
     setCheckedAll(false);
@@ -190,10 +199,16 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
       toastAlerts('error', err.response.data.message);
     }
   };
+  //#endregion
 
+  //#region Meta
+  const isAdmin = authUser?.role === ROLES.Admin || authUser?.role === ROLES.SuperAdmin;
+  const isManager = authUser?.role === ROLES.Manager;
+  //#endregion
   return (
     <Fragment>
       <SelectableTable
+        appearedMarkAllCheck={isAdmin || isManager}
         columns={columns}
         rowPerPage={perPage}
         count={Math.ceil(dataLength / perPage)}
@@ -209,9 +224,12 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
         rangeActionButtonText="Mark as Invalid">
         {state.map((row, index) => (
           <TableRow key={row._id}>
-            <TableCell>
-              <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
-            </TableCell>
+            {(isAdmin || isManager) && (
+              <TableCell>
+                <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
+              </TableCell>
+            )}
+
             <TableCell>{row.groomerName}</TableCell>
             <TableCell>{row.clubName}</TableCell>
             <TableCell>{row.fundingStatus}</TableCell>

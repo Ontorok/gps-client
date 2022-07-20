@@ -1,8 +1,10 @@
 import { TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, CustomConfirmDialog, CustomTable } from 'components';
+import { ROLES } from 'constants/RolesConstants';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { USERS_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
 
@@ -47,7 +49,10 @@ const columns = [
 //#endregion
 
 const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
+  //#region Hooks
   const axiosPrivate = useAxiosPrivate();
+  const { authUser } = useSelector(({ auth }) => auth);
+  //#endregion
 
   //#region States
   const [state, setState] = useState([]);
@@ -63,7 +68,6 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
 
   //#region UDF's
-
   const fetchArchiveUsers = async () => {
     try {
       const res = await axiosPrivate.get(USERS_API.fetch_all_archive, { params: { page, perPage } });
@@ -136,6 +140,10 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
     }
   };
   //#endregion
+
+  //#region Meta
+  const isAdmin = authUser?.role === ROLES.Admin || authUser?.role === ROLES.SuperAdmin;
+  //#endregion
   return (
     <Fragment>
       <CustomTable
@@ -157,7 +165,7 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
               <TableCell>{row.clubName}</TableCell>
               <TableCell>
                 <ActionButtonGroup
-                  appearedReactiveButton
+                  appearedReactiveButton={isAdmin}
                   onRestore={() => {
                     setConfirmDialog({
                       isOpen: true,

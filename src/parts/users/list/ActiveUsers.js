@@ -13,9 +13,11 @@ import {
   TextField
 } from '@material-ui/core';
 import { ActionButtonGroup, CustomConfirmDialog, CustomDrawer, CustomTable } from 'components';
+import { ROLES } from 'constants/RolesConstants';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { AUTH_API, USERS_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
 import UserForm from '../forms/UserForm';
@@ -70,8 +72,11 @@ const columns = [
 //#endregion
 
 const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
+  //#region Hooks
   const classes = useStyles();
   const axiosPrivate = useAxiosPrivate();
+  const { authUser } = useSelector(({ auth }) => auth);
+  //#endregion
 
   //#region States
   const [state, setState] = useState([]);
@@ -211,12 +216,18 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
     }
   };
   //#endregion
+
+  //#region Meta
+  const isAdmin = authUser?.role === ROLES.Admin || authUser?.role === ROLES.SuperAdmin;
+  //#endregion
   return (
     <Fragment>
       <Grid container justifyContent="flex-start" className={classes.buttonContainer}>
-        <Button size="small" color="primary" variant="contained" className={classes.newButton} onClick={onDrawerOpen}>
-          New
-        </Button>
+        {isAdmin && (
+          <Button size="small" color="primary" variant="contained" className={classes.newButton} onClick={onDrawerOpen}>
+            New
+          </Button>
+        )}
       </Grid>
       <CustomTable
         columns={columns}
@@ -237,9 +248,9 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
               <TableCell>{row.clubName}</TableCell>
               <TableCell>
                 <ActionButtonGroup
-                  appearedResetPasswordButton
+                  appearedResetPasswordButton={isAdmin}
                   onResetPassword={() => onOpenModal(row.username)}
-                  appearedDeleteButton={!row.editMode}
+                  appearedDeleteButton={isAdmin}
                   onDelete={() => {
                     setConfirmDialog({
                       isOpen: true,

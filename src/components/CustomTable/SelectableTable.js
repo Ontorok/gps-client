@@ -78,7 +78,8 @@ const CustomTable = props => {
     onRowPerPageChange,
     onPageChange,
     rangeActionButtonText,
-    count
+    count,
+    appearedMarkAllCheck
   } = props;
   const classes = useStyles();
 
@@ -97,9 +98,12 @@ const CustomTable = props => {
           <Table stickyHeader className={classes.table} aria-label="customized table" size="small">
             <TableHead>
               <TableRow>
-                <StyledTableCell>
-                  <input type="checkbox" checked={checkedAll} onChange={onCheckedAllChange} />
-                </StyledTableCell>
+                {appearedMarkAllCheck && (
+                  <StyledTableCell>
+                    <input type="checkbox" checked={checkedAll} onChange={onCheckedAllChange} />
+                  </StyledTableCell>
+                )}
+
                 {columns.map(column => (
                   <StyledTableCell key={column.name} style={{ minWidth: column.minWidth, maxWidth: column.maxWidth }}>
                     {column.isDisableSorting ? (
@@ -152,7 +156,8 @@ CustomTable.propTypes = {
   sortedColumn: PropTypes.string,
   sortedBy: PropTypes.string,
   onSort: PropTypes.func,
-  checkedItems: PropTypes.array
+  checkedItems: PropTypes.array,
+  appearedMarkAllCheck: PropTypes.bool
 };
 
 CustomTable.defaultProps = {
@@ -163,7 +168,8 @@ CustomTable.defaultProps = {
   count: 0,
   // eslint-disable-next-line no-console
   onChangePage: () => console.error(`Not passed 'onChangePage()'`),
-  checkedItems: []
+  checkedItems: [],
+  appearedMarkAllCheck: true
 };
 
 export default CustomTable;
