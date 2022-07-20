@@ -9,6 +9,7 @@ import {
   TableBody,
   TableCell,
   TableContainer,
+  TableFooter,
   TableHead,
   TableRow,
   TableSortLabel,
@@ -20,6 +21,16 @@ import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
 
 const StyledTableCell = withStyles(theme => ({
+  head: {
+    backgroundColor: '#215280',
+    color: theme.palette.common.white
+  },
+  body: {
+    fontSize: 12
+  }
+}))(TableCell);
+
+const StyledTableFooterCell = withStyles(theme => ({
   head: {
     backgroundColor: '#215280',
     color: theme.palette.common.white
@@ -124,6 +135,20 @@ const CustomTable = props => {
               </TableRow>
             </TableHead>
             <TableBody>{children}</TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell align="right" colSpan={7} style={{ background: '#BDCBD8', color: '#000', fontSize: '16px !important' }}>
+                  <span style={{ fontSize: 20 }}>Total</span>
+                </TableCell>
+                <TableCell style={{ background: '#BDCBD8', color: '#000', fontSize: '16px !important' }}>
+                  <span style={{ fontSize: 20 }}>120</span>
+                </TableCell>
+                <TableCell style={{ background: '#BDCBD8', color: '#000', fontSize: '16px !important' }}>
+                  <span style={{ fontSize: 20 }}>120</span>
+                </TableCell>
+                <TableCell style={{ background: '#BDCBD8', color: '#000', fontSize: '16px !important' }}></TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         </TableContainer>
         <Grid container style={{ padding: 10 }}>

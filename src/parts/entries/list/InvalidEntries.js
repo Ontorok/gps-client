@@ -16,7 +16,7 @@ const columns = [
     name: 'groomerName',
     sortName: 'groomerName',
     label: 'Groomer',
-    minWidth: 80,
+    minWidth: 150,
     isDisableSorting: true
   },
   {
@@ -48,19 +48,20 @@ const columns = [
     isDisableSorting: true
   },
   {
-    name: 'eligibleTimeInHour',
-    sortName: 'eligibleTimeInHour',
-    label: 'Hours',
-    minWidth: 130,
-    isDisableSorting: true
-  },
-  {
     name: 'rate',
     sortName: 'rate',
     label: 'Rate',
     minWidth: 130,
     isDisableSorting: true
   },
+  {
+    name: 'eligibleTimeInHour',
+    sortName: 'eligibleTimeInHour',
+    label: 'Hours',
+    minWidth: 130,
+    isDisableSorting: true
+  },
+
   {
     name: 'total',
     sortName: 'total',
@@ -235,8 +236,8 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
               <TableCell>{row.fundingStatus}</TableCell>
               <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
               <TableCell>{row.trailName}</TableCell>
-              <TableCell>{row.eligibleTimeInHour}</TableCell>
               <TableCell>{row.rate}</TableCell>
+              <TableCell>{row.eligibleTimeInHour}</TableCell>
               <TableCell>{row.total}</TableCell>
               <TableCell>
                 <ActionButtonGroup
