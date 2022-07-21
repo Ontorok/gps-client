@@ -54,7 +54,7 @@ const useStyles = makeStyles(theme => ({
 }));
 //variant = 'default', 'standard'
 const SignIn = ({ method = CurrentAuthMethod, variant = 'default', wrapperVariant = 'default' }) => {
-  const [username, setUsername] = useState('superadmin');
+  const [username, setUsername] = useState('admin');
   const [password, setPassword] = useState('demo#123');
   const dispatch = useDispatch();
   const classes = useStyles({ variant });
