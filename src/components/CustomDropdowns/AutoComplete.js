@@ -4,7 +4,7 @@ import MuiAutoComplete from '@material-ui/lab/Autocomplete';
 import PropTypes from 'prop-types';
 import React, { useState } from 'react';
 
-const CustomAutoComplete = ({ data, label, name, value, disabled, error, onChange, showGroupBy, defaultValue, ...rest }) => {
+const CustomAutoComplete = ({ data, label, name, value, disabled, error, onChange, showGroupBy, defaultValue, onFoucs, ...rest }) => {
   const [open, setOpen] = useState(false);
   const loading = open && data.length === 0;
   return (
@@ -16,6 +16,7 @@ const CustomAutoComplete = ({ data, label, name, value, disabled, error, onChang
       loading={loading}
       value={value}
       open={open}
+      {...(onFoucs && { onFocus: onFoucs })}
       onChange={onChange}
       name={name}
       defaultValue={defaultValue}
@@ -58,14 +59,16 @@ CustomAutoComplete.propTypes = {
   error: PropTypes.string,
   onChange: PropTypes.func,
   showGroupBy: PropTypes.bool,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
+  onFoucs: PropTypes.func
 };
 
 CustomAutoComplete.defaultProps = {
   label: '',
   name: '',
   error: '',
-  disabled: false
+  disabled: false,
+  onFoucs: () => {}
 };
 
 export default CustomAutoComplete;

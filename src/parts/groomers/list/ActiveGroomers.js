@@ -1,4 +1,5 @@
-import { Button, Checkbox, Grid, makeStyles, TableCell, TableRow } from '@material-ui/core';
+import { Button, Checkbox, Collapse, Grid, IconButton, makeStyles, TableCell, TableRow, Tooltip } from '@material-ui/core';
+import { FilterList } from '@material-ui/icons';
 import Axios from 'axios';
 import {
   ActionButtonGroup,
@@ -8,6 +9,8 @@ import {
   CustomConfirmDialog,
   CustomDrawer,
   CustomTable,
+  ResetButton,
+  SearchButton,
   TextInput
 } from 'components';
 import { ROLES } from 'constants/RolesConstants';
@@ -17,7 +20,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { CLUB_API, GROOMER_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
-import { isObjEmpty, sleep } from 'utils/commonHelper';
+import { isObjEmpty, mapArrayToDropdown, sleep } from 'utils/commonHelper';
 import GroomerForm from '../forms/GroomerForm';
 
 const useStyles = makeStyles(theme => ({
@@ -30,8 +33,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const initialFilterState = {
+  clubId: '',
   name: '',
-  status: ''
+  gpsId: ''
 };
 
 //#region Colums for Table
@@ -87,12 +91,15 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [filterState] = useState(initialFilterState);
+  const [openFilter, setOpenFilter] = useState(false);
+  const [filterState, setFilterState] = useState(initialFilterState);
   const [confirmDialog, setConfirmDialog] = useState({
     title: '',
     content: '',
     isOpen: false
   });
+  const [clubs, setClubs] = useState([]);
+  const [club, setClub] = useState(null);
   //#endregion
 
   //#region UDF's
@@ -152,7 +159,6 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
 
   //#region Effects
-
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
@@ -218,9 +224,49 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [axiosPrivate, page, perPage, sortedBy, sortedColumn]);
+
   //#endregion
 
   //#region Events
+  const onFetchClubs = async () => {
+    if (clubs.length === 0) {
+      try {
+        const res = await axiosPrivate.get(CLUB_API.fetch_all_active);
+        if (res.data.succeed) {
+          const activeClubs = mapArrayToDropdown(res.data.result, 'name', '_id');
+          await sleep(500);
+          setClubs(activeClubs);
+        }
+      } catch (err) {}
+    }
+  };
+
+  const onFilterClubChange = (e, newValue) => {
+    if (newValue) {
+      setClub(newValue);
+      setFilterState(prev => ({ ...prev, clubId: newValue.value }));
+    } else {
+      setClub(null);
+      setFilterState(prev => ({ ...prev, clubId: '' }));
+    }
+  };
+
+  const onSearch = () => {
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
+    fetchActiveGroomer(searchObj);
+  };
+
+  const onResetSearch = () => {
+    setFilterState(initialFilterState);
+    setClub(null);
+    fetchActiveGroomer();
+  };
+
   const onRowPerPageChange = e => {
     setPerPage(e.target.value);
     setPage(1);
@@ -313,13 +359,50 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
   return (
     <Fragment>
-      <Grid container justifyContent="flex-start" className={classes.buttonContainer}>
-        {isAdmin && (
-          <Button size="small" color="primary" variant="contained" className={classes.newButton} onClick={onDrawerOpen}>
-            New
-          </Button>
-        )}
+      <Grid container>
+        <Grid item container justifyContent="flex-start" xs={6} className={classes.buttonContainer}>
+          {isAdmin && (
+            <Button size="small" color="primary" variant="contained" className={classes.newButton} onClick={onDrawerOpen}>
+              New
+            </Button>
+          )}
+        </Grid>
+        <Grid item container justifyContent="flex-end" xs={6} className={classes.rightSection}>
+          <Tooltip title="Filter">
+            <IconButton onClick={() => setOpenFilter(prev => !prev)}>
+              <FilterList />
+            </IconButton>
+          </Tooltip>
+        </Grid>
       </Grid>
+
+      <Collapse in={openFilter}>
+        <Grid container alignItems="center" spacing={3} style={{ padding: '0 10px' }}>
+          {isAdmin && (
+            <Grid item xs={12} sm={4} md={4} lg={4}>
+              <CustomAutoComplete name="clubId" label="Clubs" data={clubs} value={club} onFoucs={onFetchClubs} onChange={onFilterClubChange} />
+            </Grid>
+          )}
+
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <TextInput label="Name" name="name" value={filterState.name} onChange={e => setFilterState({ ...filterState, name: e.target.value })} />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <TextInput
+              label="Device ID"
+              name="gpsId"
+              value={filterState.gpsId}
+              onChange={e => setFilterState({ ...filterState, gpsId: e.target.value })}
+            />
+          </Grid>
+
+          <Grid item container justifyContent="flex-start">
+            <SearchButton onClick={onSearch} />
+            <ResetButton onClick={onResetSearch} />
+          </Grid>
+        </Grid>
+      </Collapse>
+
       <CustomTable
         columns={columns}
         rowPerPage={perPage}
