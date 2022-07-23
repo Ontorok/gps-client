@@ -113,18 +113,18 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
       const res = await axiosPrivate.get(ENTRIES_API.fetch_all_funded, {
         params: isObjEmpty(obj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...obj }
       });
-      const grooming = res.data.result.map(entry => ({
+      const funded = res.data.result.map(entry => ({
         ...entry,
         eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
         total: entry.total.toFixed(2),
         selected: false
       }));
       const total = res.data.total;
-      const totalHours = grooming.reduce((acc, curr) => (acc += parseFloat(curr.eligibleTimeInHour)), 0);
-      const totalofTotal = grooming.reduce((acc, curr) => (acc += parseFloat(curr.total)), 0);
+      const totalHours = funded.reduce((acc, curr) => (acc += parseFloat(curr.eligibleTimeInHour)), 0);
+      const totalofTotal = funded.reduce((acc, curr) => (acc += parseFloat(curr.total)), 0);
       const totalHoursInDecimal = totalHours.toFixed(2);
       const totalofTotalInDecimal = totalofTotal.toFixed(2);
-      setState(grooming);
+      setState(funded);
       setDataLength(total);
       setTotalHours(totalHoursInDecimal);
       setTotalofTotal(totalofTotalInDecimal);
@@ -163,19 +163,19 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
               },
           signal: controller.signal
         });
-        const grooming = res.data.result.map(entry => ({
+        const funded = res.data.result.map(entry => ({
           ...entry,
           eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
           total: entry.total.toFixed(2),
           selected: false
         }));
         const totalRows = res.data.total;
-        const totalHours = grooming.reduce((acc, curr) => (acc += parseFloat(curr.eligibleTimeInHour)), 0);
-        const totalofTotal = grooming.reduce((acc, curr) => (acc += parseFloat(curr.total)), 0);
+        const totalHours = funded.reduce((acc, curr) => (acc += parseFloat(curr.eligibleTimeInHour)), 0);
+        const totalofTotal = funded.reduce((acc, curr) => (acc += parseFloat(curr.total)), 0);
         const totalHoursInDecimal = totalHours.toFixed(2);
         const totalofTotalInDecimal = totalofTotal.toFixed(2);
         if (isMounted) {
-          setState(grooming);
+          setState(funded);
           setDataLength(totalRows);
           setTotalHours(totalHoursInDecimal);
           setTotalofTotal(totalofTotalInDecimal);
@@ -279,6 +279,8 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
     setFilterState(initialFilterState);
     setClub(null);
     setGroomer(null);
+    setFromDate(null);
+    setToDate(null);
     fetchFundedEntries();
   };
 
