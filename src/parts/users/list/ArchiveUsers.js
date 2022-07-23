@@ -1,12 +1,14 @@
-import { TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomConfirmDialog, CustomTable } from 'components';
+import { Collapse, Grid, IconButton, TableCell, TableRow, Tooltip } from '@material-ui/core';
+import { FilterList } from '@material-ui/icons';
+import { ActionButtonGroup, CustomAutoComplete, CustomConfirmDialog, CustomTable, ResetButton, SearchButton, TextInput } from 'components';
 import { ROLES } from 'constants/RolesConstants';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { USERS_API } from 'services/apiEndPoints';
+import { CLUB_API, USERS_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
+import { isObjEmpty, mapArrayToDropdown, sleep } from 'utils/commonHelper';
 
 //#region Colums for Table
 const columns = [
@@ -15,7 +17,7 @@ const columns = [
     name: 'name',
     label: 'Full Name',
     minWidth: 150,
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
     sortName: 'username',
@@ -43,10 +45,17 @@ const columns = [
     name: 'clubName',
     label: 'Club',
     minWidth: 170,
-    isDisableSorting: true
+    isDisableSorting: false
   }
 ];
 //#endregion
+
+const initialFilterState = {
+  clubId: '',
+  name: '',
+  email: '',
+  phone: ''
+};
 
 const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
   //#region Hooks
@@ -57,8 +66,12 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(50);
   const [activeDataLength, setActiveDataLength] = useState(0);
+  const [openFilter, setOpenFilter] = useState(false);
+  const [filterState, setFilterState] = useState(initialFilterState);
+  const [clubs, setClubs] = useState([]);
+  const [club, setClub] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
     title: '',
     content: '',
@@ -68,9 +81,11 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
 
   //#region UDF's
-  const fetchArchiveUsers = async () => {
+  const fetchArchiveUsers = async (obj = {}) => {
     try {
-      const res = await axiosPrivate.get(USERS_API.fetch_all_archive, { params: { page, perPage } });
+      const res = await axiosPrivate.get(USERS_API.fetch_all_archive, {
+        params: isObjEmpty(obj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...obj }
+      });
       const users = res.data.result.map(user => ({ ...user, editMode: false }));
       setState(users);
       setActiveDataLength(res.data.totalRows);
@@ -78,6 +93,7 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
       toastAlerts('error', 'There is an error');
     }
   };
+
   function toggleEditMode(id) {
     const updatedState = state.map(item => {
       if (item.id === id) {
@@ -91,22 +107,93 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
 
   //#region Effects
   useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
     const fetchUsers = async () => {
       try {
-        const res = await axiosPrivate.get(USERS_API.fetch_all_archive, { params: { page, perPage } });
+        const res = await axiosPrivate.get(USERS_API.fetch_all_archive, {
+          params: isObjEmpty(searchObj)
+            ? {
+                page,
+                perPage,
+                sortedColumn,
+                sortedBy
+              }
+            : {
+                page,
+                perPage,
+                sortedColumn,
+                sortedBy,
+                ...searchObj
+              },
+          signal: controller.signal
+        });
         const users = res.data.result.map(user => ({ ...user, editMode: false }));
-        setState(users);
-        setActiveDataLength(res.data.totalRows);
+        if (isMounted) {
+          setState(users);
+          setActiveDataLength(res.data.totalRows);
+        }
       } catch (err) {
         toastAlerts('error', 'There is an error');
       }
     };
 
     fetchUsers();
-  }, [axiosPrivate, page, perPage]);
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [axiosPrivate, page, perPage, sortedBy, sortedColumn]);
   //#endregion
 
   //#region Events
+  const onFetchClubs = async () => {
+    if (clubs.length === 0) {
+      try {
+        const res = await axiosPrivate.get(CLUB_API.fetch_all_active);
+        if (res.data.succeed) {
+          const activeClubs = mapArrayToDropdown(res.data.result, 'name', '_id');
+          await sleep(500);
+          setClubs(activeClubs);
+        }
+      } catch (err) {}
+    }
+  };
+
+  const onFilterClubChange = (e, newValue) => {
+    if (newValue) {
+      setClub(newValue);
+      setFilterState(prev => ({ ...prev, clubId: newValue.value }));
+    } else {
+      setClub(null);
+      setFilterState(prev => ({ ...prev, clubId: '' }));
+    }
+  };
+
+  const onSearch = () => {
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
+    fetchArchiveUsers(searchObj);
+  };
+
+  const onResetSearch = () => {
+    setFilterState(initialFilterState);
+    setClub(null);
+    fetchArchiveUsers();
+  };
+
   const onRowPerPageChange = e => {
     setPerPage(e.target.value);
     setPage(1);
@@ -146,6 +233,55 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
   return (
     <Fragment>
+      <Grid container>
+        <Grid item xs={12} container justifyContent="flex-end">
+          <Tooltip title="Filter">
+            <IconButton onClick={() => setOpenFilter(prev => !prev)}>
+              <FilterList />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+      </Grid>
+
+      <Collapse in={openFilter}>
+        <Grid container alignItems="center" spacing={3} style={{ padding: '0 10px' }}>
+          <Grid item xs={12} sm={3} md={3} lg={3}>
+            <TextInput
+              label="Full Name"
+              name="name"
+              value={filterState.name}
+              onChange={e => setFilterState({ ...filterState, name: e.target.value })}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={3} md={3} lg={3}>
+            <TextInput
+              label="Email"
+              name="email"
+              value={filterState.email}
+              onChange={e => setFilterState({ ...filterState, email: e.target.value })}
+            />
+          </Grid>
+          <Grid item xs={12} sm={3} md={3} lg={3}>
+            <TextInput
+              label="Phone"
+              name="phone"
+              value={filterState.phone}
+              onChange={e => setFilterState({ ...filterState, phone: e.target.value })}
+            />
+          </Grid>
+          {isAdmin && (
+            <Grid item xs={12} sm={3} md={3} lg={3}>
+              <CustomAutoComplete name="clubId" label="Clubs" data={clubs} value={club} onFoucs={onFetchClubs} onChange={onFilterClubChange} />
+            </Grid>
+          )}
+
+          <Grid item container justifyContent="flex-start">
+            <SearchButton onClick={onSearch} />
+            <ResetButton onClick={onResetSearch} />
+          </Grid>
+        </Grid>
+      </Collapse>
       <CustomTable
         columns={columns}
         rowPerPage={perPage}

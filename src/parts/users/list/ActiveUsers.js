@@ -59,7 +59,7 @@ const columns = [
     name: 'name',
     label: 'Full Name',
     minWidth: 150,
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
     sortName: 'username',
@@ -87,7 +87,7 @@ const columns = [
     name: 'clubName',
     label: 'Club',
     minWidth: 170,
-    isDisableSorting: true
+    isDisableSorting: false
   }
 ];
 //#endregion
@@ -102,7 +102,7 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(50);
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -327,7 +327,7 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
             </Button>
           )}
         </Grid>
-        <Grid item xs={6} container justifyContent="flex-end" className={classes.rightSection}>
+        <Grid item xs={6} container justifyContent="flex-end">
           <Tooltip title="Filter">
             <IconButton onClick={() => setOpenFilter(prev => !prev)}>
               <FilterList />
@@ -338,15 +338,15 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
 
       <Collapse in={openFilter}>
         <Grid container alignItems="center" spacing={3} style={{ padding: '0 10px' }}>
-          {isAdmin && (
-            <Grid item xs={12} sm={3} md={3} lg={3}>
-              <CustomAutoComplete name="clubId" label="Clubs" data={clubs} value={club} onFoucs={onFetchClubs} onChange={onFilterClubChange} />
-            </Grid>
-          )}
-
           <Grid item xs={12} sm={3} md={3} lg={3}>
-            <TextInput label="Name" name="name" value={filterState.name} onChange={e => setFilterState({ ...filterState, name: e.target.value })} />
+            <TextInput
+              label="Full Name"
+              name="name"
+              value={filterState.name}
+              onChange={e => setFilterState({ ...filterState, name: e.target.value })}
+            />
           </Grid>
+
           <Grid item xs={12} sm={3} md={3} lg={3}>
             <TextInput
               label="Email"
@@ -363,6 +363,11 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
               onChange={e => setFilterState({ ...filterState, phone: e.target.value })}
             />
           </Grid>
+          {isAdmin && (
+            <Grid item xs={12} sm={3} md={3} lg={3}>
+              <CustomAutoComplete name="clubId" label="Clubs" data={clubs} value={club} onFoucs={onFetchClubs} onChange={onFilterClubChange} />
+            </Grid>
+          )}
 
           <Grid item container justifyContent="flex-start">
             <SearchButton onClick={onSearch} />

@@ -93,10 +93,9 @@ const CustomTable = props => {
               <Typography>Row per page : {'\u00A0'}</Typography>
             </FormControl>
             <Select value={rowPerPage} onChange={onRowPerPageChange}>
-              <MenuItem value={5}>5</MenuItem>
-              <MenuItem value={10}>10</MenuItem>
-              <MenuItem value={20}>20</MenuItem>
-              <MenuItem value={30}>30</MenuItem>
+              <MenuItem value={50}>50</MenuItem>
+              <MenuItem value={100}>100</MenuItem>
+              <MenuItem value={200}>200</MenuItem>
             </Select>
           </Grid>
           <Grid item container justifyContent="flex-end" xs={12} sm={6} md={6} lg={6}>
