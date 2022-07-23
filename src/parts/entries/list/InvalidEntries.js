@@ -1,6 +1,7 @@
 import { TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, CustomBackdrop, SelectableTable } from 'components';
 import { ROLES } from 'constants/RolesConstants';
+import { SORT_TYPES } from 'constants/SortTypes';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import _ from 'lodash';
@@ -13,18 +14,18 @@ import { formattedDate } from 'utils/dateHelper';
 
 const columns = [
   {
-    name: 'groomerName',
-    sortName: 'groomerName',
-    label: 'Groomer',
-    minWidth: 150,
-    isDisableSorting: true
-  },
-  {
     name: 'clubName',
     sortName: 'clubName',
     label: 'Club',
     minWidth: 150,
-    isDisableSorting: true
+    isDisableSorting: false
+  },
+  {
+    name: 'groomerName',
+    sortName: 'groomerName',
+    label: 'Groomer',
+    minWidth: 150,
+    isDisableSorting: false
   },
   {
     name: 'fundingStatus',
@@ -38,7 +39,7 @@ const columns = [
     sortName: 'date',
     label: 'Date',
     minWidth: 150,
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
     name: 'trailName',
@@ -52,14 +53,14 @@ const columns = [
     sortName: 'rate',
     label: 'Rate',
     minWidth: 130,
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
     name: 'eligibleTimeInHour',
     sortName: 'eligibleTimeInHour',
     label: 'Hours',
     minWidth: 130,
-    isDisableSorting: true
+    isDisableSorting: false
   },
 
   {
@@ -67,7 +68,7 @@ const columns = [
     sortName: 'total',
     label: 'Total',
     minWidth: 120,
-    isDisableSorting: true
+    isDisableSorting: false
   }
 ];
 
@@ -251,8 +252,8 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
                   <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
                 </TableCell>
               )}
-              <TableCell>{row.groomerName}</TableCell>
               <TableCell>{row.clubName}</TableCell>
+              <TableCell>{row.groomerName}</TableCell>
               <TableCell>{row.fundingStatus}</TableCell>
               <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
               <TableCell>{row.trailName}</TableCell>
@@ -260,12 +261,7 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
               <TableCell>{row.eligibleTimeInHour}</TableCell>
               <TableCell>{row.total}</TableCell>
               <TableCell>
-                <ActionButtonGroup
-                  appearedDeleteButton={isAdmin}
-                  appearedEditButton={isAdmin}
-                  onEdit={() => console.log(row)}
-                  onDelete={() => console.log(row)}
-                />
+                <ActionButtonGroup appearedDeleteButton={isAdmin} onDelete={() => console.log(row)} />
               </TableCell>
             </TableRow>
           ))
@@ -282,4 +278,4 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
   );
 };
 
-export default withSort(InvalidEntries, 'id');
+export default withSort(InvalidEntries, 'date', SORT_TYPES.Desc);

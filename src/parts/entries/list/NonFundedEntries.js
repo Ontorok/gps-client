@@ -1,6 +1,7 @@
 import { TableCell, TableRow } from '@material-ui/core';
 import { ActionButtonGroup, CustomBackdrop, SelectableTable } from 'components';
 import { ROLES } from 'constants/RolesConstants';
+import { SORT_TYPES } from 'constants/SortTypes';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import _ from 'lodash';
@@ -8,23 +9,29 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ENTRIES_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
-import { sleep } from 'utils/commonHelper';
+import { isObjEmpty, sleep } from 'utils/commonHelper';
 import { formattedDate } from 'utils/dateHelper';
 
+const initialFilterState = {
+  clubId: '',
+  name: '',
+  gpsId: ''
+};
+
 const columns = [
-  {
-    name: 'groomerName',
-    sortName: 'groomerName',
-    label: 'Groomer',
-    minWidth: 150,
-    isDisableSorting: true
-  },
   {
     name: 'clubName',
     sortName: 'clubName',
     label: 'Club',
     minWidth: 150,
-    isDisableSorting: true
+    isDisableSorting: false
+  },
+  {
+    name: 'groomerName',
+    sortName: 'groomerName',
+    label: 'Groomer',
+    minWidth: 150,
+    isDisableSorting: false
   },
   {
     name: 'fundingStatus',
@@ -38,7 +45,7 @@ const columns = [
     sortName: 'date',
     label: 'Date',
     minWidth: 150,
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
     name: 'trailName',
@@ -52,14 +59,14 @@ const columns = [
     sortName: 'rate',
     label: 'Rate',
     minWidth: 130,
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
     name: 'eligibleTimeInHour',
     sortName: 'eligibleTimeInHour',
     label: 'Hours',
     minWidth: 130,
-    isDisableSorting: true
+    isDisableSorting: false
   },
 
   {
@@ -67,7 +74,7 @@ const columns = [
     sortName: 'total',
     label: 'Total',
     minWidth: 120,
-    isDisableSorting: true
+    isDisableSorting: false
   }
 ];
 
@@ -87,12 +94,15 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
   const [checkedAll, setCheckedAll] = useState(false);
   const [checkedItems, setCheckedItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filterState, setFilterState] = useState(initialFilterState);
   //#endregion
 
   //#region UDF's
-  const fetchNonFundedEntries = async () => {
+  const fetchNonFundedEntries = async (obj = {}) => {
     try {
-      const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, { params: { page, perPage } });
+      const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, {
+        params: isObjEmpty(obj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...obj }
+      });
       const nonFunded = res.data.result.map(entry => ({
         ...entry,
         eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
@@ -118,9 +128,31 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
     const fetchGroomingEntries = async () => {
       try {
-        const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, { params: { page, perPage }, signal: controller.signal });
+        const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, {
+          params: isObjEmpty(searchObj)
+            ? {
+                page,
+                perPage,
+                sortedColumn,
+                sortedBy
+              }
+            : {
+                page,
+                perPage,
+                sortedColumn,
+                sortedBy,
+                ...searchObj
+              },
+          signal: controller.signal
+        });
         const nonFunded = res.data.result.map(entry => ({
           ...entry,
           eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
@@ -147,7 +179,8 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
       isMounted = false;
       controller.abort();
     };
-  }, [axiosPrivate, page, perPage]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [axiosPrivate, page, perPage, sortedBy, sortedColumn]);
   //#endregion
 
   //#region Events
@@ -250,8 +283,8 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
                 <input type="checkbox" checked={row.selected} onChange={e => onRowSelectionChange(e, index)} />
               </TableCell>
             )}
-            <TableCell>{row.groomerName}</TableCell>
             <TableCell>{row.clubName}</TableCell>
+            <TableCell>{row.groomerName}</TableCell>
             <TableCell>{row.fundingStatus}</TableCell>
             <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
             <TableCell>{row.trailName}</TableCell>
@@ -259,7 +292,7 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
             <TableCell>{row.eligibleTimeInHour}</TableCell>
             <TableCell>{row.total}</TableCell>
             <TableCell>
-              <ActionButtonGroup appearedDeleteButton appearedEditButton onEdit={() => console.log(row)} onDelete={() => console.log(row)} />
+              <ActionButtonGroup appearedDeleteButton onDelete={() => console.log(row)} />
             </TableCell>
           </TableRow>
         ))}
@@ -269,4 +302,4 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
   );
 };
 
-export default withSort(NonFundedEntries, 'deviceId');
+export default withSort(NonFundedEntries, 'date', SORT_TYPES.Desc);

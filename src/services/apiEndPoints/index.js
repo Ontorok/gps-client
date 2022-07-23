@@ -28,6 +28,8 @@ export const CLUB_API = {
 export const GROOMER_API = {
   fetch_all: '/groomer/fetch-all',
   fetch_all_archive: '/groomer/fetch-all-archive',
+  fetch_all_active: '/groomer/fetch-all-active-groomers',
+  fetch_by_club: clubId => `/groomer/fetch-groomer/${clubId}`,
   create: '/groomer/create',
   update: '/groomer/update',
   delete: '/groomer/delete',
