@@ -96,15 +96,19 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
       const res = await axiosPrivate.get(ENTRIES_API.fetch_all_funded, { params: { page, perPage } });
       const grooming = res.data.result.map(entry => ({
         ...entry,
+        eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
+        total: entry.total.toFixed(2),
         selected: false
       }));
       const total = res.data.total;
       const totalHours = grooming.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
       const totalofTotal = grooming.reduce((acc, curr) => (acc += curr.total), 0);
+      const totalHoursInDecimal = totalHours.toFixed(2);
+      const totalofTotalInDecimal = totalofTotal.toFixed(2);
       setState(grooming);
       setDataLength(total);
-      setTotalHours(totalHours);
-      setTotalofTotal(totalofTotal);
+      setTotalHours(totalHoursInDecimal);
+      setTotalofTotal(totalofTotalInDecimal);
     } catch (err) {
       toastAlerts('error', 'There is an error');
     }
@@ -120,16 +124,20 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
         const res = await axiosPrivate.get(ENTRIES_API.fetch_all_funded, { params: { page, perPage }, signal: controller.signal });
         const grooming = res.data.result.map(entry => ({
           ...entry,
+          eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
+          total: entry.total.toFixed(2),
           selected: false
         }));
         const totalRows = res.data.total;
-        const totalHours = grooming.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
-        const totalofTotal = grooming.reduce((acc, curr) => (acc += curr.total), 0);
+        const totalHours = grooming.reduce((acc, curr) => (acc += parseFloat(curr.eligibleTimeInHour)), 0);
+        const totalofTotal = grooming.reduce((acc, curr) => (acc += parseFloat(curr.total)), 0);
+        const totalHoursInDecimal = totalHours.toFixed(2);
+        const totalofTotalInDecimal = totalofTotal.toFixed(2);
         if (isMounted) {
           setState(grooming);
           setDataLength(totalRows);
-          setTotalHours(totalHours);
-          setTotalofTotal(totalofTotal);
+          setTotalHours(totalHoursInDecimal);
+          setTotalofTotal(totalofTotalInDecimal);
         }
       } catch (err) {
         toastAlerts('error', 'There is an error');
@@ -252,7 +260,7 @@ const FundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
             <TableCell>{row.eligibleTimeInHour}</TableCell>
             <TableCell>{row.total}</TableCell>
             <TableCell>
-              <ActionButtonGroup appearedDeleteButton appearedEditButton onEdit={() => console.log(row)} onDelete={() => console.log(row)} />
+              <ActionButtonGroup appearedDeleteButton onDelete={() => console.log(row)} />
             </TableCell>
           </TableRow>
         ))}

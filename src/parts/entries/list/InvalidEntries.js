@@ -95,15 +95,19 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
       const res = await axiosPrivate.get(ENTRIES_API.fetch_all_invalid_entries, { params: { page, perPage } });
       const invalid = res.data.result.map(entry => ({
         ...entry,
+        eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
+        total: entry.total.toFixed(2),
         selected: false
       }));
       const total = res.data.total;
-      const totalHours = invalid.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
-      const totalofTotal = invalid.reduce((acc, curr) => (acc += curr.total), 0);
+      const totalHours = invalid.reduce((acc, curr) => (acc += parseFloat(curr.eligibleTimeInHour)), 0);
+      const totalofTotal = invalid.reduce((acc, curr) => (acc += parseFloat(curr.total)), 0);
+      const totalHoursInDecimal = totalHours.toFixed(2);
+      const totalofTotalInDecimal = totalofTotal.toFixed(2);
       setState(invalid);
       setDataLength(total);
-      setTotalHours(totalHours);
-      setTotalofTotal(totalofTotal);
+      setTotalHours(totalHoursInDecimal);
+      setTotalofTotal(totalofTotalInDecimal);
     } catch (err) {
       toastAlerts('error', 'There is an error');
     }
@@ -119,16 +123,20 @@ const InvalidEntries = ({ sortedColumn, sortedBy, onSort }) => {
         const res = await axiosPrivate.get(ENTRIES_API.fetch_all_invalid_entries, { params: { page, perPage }, signal: controller.signal });
         const invalid = res.data.result.map(entry => ({
           ...entry,
+          eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
+          total: entry.total.toFixed(2),
           selected: false
         }));
         const total = res.data.total;
-        const totalHours = invalid.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
-        const totalofTotal = invalid.reduce((acc, curr) => (acc += curr.total), 0);
+        const totalHours = invalid.reduce((acc, curr) => (acc += parseFloat(curr.eligibleTimeInHour)), 0);
+        const totalofTotal = invalid.reduce((acc, curr) => (acc += parseFloat(curr.total)), 0);
+        const totalHoursInDecimal = totalHours.toFixed(2);
+        const totalofTotalInDecimal = totalofTotal.toFixed(2);
         if (isMounted) {
           setState(invalid);
           setDataLength(total);
-          setTotalHours(totalHours);
-          setTotalofTotal(totalofTotal);
+          setTotalHours(totalHoursInDecimal);
+          setTotalofTotal(totalofTotalInDecimal);
         }
       } catch (err) {
         toastAlerts('error', 'There is an error');

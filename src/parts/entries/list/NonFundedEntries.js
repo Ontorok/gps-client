@@ -95,15 +95,19 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
       const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, { params: { page, perPage } });
       const nonFunded = res.data.result.map(entry => ({
         ...entry,
+        eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
+        total: entry.total.toFixed(2),
         selected: false
       }));
       const total = res.data.total;
-      const totalHours = nonFunded.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
-      const totalofTotal = nonFunded.reduce((acc, curr) => (acc += curr.total), 0);
+      const totalHours = nonFunded.reduce((acc, curr) => (acc += parseFloat(curr.eligibleTimeInHour)), 0);
+      const totalofTotal = nonFunded.reduce((acc, curr) => (acc += parseFloat(curr.total)), 0);
+      const totalHoursInDecimal = totalHours.toFixed(2);
+      const totalofTotalInDecimal = totalofTotal.toFixed(2);
       setState(nonFunded);
       setDataLength(total);
-      setTotalHours(totalHours);
-      setTotalofTotal(totalofTotal);
+      setTotalHours(totalHoursInDecimal);
+      setTotalofTotal(totalofTotalInDecimal);
     } catch (err) {
       toastAlerts('error', 'There is an error');
     }
@@ -119,16 +123,20 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
         const res = await axiosPrivate.get(ENTRIES_API.fetch_all_non_funded, { params: { page, perPage }, signal: controller.signal });
         const nonFunded = res.data.result.map(entry => ({
           ...entry,
+          eligibleTimeInHour: entry.eligibleTimeInHour.toFixed(2),
+          total: entry.total.toFixed(2),
           selected: false
         }));
         const total = res.data.total;
-        const totalHours = nonFunded.reduce((acc, curr) => (acc += curr.eligibleTimeInHour), 0);
-        const totalofTotal = nonFunded.reduce((acc, curr) => (acc += curr.total), 0);
+        const totalHours = nonFunded.reduce((acc, curr) => (acc += parseFloat(curr.eligibleTimeInHour)), 0);
+        const totalofTotal = nonFunded.reduce((acc, curr) => (acc += parseFloat(curr.total)), 0);
+        const totalHoursInDecimal = totalHours.toFixed(2);
+        const totalofTotalInDecimal = totalofTotal.toFixed(2);
         if (isMounted) {
           setState(nonFunded);
           setDataLength(total);
-          setTotalHours(totalHours);
-          setTotalofTotal(totalofTotal);
+          setTotalHours(totalHoursInDecimal);
+          setTotalofTotal(totalofTotalInDecimal);
         }
       } catch (err) {
         toastAlerts('error', 'There is an error');

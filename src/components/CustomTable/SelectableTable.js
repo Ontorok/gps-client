@@ -188,8 +188,8 @@ CustomTable.propTypes = {
   onSort: PropTypes.func,
   checkedItems: PropTypes.array,
   appearedMarkAllCheck: PropTypes.bool,
-  totalHours: PropTypes.number,
-  totalofTotal: PropTypes.number
+  totalHours: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  totalofTotal: PropTypes.oneOfType([PropTypes.number, PropTypes.string])
 };
 
 CustomTable.defaultProps = {
