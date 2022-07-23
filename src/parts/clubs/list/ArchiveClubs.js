@@ -35,14 +35,14 @@ const columns = [
     name: 'name',
     label: 'Club Name',
     minWidth: 145,
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
     sortName: 'state',
     name: 'state',
     label: 'State',
     minWidth: 140,
-    isDisableSorting: false
+    isDisableSorting: true
   }
 ];
 
@@ -58,7 +58,7 @@ const ArchiveClubs = ({ sortedColumn, sortedBy, onSort }) => {
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(50);
   const [archiveDataLength, setArchiveDataLength] = useState(0);
   const [confirmDialog, setConfirmDialog] = useState({
     title: '',
