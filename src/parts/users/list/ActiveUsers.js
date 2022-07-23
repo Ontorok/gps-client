@@ -460,4 +460,4 @@ const ActiveUsers = ({ sortedColumn, sortedBy, onSort }) => {
   );
 };
 
-export default withSort(ActiveUsers, '_id');
+export default withSort(ActiveUsers, 'name');

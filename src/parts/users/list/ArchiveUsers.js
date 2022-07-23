@@ -326,4 +326,4 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
   );
 };
 
-export default withSort(Archiveuser, 'id');
+export default withSort(Archiveuser, 'name');

@@ -1,27 +1,28 @@
-import { Checkbox, TableCell, TableRow } from '@material-ui/core';
-import { ActionButtonGroup, CustomConfirmDialog, CustomTable } from 'components';
+import { Collapse, Grid, IconButton, TableCell, TableRow, Tooltip } from '@material-ui/core';
+import { FilterList } from '@material-ui/icons';
+import { ActionButtonGroup, CustomAutoComplete, CustomConfirmDialog, CustomTable, ResetButton, SearchButton, TextInput } from 'components';
 import { ROLES } from 'constants/RolesConstants';
 import withSort from 'hoc/withSort';
 import { useAxiosPrivate } from 'hooks/useAxiosPrivate';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { GROOMER_API } from 'services/apiEndPoints';
+import { CLUB_API, GROOMER_API } from 'services/apiEndPoints';
 import { toastAlerts } from 'utils/alert';
-import { isObjEmpty } from 'utils/commonHelper';
+import { isObjEmpty, mapArrayToDropdown, sleep } from 'utils/commonHelper';
 //#region Colums for Table
 const columns = [
   {
     sortName: 'clubName',
     name: 'clubName',
     label: 'Club',
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
-    sortName: 'groomerName',
-    name: 'groomerName',
+    sortName: 'name',
+    name: 'name',
     label: 'Groomer Name',
     minWidth: 150,
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
     sortName: 'gpsId',
@@ -35,21 +36,15 @@ const columns = [
     name: 'rate',
     label: 'Rate',
     minWidth: 150,
-    isDisableSorting: true
-  },
-  {
-    sortName: 'status',
-    name: 'isActive',
-    label: 'Status',
-    minWidth: 140,
-    isDisableSorting: true
+    isDisableSorting: false
   }
 ];
 //#endregion
 
 const initialFilterState = {
+  clubId: '',
   name: '',
-  status: ''
+  gpsId: ''
 };
 
 const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
@@ -61,9 +56,13 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(50);
   const [activeDataLength, setActiveDataLength] = useState(0);
-  const [filterState] = useState(initialFilterState);
+
+  const [openFilter, setOpenFilter] = useState(false);
+  const [filterState, setFilterState] = useState(initialFilterState);
+  const [clubs, setClubs] = useState([]);
+  const [club, setClub] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState({
     title: '',
     content: '',
@@ -72,7 +71,7 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
 
   //#region UDF's
-  const fetchActiveGroomer = async (obj = {}) => {
+  const fetchArchiveGroomer = async (obj = {}) => {
     try {
       const res = await axiosPrivate.get(GROOMER_API.fetch_all_archive, {
         params: isObjEmpty(obj) ? { page, perPage, sortedColumn, sortedBy } : { page, perPage, sortedColumn, sortedBy, ...obj }
@@ -133,6 +132,45 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
 
   //#region Events
+  const onFetchClubs = async () => {
+    if (clubs.length === 0) {
+      try {
+        const res = await axiosPrivate.get(CLUB_API.fetch_all_active);
+        if (res.data.succeed) {
+          const activeClubs = mapArrayToDropdown(res.data.result, 'name', '_id');
+          await sleep(500);
+          setClubs(activeClubs);
+        }
+      } catch (err) {}
+    }
+  };
+
+  const onFilterClubChange = (e, newValue) => {
+    if (newValue) {
+      setClub(newValue);
+      setFilterState(prev => ({ ...prev, clubId: newValue.value }));
+    } else {
+      setClub(null);
+      setFilterState(prev => ({ ...prev, clubId: '' }));
+    }
+  };
+
+  const onSearch = () => {
+    let searchObj = {};
+    for (const [key, value] of Object.entries(filterState)) {
+      if (value) {
+        searchObj[key] = value;
+      }
+    }
+    fetchArchiveGroomer(searchObj);
+  };
+
+  const onResetSearch = () => {
+    setFilterState(initialFilterState);
+    setClub(null);
+    fetchArchiveGroomer();
+  };
+
   const onRowPerPageChange = e => {
     setPerPage(e.target.value);
     setPage(1);
@@ -150,7 +188,7 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
     } catch (err) {
       toastAlerts('error', err?.response?.data?.message);
     } finally {
-      fetchActiveGroomer();
+      fetchArchiveGroomer();
     }
   };
 
@@ -161,6 +199,43 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#endregion
   return (
     <Fragment>
+      <Grid container>
+        <Grid item container justifyContent="flex-end" xs={12}>
+          <Tooltip title="Filter">
+            <IconButton onClick={() => setOpenFilter(prev => !prev)}>
+              <FilterList />
+            </IconButton>
+          </Tooltip>
+        </Grid>
+      </Grid>
+
+      <Collapse in={openFilter}>
+        <Grid container alignItems="center" spacing={3} style={{ padding: '0 10px' }}>
+          {isAdmin && (
+            <Grid item xs={12} sm={4} md={4} lg={4}>
+              <CustomAutoComplete name="clubId" label="Clubs" data={clubs} value={club} onFoucs={onFetchClubs} onChange={onFilterClubChange} />
+            </Grid>
+          )}
+
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <TextInput label="Name" name="name" value={filterState.name} onChange={e => setFilterState({ ...filterState, name: e.target.value })} />
+          </Grid>
+          <Grid item xs={12} sm={4} md={4} lg={4}>
+            <TextInput
+              label="Device ID"
+              name="gpsId"
+              value={filterState.gpsId}
+              onChange={e => setFilterState({ ...filterState, gpsId: e.target.value })}
+            />
+          </Grid>
+
+          <Grid item container justifyContent="flex-start">
+            <SearchButton onClick={onSearch} />
+            <ResetButton onClick={onResetSearch} />
+          </Grid>
+        </Grid>
+      </Collapse>
+
       <CustomTable
         columns={columns}
         rowPerPage={perPage}
@@ -177,17 +252,6 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
               <TableCell>{row.name}</TableCell>
               <TableCell>{row.gpsId}</TableCell>
               <TableCell>{row.rate}</TableCell>
-              <TableCell>
-                <Checkbox
-                  style={{ color: '#215280' }}
-                  color="primary"
-                  defaultChecked={row.isActive}
-                  disabled
-                  disableFocusRipple
-                  disableTouchRipple
-                  disableRipple
-                />
-              </TableCell>
               <TableCell align="center">
                 <ActionButtonGroup
                   appearedReactiveButton={isAdmin}
@@ -215,4 +279,4 @@ const ArchiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   );
 };
 
-export default withSort(ArchiveGroomer, 'id');
+export default withSort(ArchiveGroomer, 'name');

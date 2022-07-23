@@ -1,11 +1,10 @@
-import { Button, Checkbox, Collapse, Grid, IconButton, makeStyles, TableCell, TableRow, Tooltip } from '@material-ui/core';
+import { Button, Collapse, Grid, IconButton, makeStyles, TableCell, TableRow, Tooltip } from '@material-ui/core';
 import { FilterList } from '@material-ui/icons';
 import Axios from 'axios';
 import {
   ActionButtonGroup,
   CustomAutoComplete,
   CustomBackdrop,
-  CustomCheckbox,
   CustomConfirmDialog,
   CustomDrawer,
   CustomTable,
@@ -44,14 +43,14 @@ const columns = [
     sortName: 'clubName',
     name: 'clubName',
     label: 'Club',
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
-    sortName: 'groomerName',
-    name: 'groomerName',
+    sortName: 'name',
+    name: 'name',
     label: 'Groomer Name',
     minWidth: 150,
-    isDisableSorting: true
+    isDisableSorting: false
   },
   {
     sortName: 'gpsId',
@@ -65,14 +64,7 @@ const columns = [
     name: 'rate',
     label: 'Rate',
     minWidth: 150,
-    isDisableSorting: true
-  },
-  {
-    sortName: 'status',
-    name: 'isActive',
-    label: 'Status',
-    minWidth: 140,
-    isDisableSorting: true
+    isDisableSorting: false
   }
 ];
 //#endregion
@@ -87,7 +79,7 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
   //#region States
   const [state, setState] = useState([]);
   const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(5);
+  const [perPage, setPerPage] = useState(50);
   const [activeDataLength, setActiveDataLength] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -454,23 +446,7 @@ const ActiveGroomer = ({ sortedColumn, sortedBy, onSort }) => {
               ) : (
                 <TableCell>{row.rate}</TableCell>
               )}
-              {row.editMode ? (
-                <TableCell>
-                  <CustomCheckbox name="isActive" label="Active?" checked={row.isActive} onChange={e => onInputChange(e, row._id)} />
-                </TableCell>
-              ) : (
-                <TableCell>
-                  <Checkbox
-                    style={{ color: '#215280' }}
-                    color="primary"
-                    defaultChecked={row.isActive}
-                    disabled
-                    disableFocusRipple
-                    disableTouchRipple
-                    disableRipple
-                  />
-                </TableCell>
-              )}
+
               <TableCell align="center">
                 <ActionButtonGroup
                   appearedEditButton={!row.editMode && isAdmin}

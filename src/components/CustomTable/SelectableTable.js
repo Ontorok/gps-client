@@ -30,16 +30,6 @@ const StyledTableCell = withStyles(theme => ({
   }
 }))(TableCell);
 
-const StyledTableFooterCell = withStyles(theme => ({
-  head: {
-    backgroundColor: '#215280',
-    color: theme.palette.common.white
-  },
-  body: {
-    fontSize: 12
-  }
-}))(TableCell);
-
 const StyledTableSortLabel = withStyles(theme => ({
   root: {
     color: 'white',
