@@ -38,7 +38,7 @@ const columns = [
   {
     name: 'countyName',
     sortName: 'countyName',
-    label: 'Groomer',
+    label: 'County Name',
     minWidth: 150,
     isDisableSorting: true
   },
