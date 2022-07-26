@@ -94,6 +94,7 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   function toggleEditMode(id) {
     const updatedState = state.map(item => {
       if (item.id === id) {
@@ -203,6 +204,7 @@ const Archiveuser = ({ sortedColumn, sortedBy, onSort }) => {
     setPage(pageNumber);
   };
 
+  // eslint-disable-next-line no-unused-vars
   const onInputChange = (e, id) => {
     const { name, value } = e.target;
     const _data = [...state];
