@@ -36,6 +36,13 @@ const columns = [
     isDisableSorting: false
   },
   {
+    name: 'countyName',
+    sortName: 'countyName',
+    label: 'Groomer',
+    minWidth: 150,
+    isDisableSorting: true
+  },
+  {
     name: 'fundingStatus',
     sortName: 'fundingStatus',
     label: 'Funding Status',
@@ -434,6 +441,7 @@ const NonFundedEntries = ({ sortedColumn, sortedBy, onSort }) => {
             )}
             <TableCell>{row.clubName}</TableCell>
             <TableCell>{row.groomerName}</TableCell>
+            <TableCell>{row.countyName}</TableCell>
             <TableCell>{row.fundingStatus}</TableCell>
             <TableCell>{formattedDate(row.date, 'DD-MMM-yyyy')}</TableCell>
             <TableCell>{row.trailName}</TableCell>
